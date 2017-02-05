@@ -1,0 +1,358 @@
+body{
+  background-color: #000;
+  margin: 0px;
+  padding: 0px;
+  overflow: hidden;
+  font-family: "Share Tech Mono", monospace;
+  -webkit-appearance: none;
+}
+a{
+  color: #aaa;
+  text-decoration: none;
+}
+a:hover{
+  color: #ddd;
+  text-decoration: none;
+}
+.noselect, .button{
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari*/
+     -khtml-user-select: none; /* Konqueror */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
+#display{
+  left: 0;
+  right: 0;
+  background-color: #000000;
+  position: fixed;
+  display: none;
+  margin: auto;
+}
+#display:focus{
+  outline: none;
+}
+
+.menu-wrapper{
+  position: fixed;
+  display: inline-block;
+  width: 100vw;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  height: 40vh;
+}
+#landing .menu-wrapper{
+  margin: auto 40px;
+  height: 40vh;
+}
+#mainmenu .menu-wrapper{
+  height: 60vh;
+}
+.landing-title-wrapper{
+  text-transform: uppercase;
+  width: 640px;
+  height: 64px;
+  cursor: default;
+  text-align: left;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.landing-title{
+  font-size: 64px;
+  background: -webkit-linear-gradient(top, #fff, #68b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #ccc;
+}
+.landing-title:after{
+  background: none;
+  content: attr(data-text);
+  width: 640px;
+  left: 0;
+  position: absolute;
+  text-shadow: 0px 0px 5px #ccc;
+  top: 0;
+  z-index: -1;
+}
+.menu-section:not(.centered){
+  width: 640px;
+  padding: 15px;
+  border: 1px solid rgba(125, 125, 125, 0.5);
+  background: rgba(0, 0, 0, 0.3);
+  margin-bottom: 20px;
+}
+.menu-section.centered{
+  width: 350px;
+  margin: 0px auto;
+}
+#mainmenu .menu-section{
+  width: 640px;
+  margin: 0px auto;
+  border: 1px solid rgba(125, 125, 125, 0.5);
+  background: rgba(0, 0, 0, 0.7);
+  padding: 50px;
+  color: #fff;
+}
+.menu-subtitle{
+  color: #fff;
+  text-transform: uppercase;
+  font-size: 26px;
+  margin-bottom: 5px;
+}
+#newuser .menu-subtitle{
+  margin-bottom: 20px;
+}
+#landing .menu-subtitle{
+  margin-bottom: 20px;
+  letter-spacing: 0.02em;
+  text-shadow: 0px 0px 10px #48f;
+}
+#landing .menu-subtitle span{
+  color: #48f;
+}
+
+.menu-desc{
+  color: #fff;
+  font-family: "Roboto";
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 22px;
+}
+#landing .button{
+  display: inline-block;
+  padding: 15px 30px;
+  border-radius: 2px;
+  color: #fff;
+  background: #48f;
+  font-family: "Roboto";
+  font-weight: 400;
+  font-size: 20px;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-right: 10px;
+}
+#landing .button:hover{
+  background: #59f;
+}
+.landing-footer{
+  margin-top: 20px;
+  opacity: 0.3;
+  color: #fff;
+  transition: opacity 0.4s ease;
+}
+.landing-footer a{
+  color: #59f;
+}
+.landing-footer:hover{
+  opacity: 0.4;
+}
+.landing-footer a:hover{
+  color: #8ff;
+}
+.display-menu{
+  opacity: 0;
+  display: none;
+  transition: opacity 0.3s ease;
+}
+.current-menu{
+  display: inline-block;
+  opacity: 1;
+}
+.navigating-away{
+  opacity: 0;
+}
+.navigating-to{
+  display: block;
+  opacity: 0;
+}
+
+.input-label{
+  display: inline-block;
+  font-size: 20px;
+  font-family: "Share Tech Mono", monospace;
+  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.7);
+}
+.input-field{
+  width: 326px;
+  height: 24px;
+  padding: 2px 10px;
+  margin: 5px 0px 10px;
+  box-shadow: none;
+  outline: none;
+  font-size: 20px;
+  font-family: "Share Tech Mono", monospace;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background-color: transparent;
+}
+.input-field:focus{
+  border: 2px solid #fff;
+}
+.input-button-wrapper{
+  width: 350px;
+  margin: 10px 0px;
+  display: flex;
+  justify-content: space-between;
+}
+#login .button, #newuser .button, #mainmenu .button{
+  display: inline-block;
+  text-align: center;
+  width: 145px;
+  height: 20px;
+  padding: 5px 10px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  font-family: "Share Tech Mono";
+  font-size: 20px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+#login .button:hover, #newuser .button:hover, #mainmenu .button:hover{
+  border: 2px solid #fff;
+}
+#newuser .button.selected{
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 2px solid #fff;
+}
+
+.dark-background{
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  z-index: -10;
+  background-color: rgba(0, 0, 0, 0.7);
+  top: 0;
+}
+.error-message{
+  color: #ff0000;
+  font-size: 18px;
+  font-family: Roboto, sans-serif;
+  font-weight: 400;
+}
+
+#ship-input{
+  height: 32px;
+  margin: 15px 0px 30px 0px;
+  display: flex;
+  flex-direction: row;
+}
+.ship-choice{
+  display: flex;
+  width: 40px;
+  height: 40px;
+  padding-left: 8px;
+  padding-top: 8px;
+  cursor: pointer;
+  margin-right: 15px;
+}
+.ship-choice img{
+  -ms-transform: rotate(45deg); /* IE 9 */
+  -webkit-transform: rotate(45deg); /* Chrome, Safari, Opera */
+  transform: rotate(45deg);
+  width: 32px;
+  height: 32px;
+}
+.ship-choice:hover{
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+}
+.ship-choice.selected{
+  outline: 2px solid #fff;
+}
+#shipname{
+  text-transform: uppercase;
+  color: #00ff00;
+}
+
+#username{
+  color: #88f;
+}
+
+#controls{
+  font-size: 16px;
+  color: #fff;
+  margin: 20px 0px;
+}
+.control-info{
+  color: #88f;
+  line-height: 30px;
+}
+.keyguide{
+  text-transform: uppercase;
+  cursor: pointer;
+  color: #ff8
+}
+.keyguide:hover{
+  color: #88f;
+}
+.keyguide.selectedkey{
+  color: #f88;
+}
+#reset-controls{
+  color: #f88;
+  line-height: 30px;
+  cursor: pointer;
+}
+#reset-controls:hover{
+  color: #f44;
+}
+
+#background{
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  z-index: -100;
+}
+#background-video{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -99;
+}
+@media (min-aspect-ratio: 16/9){
+  #background-video {
+    height: 300%;
+    top: -100%;
+  }
+}
+@media (max-aspect-ratio: 16/9){
+  #background-video{
+    width: 300%;
+    left: -100%;
+  }
+}
+
+#chat-wrapper{
+  left: 0;
+  right: 0;
+  position: fixed;
+  display: flex;
+  margin: auto;
+  pointer-events: none;
+  padding: 20px;
+}
+#chat-input{
+  width: 25%;
+  height: 20px;
+  display: none;
+  position: fixed;
+  z-index: 1;
+  pointer-events: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  padding: 2px 10px;
+  align-self: flex-end;
+  outline: 2px #fff !important;
+  font-family: "Share Tech Mono", monospace;
+  font-size: 16px;
+}
