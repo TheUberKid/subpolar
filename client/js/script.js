@@ -225,7 +225,14 @@ var keyCodes = {
 };
 var keys = []; // key logging
 
-var images = ["falcon.png","lancaster.png","ghost.png","smoke.png","wall.png"];
+var images = [
+  "falcon.png",
+  "lancaster.png",
+  "ghost.png",
+  "aurora.png",
+  "smoke.png",
+  "wall.png"
+];
 var loadedImages = {};
 var promiseArray = images.map(function(imgurl){
    var prom = new Promise(function(resolve,reject){
@@ -317,6 +324,14 @@ var ships = {
     maxenergy: 200,
     abilitycd: 0,
     image: "ghost.png"
+  },
+  "aurora": {
+    accel: 15,
+    maxspeed: 750,
+    turnspeed: 6,
+    maxenergy: 200,
+    abilitycd: 20,
+    image: "aurora.png"
   }
 }
 
@@ -356,6 +371,11 @@ var projectileTemplates = {
     color: "rgb(255, 255, 255)",
     size: 1,
     lifetime: 7
+  },
+  "auroraMine": {
+    color: "rgb(150, 150, 255)",
+    size: 8,
+    lifetime: 5
   }
 };
 var Projectile = function(id, x, y, x_velocity, y_velocity, type, lifetime, bounce, origin){
@@ -899,7 +919,7 @@ function drawProjectiles(){
     var diffy = p.y - self.y;
     for(var j = 0; j < unistep; j++){
       if(Math.abs(diffx) < canvas.width+8 && Math.abs(diffy) < canvas.height+8 && p.lifetime > 0){
-        var trailstep = Math.round(Math.sqrt((p.x_velocity/100)*(p.x_velocity/100) + (p.y_velocity/100)*(p.y_velocity/100)) / (pt.size/2));
+        var trailstep = Math.round(Math.sqrt((p.x_velocity/100)*(p.x_velocity/100) + (p.y_velocity/100)*(p.y_velocity/100)) / (pt.size/2))+1;
         for(var k = 0, l = Math.ceil(trailstep*1.5/unistep); k<l; k++){
           var t = new Trail(p.x - k*(p.x_velocity/(l*100)), p.y - k*(p.y_velocity/(l*100)), pt.size, pt.color, pt.lifetime - (1 / l * k));
           trails.push(t);

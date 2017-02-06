@@ -22,6 +22,8 @@ console.log("Server started");
 // database
 var mongoose = require('mongoose');
 mongoose.connect(process.env.dbkey);
+// var config = require('./config.js');
+// mongoose.connect(config.dbkey)
 
 // maps
 var maps = require('./maps.js');
@@ -656,6 +658,17 @@ function useAbility(r, p, e){
         p.reload = 10;
       }
 
+      // mine
+      if(p.ship === "aurora" && p.energy > s.mineenergyuse){
+        var id = Math.round(Math.random()*10000);
+        var x = p.x + 18*Math.cos(radians*(p.rotate-90));
+        var y = p.y + 18*Math.sin(radians*(p.rotate-90));
+        var newProjectile = new Projectile(id, x, y, 0, 0, "auroraMine", s.minelifetime * unistep, s.minedamage, 0, s.mineradius, p.id, p.map);
+        r.projectiles.push(newProjectile);
+        p.energy -= s.mineenergyuse;
+        p.abilitycd += s.abilitycd;
+        emitRoom(r, "projectile", newProjectile);
+      }
     }
   }
 }
