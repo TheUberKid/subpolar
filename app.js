@@ -21,9 +21,9 @@ console.log("Server started");
 
 // database
 var mongoose = require('mongoose');
-mongoose.connect(process.env.dbkey);
-// var config = require('./config.js');
-// mongoose.connect(config.dbkey)
+// mongoose.connect(process.env.dbkey);
+var config = require('./config.js');
+mongoose.connect(config.dbkey)
 
 // maps
 var maps = require('./maps.js');
@@ -609,6 +609,25 @@ function fireProjectile(r, p, e){
         emitRoom(r, "projectile", newProjectile);
       }
 
+      // aurora
+      if(p.ship === "aurora"){
+        for(var i=0; i<2; i++){
+          var id = Math.round(Math.random()*10000);
+          var rotdiff;
+          // fire two shots with origin point from a rotated player
+          rotdiff = i === 0 ? -20 : 20;
+          var x = p.x + 20*Math.cos(radians*(p.rotate-90+rotdiff));
+          var y = p.y + 20*Math.sin(radians*(p.rotate-90+rotdiff));
+          var x_velocity = s.bulletspeed*Math.cos(radians*(p.rotate-90)) + (p.x_velocity / 100);
+          var y_velocity = s.bulletspeed*Math.sin(radians*(p.rotate-90)) + (p.y_velocity / 100);
+          var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, "auroraShot", s.bulletlifetime * unistep, s.bulletdamage, 2, 0, p.id, p.map);
+          r.projectiles.push(newProjectile);
+          emitRoom(r, "projectile", newProjectile);
+        }
+        p.reload = s.reload;
+        p.energy -= s.bulletenergyuse;
+      }
+
     }
   }
 }
@@ -661,8 +680,8 @@ function useAbility(r, p, e){
       // mine
       if(p.ship === "aurora" && p.energy > s.mineenergyuse){
         var id = Math.round(Math.random()*10000);
-        var x = p.x + 18*Math.cos(radians*(p.rotate-90));
-        var y = p.y + 18*Math.sin(radians*(p.rotate-90));
+        var x = p.x + 4*Math.cos(radians*(p.rotate-90));
+        var y = p.y + 4*Math.sin(radians*(p.rotate-90));
         var newProjectile = new Projectile(id, x, y, 0, 0, "auroraMine", s.minelifetime * unistep, s.minedamage, 0, s.mineradius, p.id, p.map);
         r.projectiles.push(newProjectile);
         p.energy -= s.mineenergyuse;

@@ -329,7 +329,7 @@ var ships = {
     accel: 15,
     maxspeed: 750,
     turnspeed: 6,
-    maxenergy: 200,
+    maxenergy: 250,
     abilitycd: 20,
     image: "aurora.png"
   }
@@ -372,8 +372,13 @@ var projectileTemplates = {
     size: 1,
     lifetime: 7
   },
+  "auroraShot": {
+    color: "rgb(100, 155, 255)",
+    size: 1,
+    lifetime: 5
+  },
   "auroraMine": {
-    color: "rgb(150, 150, 255)",
+    color: "rgb(255, 200, 100)",
     size: 8,
     lifetime: 5
   }
@@ -521,7 +526,6 @@ function init(){
       ctx.clearRect(0, 0, canvas.width, canvas.height); // clear canvas
       drawThrusters();
       drawProjectiles();
-      drawTrails();
       drawRepels();
       for(var i in ppos){
         var p = ppos[i];
@@ -546,6 +550,7 @@ function init(){
         }
       }
       if(mapdata) drawMap();
+      drawTrails();
       drawPlayers(ppos);
       drawHUD(ppos, time, players, rankings);
     }
@@ -795,7 +800,7 @@ function drawHUD(ppos, time, players, rankings){
 
   // energy bar
   if(!self.death){
-    ctx.fillStyle = "rgb("+(250-self.energy)+", "+self.energy+", 0)";
+    ctx.fillStyle = "rgb("+Math.round(250-self.energy)+", "+Math.round(self.energy)+", 0)";
     ctx.fillRect(canvas.width/2+16, canvas.height/2+30, self.energy/3, 3);
   }
 

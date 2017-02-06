@@ -45,21 +45,21 @@ var ships = {
     abilitycd: 0
   },
   "aurora": {
-    accel: 15,
-    maxspeed: 750,
+    accel: 17,
+    maxspeed: 700,
     turnspeed: 6,
     maxenergy: 250,
     bulletenergyuse: 45,
-    bulletlifetime: 50,
-    bulletdamage: 80,
-    bulletspeed: 1600,
-    recharge: 3,
+    bulletlifetime: 60,
+    bulletdamage: 60,
+    bulletspeed: 1500,
+    recharge: 1.5,
     reload: 7,
-    mineenergyuse: 20,
+    mineenergyuse: 100,
     minedamage: 160,
-    minelifetime: 1200,
+    minelifetime: 1000,
     mineradius: 150,
-    abilitycd: 20
+    abilitycd: 20,
   }
 }
 
