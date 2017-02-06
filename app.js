@@ -21,9 +21,9 @@ console.log("Server started");
 
 // database
 var mongoose = require('mongoose');
-// mongoose.connect(process.env.dbkey);
-var config = require('./config.js');
-mongoose.connect(config.dbkey)
+mongoose.connect(process.env.dbkey);
+// var config = require('./config.js');
+// mongoose.connect(config.dbkey)
 
 // maps
 var maps = require('./maps.js');
