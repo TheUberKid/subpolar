@@ -21,9 +21,9 @@ console.log("Server started");
 
 // database
 var mongoose = require('mongoose');
-mongoose.connect(process.env.dbkey);
-// var config = require('./config.js');
-// mongoose.connect(config.dbkey)
+// mongoose.connect(process.env.dbkey);
+var config = require('./config.js');
+mongoose.connect(config.dbkey)
 
 // maps
 var maps = require('./maps.js');
@@ -620,7 +620,7 @@ function fireProjectile(r, p, e){
           var y = p.y + 20*Math.sin(radians*(p.rotate-90+rotdiff));
           var x_velocity = s.bulletspeed*Math.cos(radians*(p.rotate-90)) + (p.x_velocity / 100);
           var y_velocity = s.bulletspeed*Math.sin(radians*(p.rotate-90)) + (p.y_velocity / 100);
-          var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, "auroraShot", s.bulletlifetime * unistep, s.bulletdamage, 2, 0, p.id, p.map);
+          var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, "auroraShot", s.bulletlifetime * unistep, s.bulletdamage, 0, 0, p.id, p.map);
           r.projectiles.push(newProjectile);
           emitRoom(r, "projectile", newProjectile);
         }

@@ -373,7 +373,7 @@ var projectileTemplates = {
     lifetime: 7
   },
   "auroraShot": {
-    color: "rgb(100, 155, 255)",
+    color: "rgb(155, 200, 255)",
     size: 1,
     lifetime: 5
   },
