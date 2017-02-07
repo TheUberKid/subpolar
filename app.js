@@ -21,9 +21,19 @@ console.log("Server started");
 
 // database
 var mongoose = require('mongoose');
-// mongoose.connect(process.env.dbkey);
-var config = require('./config.js');
-mongoose.connect(config.dbkey)
+function moduleAvailable(name) {
+    try {
+        require.resolve(name);
+        return true;
+    } catch(e){}
+    return false;
+}
+if(moduleAvailable('./config.js')){
+  var config = require('./config.js');
+  mongoose.connect(config.dbkey)
+} else {
+  mongoose.connect(process.env.dbkey);
+}
 
 // maps
 var maps = require('./maps.js');
