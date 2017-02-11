@@ -517,16 +517,14 @@ function init(){
     if(v) version = v;
     if(v) document.getElementById("version").innerHTML = v;
   });
-  socket.on('map', function(d){
+  socket.on('map', function(d, m){
     mapdata = d;
+    self.map = m;
   });
 
-  socket.on('update', function(ppos, time, players, rankings){
+  socket.on('update', function(ppos, objectives, time, players, rankings){
     if(self.joined){
       ctx.clearRect(0, 0, canvas.width, canvas.height); // clear canvas
-      drawThrusters();
-      drawProjectiles();
-      drawRepels();
       for(var i in ppos){
         var p = ppos[i];
         if(p.id === clientId){
@@ -549,6 +547,11 @@ function init(){
           self.stealth = p.stealth;
         }
       }
+      drawObjectives(objectives);
+      drawSelf(ppos);
+      drawThrusters();
+      drawProjectiles();
+      drawRepels();
       if(mapdata) drawMap();
       drawTrails();
       drawPlayers(ppos);
@@ -588,6 +591,17 @@ function init(){
       }
     }
   });
+  socket.on('repelBounce', function(p){
+    for(var i=0, j=projectiles.length; i<j; i++){
+      var t = projectiles[i];
+      if(t.id === p.id){
+        t.x = p.x;
+        t.y = p.y;
+        t.x_velocity = p.x_velocity;
+        t.y_velocity = p.y_velocity;
+      }
+    }
+  });
 
   // repels
   socket.on('repel', function(x, y){
@@ -623,6 +637,43 @@ function init(){
   });
 }
 
+function drawSelf(ppos){
+  var s = ships[self.ship];
+  if(!self.death){
+    // client side rotation
+    if(keys["left"]){
+      if(self.rotate < 0) self.rotate = 360;
+      self.rotate -= s.turnspeed;
+    }
+    if(keys["right"]){
+      if(self.rotate > 360) self.rotate = 0;
+      self.rotate += s.turnspeed;
+    }
+    // thrusters
+    if(keys["up"] && !self.death){
+      if(thrusteralt === 0){
+        var d = Math.round(Math.random()*5)+14;
+        var t1 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90+7)), self.y - d * Math.sin(radians*(self.rotate-90+7)), self.rotate+7);
+        var t2 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90-7)), self.y - d * Math.sin(radians*(self.rotate-90-7)), self.rotate-7);
+        thrusters.splice(0, 0, t1, t2);
+        thrusteralt = 1;
+      } else {
+        thrusteralt--;
+      }
+    } else if(keys["down"] && !self.death){
+      if(thrusteralt === 0){
+        var d = Math.round(Math.random()*5)+12;
+        var t1 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90+7)), self.y - d * Math.sin(radians*(self.rotate-90+7)), (self.rotate+180-7) % 360);
+        var t2 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90-7)), self.y - d * Math.sin(radians*(self.rotate-90-7)), (self.rotate+180+7) % 360);
+        thrusters.splice(0, 0, t1, t2);
+        thrusteralt = 1;
+      } else {
+        thrusteralt--;
+      }
+    }
+  }
+}
+
 function drawPlayers(ppos){
   ctx.textAlign = "left";
   ctx.font = "16px Share Tech Mono";
@@ -632,38 +683,6 @@ function drawPlayers(ppos){
       var s = ships[p.ship];
       if(!p.death){
         if(p.id === clientId){ // if self
-
-          // client side rotation
-          if(keys["left"]){
-            if(self.rotate < 0) self.rotate = 360;
-            self.rotate -= s.turnspeed;
-          }
-          if(keys["right"]){
-            if(self.rotate > 360) self.rotate = 0;
-            self.rotate += s.turnspeed;
-          }
-          // thrusters
-          if(keys["up"] && !self.death){
-            if(thrusteralt === 0){
-              var d = Math.round(Math.random()*5)+14;
-              var t1 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90+7)), self.y - d * Math.sin(radians*(self.rotate-90+7)), self.rotate+7);
-              var t2 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90-7)), self.y - d * Math.sin(radians*(self.rotate-90-7)), self.rotate-7);
-              thrusters.splice(0, 0, t1, t2);
-              thrusteralt = 1;
-            } else {
-              thrusteralt--;
-            }
-          } else if(keys["down"] && !self.death){
-            if(thrusteralt === 0){
-              var d = Math.round(Math.random()*5)+12;
-              var t1 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90+7)), self.y - d * Math.sin(radians*(self.rotate-90+7)), (self.rotate+180-7) % 360);
-              var t2 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90-7)), self.y - d * Math.sin(radians*(self.rotate-90-7)), (self.rotate+180+7) % 360);
-              thrusters.splice(0, 0, t1, t2);
-              thrusteralt = 1;
-            } else {
-              thrusteralt--;
-            }
-          }
 
           // if stealthed show transparency
           if(p.stealth) ctx.globalAlpha = 0.5;
@@ -973,4 +992,19 @@ function drawTrails(){
     if(t.lifetime <= 0) trails.splice(i, 1);
   }
   ctx.globalAlpha = 1;
+}
+
+// draw objectives
+function drawObjectives(loc){
+  if(self.map === "behemothBattle"){
+    for(var i=0, j=loc.length; i<j; i++){
+      var o = loc[i];
+      var diffx = o.x - self.x;
+      var diffy = o.y - self.y;
+      var color = self.team === 0 ?
+        "rgba("+(o.control+100)+", "+Math.abs(o.control-100)+", "+Math.abs(o.control-100)+", 0.25)" :
+        "rgba("+Math.abs(o.control-100)+", "+(o.control+100)+", "+(o.control+100)+", 0.25)";
+      drawCircle(canvas.width/2 + diffx, canvas.height/2 + diffy, 200, color);
+    }
+  }
 }

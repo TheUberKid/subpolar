@@ -1,3 +1,5 @@
+// TODO: restructure this and swap keys and index
+// (so each object belongs to a map, instead of objects being a property of each map)
 // map data
 // 1 = wall
 // 0 = space
@@ -319,21 +321,32 @@ var spawnpoints = {
     [700, 2700],
     [350, 3000],
     [950, 3500],
-    [2000, 3500],
-    [3050, 3500],
-    [3650, 3000],
-    [3300, 2700],
-    [3150, 1750],
-    [3400, 1100],
-    [2400, 900],
-    [3000, 500],
-    [3800, 650],
-    [2000, 2400],
-    [2000, 500]
+    [2040, 3500],
+    [3090, 3500],
+    [3690, 3000],
+    [3340, 2700],
+    [3190, 1750],
+    [3440, 1100],
+    [2440, 900],
+    [3040, 500],
+    [3840, 650],
+    [2040, 2400],
+    [2040, 500]
+  ]
+};
+var objectives = {
+  behemothBattle: [
+    {
+      x: 2040,
+      y: 1900,
+      control: 0,
+      contested: [false, false]
+    }
   ]
 };
 
 module.exports = {
   "mapdata": maps,
-  "spawnpoints": spawnpoints
+  "spawnpoints": spawnpoints,
+  "objectives": objectives
 }

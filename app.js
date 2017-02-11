@@ -289,7 +289,7 @@ io.sockets.on("connection", function(socket){
       }
       p.map = r.map;
       r.players.push(socket.player);
-      socket.emit("map", maps.mapdata[p.map]);
+      socket.emit("map", maps.mapdata[p.map], p.map);
 
       // assign player the team with the lowest players on that room
       var min = Math.min.apply(null, r.teams), // find team with lowest players
@@ -410,7 +410,8 @@ var loops = {
     drawProjectiles(r);
     var ppos = drawPlayers(r);
     var rankings = getLeaderboard(r);
-    emitRoom(r, "update", ppos, new Date().getTime(), Sockets.length, rankings);
+    computeObjective(r);
+    emitRoom(r, "update", ppos, maps.objectives[r.map], new Date().getTime(), Sockets.length, rankings);
   }
 };
 
@@ -421,6 +422,38 @@ var globalLoop = function(){
   }
 }
 setInterval(globalLoop, 1000/framerate);
+
+// objectives
+function computeObjective(r){
+  if(r.map === "behemothBattle"){
+    var loc = maps.objectives[r.map];
+    for(var i=0, j=loc.length; i<j; i++){
+      var o = loc[i];
+      if(o.contested[0] && !o.contested[1] && o.control > -100){
+        o.control--;
+      } else if(o.contested[1] && !o.contested[0] && o.control < 100){
+        o.control++;
+      } else if(Math.abs(o.control) < 100 && !o.contested[0] && !o.contested[1]){
+        if(o.control > 0) o.control--;
+        if(o.control < 0) o.control++;
+      }
+      o.contested = [false, false];
+    }
+  }
+}
+// TODO change this to record who controls the point
+function checkObjective(p, r){
+  if(r.map === "behemothBattle"){
+    var loc = maps.objectives[r.map];
+    for(var i=0, j=loc.length; i<j; i++){
+      var o = loc[i];
+      // check distance
+      if(Math.sqrt(Math.pow(o.x - p.x, 2) + Math.pow(o.y - p.y, 2)) < 200){
+        o.contested[p.team] = true;
+      }
+    }
+  }
+}
 
 function drawPlayers(r){
   var currentTime = new Date();
@@ -489,6 +522,9 @@ function drawPlayers(r){
             p.y_velocity = p.y_velocity * 0.5;
           }
         });
+
+        // objectives
+        checkObjective(p, r);
 
         // movement
         if(!p.collided){
@@ -661,7 +697,7 @@ function useAbility(r, p, e){
             t.x_velocity = diffx > 0 ? (100-diffx)*5 : (-100+diffx)*5;
             t.y_velocity = diffy > 0 ? (100-diffy)*5 : (-100+diffy)*5;
             t.origin = p.id;
-            emitRoom(r, "projectileBounce", t);
+            emitRoom(r, "repelBounce", t);
           }
         }
         p.abilitycd += s.abilitycd;
