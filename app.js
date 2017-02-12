@@ -191,7 +191,7 @@ var Room = function(id, map){
   this.ppos = [];
   this.projectiles = [];
 }
-rooms.push(new Room(0, "behemothBattle"));
+rooms.push(new Room(0, "trenchWars"));
 
 // player constructor
 // id is used to define the location of socket in socket array
@@ -283,7 +283,7 @@ io.sockets.on("connection", function(socket){
       }
       // create new room if empty spot does not exist
       if(!r){
-       rooms.push(new Room(rooms.length, "behemothBattle"));
+       rooms.push(new Room(rooms.length, "trenchWars"));
        r = rooms[rooms.length-1];
        p.room = r;
       }
@@ -302,12 +302,8 @@ io.sockets.on("connection", function(socket){
       console.log(p.displayName + " joined room " + p.room.id + " on team " + p.team);
 
       // spawn them somewhere
-      // TODO: make this more flexible to allow for spawning in teams or chosen locations
-      var sp = maps.spawnpoints[p.map][Math.floor(Math.random()*maps.spawnpoints[p.map].length)];
-      p.x = Math.floor(Math.random()*100)+sp[0];
-      p.y = Math.floor(Math.random()*100)+sp[1];
       p.ship = ship;
-      p.energy = ships.stats[ship].maxenergy;
+      spawn(r, p);
     }
   });
 
@@ -412,6 +408,13 @@ var loops = {
     var rankings = getLeaderboard(r);
     computeObjective(r);
     emitRoom(r, "update", ppos, maps.objectives[r.map], new Date().getTime(), Sockets.length, rankings);
+  },
+  "trenchWars": function(r){
+    drawProjectiles(r);
+    var ppos = drawPlayers(r);
+    var rankings = getLeaderboard(r);
+    computeObjective(r);
+    emitRoom(r, "update", ppos, maps.objectives[r.map], new Date().getTime(), Sockets.length, rankings);
   }
 };
 
@@ -425,30 +428,39 @@ setInterval(globalLoop, 1000/framerate);
 
 // objectives
 function computeObjective(r){
-  if(r.map === "behemothBattle"){
+  if(r.map === "trenchWars"){
+    // control points
     var loc = maps.objectives[r.map];
     for(var i=0, j=loc.length; i<j; i++){
       var o = loc[i];
-      if(o.contested[0] && !o.contested[1] && o.control > -100){
+      if(o.contested[0] && !o.contested[1] && !o.controlled[0]){
         o.control--;
       } else if(o.contested[1] && !o.contested[0] && o.control < 100){
         o.control++;
       } else if(Math.abs(o.control) < 100 && !o.contested[0] && !o.contested[1]){
-        if(o.control > 0) o.control--;
-        if(o.control < 0) o.control++;
+        if(o.controlled === [false, false]){
+          if(o.control > 0) o.control--;
+          if(o.control < 0) o.control++;
+        } else {
+          if(o.controlled[0]) o.control--;
+          if(o.controlled[1]) o.control++;
+        }
       }
+      if(o.control <= -100) o.controlled = [true, false];
+      if(o.control >= 100)  o.controlled = [false, true];
+      if(o.control === 0)   o.controlled = [false, false];
       o.contested = [false, false];
     }
   }
 }
 // TODO change this to record who controls the point
 function checkObjective(p, r){
-  if(r.map === "behemothBattle"){
+  if(r.map === "trenchWars"){
     var loc = maps.objectives[r.map];
     for(var i=0, j=loc.length; i<j; i++){
       var o = loc[i];
       // check distance
-      if(Math.sqrt(Math.pow(o.x - p.x, 2) + Math.pow(o.y - p.y, 2)) < 200){
+      if(Math.sqrt(Math.pow(o.x - p.x, 2) + Math.pow(o.y - p.y, 2)) < 120){
         o.contested[p.team] = true;
       }
     }
@@ -563,16 +575,7 @@ function drawPlayers(r){
 
       } else if(p.death){
         if(currentTime.getTime() - p.death > 5000){
-          var sp = maps.spawnpoints[r.map][Math.floor(Math.random()*maps.spawnpoints[r.map].length)];
-          p.x = Math.floor(Math.random()*100)+sp[0];
-          p.y = Math.floor(Math.random()*100)+sp[1];
-          p.x_velocity = 0;
-          p.y_velocity = 0;
-          p.bounty = 10;
-          p.death = false;
-          p.energy = s.maxenergy;
-          p.abilitycd = 0;
-          if(p.stealth) p.stealth = false;
+          spawn(r, p);
           emitRoom(r, "playerRespawn", p.x, p.y);
         }
       }
@@ -903,6 +906,36 @@ function collisionCheckPlayers(r, p, size, callback){
     }
   }
   return collided ? true : false;
+}
+
+function spawn(r, p){
+  var s = ships.stats[p.ship];
+  var sp; // spawn point
+  if(r.map === "trenchWars"){
+    var o = maps.objectives[r.map];
+    // spawn based on control of center
+    if(o[1].controlled[0]){
+      sp = maps.spawnpoints[r.map][p.team === 0 ? 2 : 5];
+    } else if(o[1].controlled[1]){
+      sp = maps.spawnpoints[r.map][p.team === 0 ? 0 : 3];
+    } else {
+      sp = maps.spawnpoints[r.map][p.team === 0 ? 1 : 4];
+    }
+  } else {
+    // pick a random spawnpoint
+    sp = maps.spawnpoints[r.map][Math.floor(Math.random()*maps.spawnpoints[r.map].length)];
+  }
+  if(sp != null){
+    p.x = Math.floor(Math.random()*100)+sp[0];
+    p.y = Math.floor(Math.random()*100)+sp[1];
+    p.x_velocity = 0;
+    p.y_velocity = 0;
+    p.bounty = 10;
+    p.death = false;
+    p.energy = s.maxenergy;
+    p.abilitycd = 0;
+    if(p.stealth) p.stealth = false;
+  }
 }
 
 function getLeaderboard(r){

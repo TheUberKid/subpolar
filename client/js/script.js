@@ -996,15 +996,21 @@ function drawTrails(){
 
 // draw objectives
 function drawObjectives(loc){
-  if(self.map === "behemothBattle"){
+  if(self.map === "trenchWars"){
     for(var i=0, j=loc.length; i<j; i++){
       var o = loc[i];
       var diffx = o.x - self.x;
       var diffy = o.y - self.y;
       var color = self.team === 0 ?
-        "rgba("+(o.control+100)+", "+Math.abs(o.control-100)+", "+Math.abs(o.control-100)+", 0.25)" :
-        "rgba("+Math.abs(o.control-100)+", "+(o.control+100)+", "+(o.control+100)+", 0.25)";
-      drawCircle(canvas.width/2 + diffx, canvas.height/2 + diffy, 200, color);
+        "rgba("+(o.control+100)+", "+Math.abs(o.control-100)+", "+Math.abs(o.control-100)+", 0.4)" :
+        "rgba("+Math.abs(o.control-100)+", "+(o.control+100)+", "+(o.control+100)+", 0.4)";
+      var stroke = "transparent";
+      if(o.controlled[self.team]){
+        stroke = "rgba(0, 255, 255, 0.5)";
+      } else if(o.controlled[Math.abs(self.team-1)]){
+        stroke = "rgba(255, 0, 0, 0.5)";
+      }
+      drawCircle(canvas.width/2 + diffx, canvas.height/2 + diffy, 100, color, stroke, 2);
     }
   }
 }
