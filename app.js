@@ -448,7 +448,7 @@ function computeObjective(r){
       } else if(o.contested[1] && !o.contested[0] && o.control < 100){
         o.control++;
       } else if(Math.abs(o.control) < 100 && !o.contested[0] && !o.contested[1]){
-        if(o.controlled === [false, false]){
+        if(o.controlled[0] === o.controlled[1]){
           if(o.control > 0) o.control--;
           if(o.control < 0) o.control++;
         } else {
