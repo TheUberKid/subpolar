@@ -198,10 +198,10 @@ var Room = function(id, map){
   this.players = [];
   this.teams = [0, 0];
   this.map = map;
+  this.objectives = JSON.parse(JSON.stringify(maps.objectives[map]));
   this.ppos = [];
   this.projectiles = [];
 }
-rooms.push(new Room(0, "trenchWars"));
 
 // player constructor
 // id is used to define the location of socket in socket array
@@ -417,21 +417,22 @@ var loops = {
     var ppos = drawPlayers(r);
     var rankings = getLeaderboard(r);
     computeObjective(r);
-    emitRoom(r, "update", ppos, maps.objectives[r.map], new Date().getTime(), Sockets.length, rankings);
+    emitRoom(r, "update", ppos, r.objectives, new Date().getTime(), Sockets.length, rankings);
   },
   "trenchWars": function(r){
     drawProjectiles(r);
     var ppos = drawPlayers(r);
     var rankings = getLeaderboard(r);
     computeObjective(r);
-    emitRoom(r, "update", ppos, maps.objectives[r.map], new Date().getTime(), Sockets.length, rankings);
+    emitRoom(r, "update", ppos, r.objectives, new Date().getTime(), Sockets.length, rankings);
   }
 };
 
 var globalLoop = function(){
-  for(var i in rooms){
+  for(var i = rooms.length - 1; i > -1; i--){
     var r = rooms[i];
     loops[r.map](r);
+    if(r.players.length < 1) rooms.splice(i, 1);
   }
 }
 setInterval(globalLoop, 1000/framerate);
@@ -440,7 +441,7 @@ setInterval(globalLoop, 1000/framerate);
 function computeObjective(r){
   if(r.map === "trenchWars"){
     // control points
-    var loc = maps.objectives[r.map];
+    var loc = r.objectives;
     for(var i=0, j=loc.length; i<j; i++){
       var o = loc[i];
       if(o.contested[0] && !o.contested[1] && !o.controlled[0]){
@@ -466,7 +467,7 @@ function computeObjective(r){
 // TODO change this to record who controls the point
 function checkObjective(p, r){
   if(r.map === "trenchWars"){
-    var loc = maps.objectives[r.map];
+    var loc = r.objectives;
     for(var i=0, j=loc.length; i<j; i++){
       var o = loc[i];
       // check distance
@@ -922,7 +923,7 @@ function spawn(r, p){
   var s = ships.stats[p.ship];
   var sp; // spawn point
   if(r.map === "trenchWars"){
-    var o = maps.objectives[r.map];
+    var o = r.objectives;
     // spawn based on control of center
     if(o[1].controlled[0]){
       sp = maps.spawnpoints[r.map][p.team === 0 ? 2 : 5];
