@@ -8,19 +8,9 @@ var version = "0.1.0";
 // universal step - must be synced with client
 var unistep = 4;
 
-// serve index.html when accessing url
 var express = require("express");
 var app = express();
 var serv = require("http").Server(app);
-app.get("/", function(req, res){
-  res.sendFile(__dirname + "/client/index.html");
-});
-app.use("/client", express.static(__dirname + "/client")); // allow read of filepaths starting with /client/
-// ssl
-app.use("/.well-known", express.static(__dirname + "/.well-known")); // allow read of filepaths starting with /client/
-
-serv.listen(process.env.PORT || 5000);
-console.log("Server started");
 
 // database
 var mongoose = require('mongoose');
@@ -33,10 +23,27 @@ function moduleAvailable(name) {
 }
 if(moduleAvailable('./config.js')){
   var config = require('./config.js');
-  mongoose.connect(config.dbkey)
+  mongoose.connect(config.dbkey);
 } else {
   mongoose.connect(process.env.dbkey);
+  app.get('*',function(req,res,next){
+    if(req.headers['x-forwarded-proto'] != 'https'){
+      res.redirect('https://play.subpolar.net'+req.url);
+    } else {
+      next();
+    }
+  });
 }
+
+// serve index.html when accessing url
+app.get("/", function(req, res){
+  res.sendFile(__dirname + "/client/index.html");
+});
+app.use("/client", express.static(__dirname + "/client")); // allow read of filepaths starting with /client/
+app.use("/.well-known", express.static(__dirname + "/.well-known"));
+
+serv.listen(process.env.PORT || 5000);
+console.log("Server started");
 
 // maps
 var maps = require('./maps.js');
