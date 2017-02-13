@@ -16,6 +16,9 @@ app.get("/", function(req, res){
   res.sendFile(__dirname + "/client/index.html");
 });
 app.use("/client", express.static(__dirname + "/client")); // allow read of filepaths starting with /client/
+// ssl
+app.use("/.well-known", express.static(__dirname + "/.well-known")); // allow read of filepaths starting with /client/
+
 serv.listen(process.env.PORT || 5000);
 console.log("Server started");
 
