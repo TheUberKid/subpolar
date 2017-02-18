@@ -3,6 +3,7 @@ var username;
 
 var nav = document.getElementsByClassName("nav");
 var menus = document.getElementsByClassName("display-menu");
+var menuModules = document.getElementsByClassName("menu-tab-module");
 var regNameInput = document.getElementById("register-name-input");
 var regPassword = document.getElementById("register-password-input");
 var regForm = document.getElementById("register-form");
@@ -18,6 +19,7 @@ var loginPassword = document.getElementById("login-password-input");
 var loginSubmit = document.getElementById("login-submit-button");
 var loginError = document.getElementById("login-error");
 var joinButton = document.getElementById("join-button");
+var tabs = document.getElementsByClassName("menu-tab");
 
 // navigation system
 function navigate(e){
@@ -61,6 +63,25 @@ function initMenus(){
   for(var i=0, j=nav.length; i<j; i++){
     nav[i].addEventListener("click", navigate);
   }
+  for(var i=0, j=tabs.length; i<j; i++){
+    tabs[i].addEventListener("click", function(e){
+      var zone = e.currentTarget.dataset.zone;
+      for(var i=0, j=tabs.length; i<j; i++){
+        tabs[i].className = "menu-tab";
+      }
+      e.currentTarget.className = "menu-tab selected";
+      document.getElementById("zone-name").innerHTML = zone;
+      zoneChosen = zone;
+
+      // css format
+      var relevantMenuModules = document.getElementsByClassName(zone.replace(/\s+/g, '-'));
+      // show relevant modules
+      for(var i=0, j=menuModules.length; i<j; i++) menuModules[i].style.display = "none";
+      for(var i=0, j=relevantMenuModules.length; i<j; i++) relevantMenuModules[i].style.display = "block";
+
+    });
+  }
+  document.getElementById("default-menu-tab").click();
 
   // new user form navigation
   regNav.addEventListener("click", function(){

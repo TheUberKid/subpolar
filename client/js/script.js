@@ -1,5 +1,5 @@
 "use strict";
-console.log("Stop snooping you sneaky little bastard!");
+console.log("Stop snooping you sneaky little monkey!");
 
 // fps settings
 var filterStrength = 20;
@@ -459,7 +459,7 @@ function keychange(e){
 function join(){
   document.removeEventListener("keydown", keychange);
   self.joined = true;
-  socket.emit("join", shipChosen);
+  socket.emit("join", shipChosen, zoneChosen);
   self.ship = shipChosen;
   document.body.style.backgroundColor = "#222";
   document.getElementById("background").style.display = "none";
@@ -482,6 +482,7 @@ var shipChoices = document.getElementsByClassName("ship-choice");
 var keyGuides = document.getElementsByClassName("keyguide");
 var resetKeys = document.getElementById("reset-controls");
 var shipChosen = "falcon";
+var zoneChosen = "extreme games";
 // this is called once all resources are loaded
 function init(){
   socket = io();
@@ -506,7 +507,7 @@ function init(){
     for(var key in keys){
       keys[key] = false;
     }
-    self.rotate = 0;
+    self.rotate = null;
     mapdata = [];
     projectiles = [];
 

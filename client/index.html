@@ -128,51 +128,99 @@
 
     <div id="mainmenu" class="display-menu">
       <div class="menu-wrapper">
+
+        <div class="menu-tabs">
+          <div id="default-menu-tab" class="menu-tab" data-zone="extreme games">
+            extreme games
+          </div>
+          <div class="menu-tab" data-zone="trench wars">
+            trench wars
+          </div>
+          <div class="menu-tab" data-zone="settings">
+            settings
+          </div>
+        </div>
+
         <div class="menu-section centered">
-          <div class="menu-subtitle">
-            Subspace Polarity v<span id="version"></span>
-          </div>
-          <div class="input-label">
-            Hello, <span id="username">Guest</span>
-          </div>
-          <br>
-          <div class="input-label">
-            Choose a ship: <span id="shipname">falcon</span>
-          </div>
-          <div id="ship-input">
-            <div class="ship-choice selected" data-name="falcon">
-              <img src="/client/img/falcon.png">
+          <div class="menu-top">
+            <div class="menu-subtitle">
+              Subspace Polarity v<span id="version"></span>
             </div>
-            <div class="ship-choice" data-name="lancaster">
-              <img src="/client/img/lancaster.png">
+            <div class="menu-user">
+              <span id="username">Guest</span>
             </div>
-            <div class="ship-choice" data-name="ghost">
-              <img src="/client/img/ghost.png">
-            </div>
-            <!--div class="ship-choice" data-name="aurora">
-              <img src="/client/img/aurora.png">
-            </div-->
           </div>
-          <div id="join-button" class="button">play</div>
-          <div id="controls">
-            <span class="control-info">Controls (click a key to change binding)</span><br>
-            <span class="keyguide" data-action="up"></span> /
-            <span class="keyguide" data-action="down"></span> to use boosters
+          <div class="menu-bottom">
+            <div class="menu-subtitle" id="zone-name">
+              Extreme Games
+            </div>
             <br>
-            <span class="keyguide" data-action="left"></span> /
-            <span class="keyguide" data-action="right"></span> to rotate
-            <br>
-            <span class="keyguide" data-action="attack"></span> to shoot
-            <br>
-            <span class="keyguide" data-action="boost"></span> to boost (uses energy)
-            <br>
-            <span class="keyguide" data-action="ability1"></span> to use ship's ability
-            <br>
-            <span class="keyguide" data-action="chat"></span> to chat
-            <br>
-            <span class="keyguide" data-action="leave"></span> to leave
-            <br>
-            <span id="reset-controls">RESET TO DEFAULTS</span>
+
+            <div class="menu-tab-module extreme-games">
+              <div class="zone-info">
+                Extreme Games is a free-for-all deathmatch on a large and spacious map.
+                There is no objective other than to shoot people and to try and stay alive!
+                The first player to reach 15 kills wins.
+              </div>
+            </div>
+
+            <div class="menu-tab-module trench-wars">
+              <div class="zone-info">
+                In Trench Wars, you must work together with your team to attack and defend trenches.
+                The control points located at the center of each trench determine who controls the trench.
+                In this zone, respawn times will slowly increase as the game goes on.
+                The game ends when all three trenches are controlled by one team!
+              </div>
+            </div>
+
+            <div class="menu-tab-module extreme-games trench-wars">
+              <div class="input-label">
+                Choose a ship: <span id="shipname">falcon</span>
+              </div>
+              <div id="ship-input">
+                <div class="ship-choice selected" data-name="falcon">
+                  <img src="/client/img/falcon.png">
+                </div>
+                <div class="ship-choice" data-name="lancaster">
+                  <img src="/client/img/lancaster.png">
+                </div>
+                <div class="ship-choice" data-name="ghost">
+                  <img src="/client/img/ghost.png">
+                </div>
+                <!--div class="ship-choice" data-name="aurora">
+                  <img src="/client/img/aurora.png">
+                </div-->
+              </div>
+              <br>
+            </div>
+
+            <div class="menu-tab-module extreme-games trench-wars">
+              <div id="join-button" class="button">play</div>
+            </div>
+
+            <div class="menu-tab-module settings">
+              <div id="controls">
+                <span class="control-info">Controls (click a key to change binding)</span><br>
+                <span class="keyguide" data-action="up"></span> /
+                <span class="keyguide" data-action="down"></span> to use boosters
+                <br>
+                <span class="keyguide" data-action="left"></span> /
+                <span class="keyguide" data-action="right"></span> to rotate
+                <br>
+                <span class="keyguide" data-action="attack"></span> to shoot
+                <br>
+                <span class="keyguide" data-action="boost"></span> to boost (uses energy)
+                <br>
+                <span class="keyguide" data-action="ability1"></span> to use ship's ability
+                <br>
+                <span class="keyguide" data-action="chat"></span> to chat
+                <br>
+                <span class="keyguide" data-action="leave"></span> to leave
+                <br>
+                <span id="reset-controls">RESET TO DEFAULTS</span>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>

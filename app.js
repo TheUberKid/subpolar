@@ -198,7 +198,7 @@ var Room = function(id, map){
   this.players = [];
   this.teams = [0, 0];
   this.map = map;
-  this.objectives = JSON.parse(JSON.stringify(maps.objectives[map]));
+  this.objectives = JSON.parse(JSON.stringify(maps[map].objectives));
   this.ppos = [];
   this.projectiles = [];
 }
@@ -267,39 +267,35 @@ io.sockets.on("connection", function(socket){
   });
 
   // when player joins
-  socket.on("join", function(ship){
-    // validate name and ship inputs
-    if((socket.loggedIn || socket.player.pid === "guest") && ships.stats[ship]){
+  socket.on("join", function(ship, zone){
+    // validate inputs
+    if((socket.loggedIn || socket.player.pid === "guest") && ships.stats[ship] && loops[zone]){
       var p = socket.player;
 
       // reset the player's keys
       for(var key in p.keys){
         p.keys[key] = false;
       }
-      p.x_velocity = 0;
-      p.y_velocity = 0;
-      p.rotate = 0;
-      p.death = false;
-      p.bounty = 10;
-      p.kills = 0;
 
       // assign the player a room that is not full
       var r;
       for(var i=0, j=rooms.length; i<j; i++){
-        if(rooms[i].players.length < 20){
+        var m = maps[rooms[i].map];
+        if(m.config.zone === zone && rooms[i].players.length < m.config.maxplayers){
           r = rooms[i];
           p.room = r;
         }
       }
       // create new room if empty spot does not exist
       if(!r){
-       rooms.push(new Room(rooms.length, "trenchWars"));
-       r = rooms[rooms.length-1];
-       p.room = r;
+        var mapname = maps.index[zone][Math.floor(Math.random()*maps.index[zone].length)];
+        rooms.push(new Room(rooms.length, mapname));
+        r = rooms[rooms.length-1];
+        p.room = r;
       }
       p.map = r.map;
       r.players.push(socket.player);
-      socket.emit("map", maps.mapdata[p.map], p.map);
+      socket.emit("map", maps[p.map].mapdata, p.map);
 
       // assign player the team with the lowest players on that room
       var min = Math.min.apply(null, r.teams), // find team with lowest players
@@ -412,14 +408,14 @@ function emitTeam(room, team, type, d1, d2, d3, d4, d5, d6){
 
 // draw loops for each map
 var loops = {
-  "behemothBattle": function(r){
+  "extreme games": function(r){
     drawProjectiles(r);
     var ppos = drawPlayers(r);
     var rankings = getLeaderboard(r);
     computeObjective(r);
     emitRoom(r, "update", ppos, r.objectives, new Date().getTime(), Sockets.length, rankings);
   },
-  "trenchWars": function(r){
+  "trench wars": function(r){
     drawProjectiles(r);
     var ppos = drawPlayers(r);
     var rankings = getLeaderboard(r);
@@ -431,7 +427,7 @@ var loops = {
 var globalLoop = function(){
   for(var i = rooms.length - 1; i > -1; i--){
     var r = rooms[i];
-    loops[r.map](r);
+    loops[maps[r.map].config.zone](r);
     if(r.players.length < 1) rooms.splice(i, 1);
   }
 }
@@ -878,7 +874,7 @@ function collisionCheckMap(p, size, callback){
   // find only closest 5x5 area of map blocks to compare position to reduce lag
   for(var j = -1; j < 2; j++){
     for(var k = -1; k < 2; k++){
-      var m = maps.mapdata[p.map];
+      var m = maps[p.map].mapdata;
       var mx = mapx + j;
       var my = mapy + k;
       var tx = mx * 16;
@@ -922,26 +918,29 @@ function collisionCheckPlayers(r, p, size, callback){
 function spawn(r, p){
   var s = ships.stats[p.ship];
   var sp; // spawn point
-  if(r.map === "trenchWars"){
+  if(maps[r.map].config.respawn === "trench"){
     var o = r.objectives;
     // spawn based on control of center
     if(o[1].controlled[0]){
-      sp = maps.spawnpoints[r.map][p.team === 0 ? 2 : 5];
+      sp = maps[r.map].spawnpoints[p.team === 0 ? 2 : 5];
     } else if(o[1].controlled[1]){
-      sp = maps.spawnpoints[r.map][p.team === 0 ? 0 : 3];
+      sp = maps[r.map].spawnpoints[p.team === 0 ? 0 : 3];
     } else {
-      sp = maps.spawnpoints[r.map][p.team === 0 ? 1 : 4];
+      sp = maps[r.map].spawnpoints[p.team === 0 ? 1 : 4];
     }
-  } else {
+  } else if(maps[r.map].config.respawn === "random"){
     // pick a random spawnpoint
-    sp = maps.spawnpoints[r.map][Math.floor(Math.random()*maps.spawnpoints[r.map].length)];
+    sp = maps[r.map].spawnpoints[Math.floor(Math.random()*maps[r.map].spawnpoints.length)];
   }
   if(sp != null){
     p.x = Math.floor(Math.random()*100)+sp[0];
     p.y = Math.floor(Math.random()*100)+sp[1];
     p.x_velocity = 0;
     p.y_velocity = 0;
+    p.rotate = p.team === 0 ? 90 : 270;
+    p.rotate += Math.round(Math.random()*50)-25;
     p.bounty = 10;
+    p.kills = 0;
     p.death = false;
     p.energy = s.maxenergy;
     p.abilitycd = 0;

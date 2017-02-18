@@ -2,7 +2,6 @@ body{
   background-color: #000;
   margin: 0px;
   padding: 0px;
-  overflow: hidden;
   font-family: "Share Tech Mono", monospace;
   -webkit-appearance: none;
 }
@@ -14,7 +13,7 @@ a:hover{
   color: #ddd;
   text-decoration: none;
 }
-.noselect, .button{
+.noselect, .button, .menu-tabs{
   -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari*/
      -khtml-user-select: none; /* Konqueror */
@@ -52,7 +51,7 @@ a:hover{
   height: 40vh;
 }
 #mainmenu .menu-wrapper{
-  height: 60vh;
+  height: 70vh;
 }
 .landing-title-wrapper{
   text-transform: uppercase;
@@ -90,31 +89,6 @@ a:hover{
 .menu-section.centered{
   width: 350px;
   margin: 0px auto;
-}
-#mainmenu .menu-section{
-  width: 640px;
-  margin: 0px auto;
-  border: 1px solid rgba(125, 125, 125, 0.5);
-  background: rgba(0, 0, 0, 0.7);
-  padding: 50px;
-  color: #fff;
-}
-.menu-subtitle{
-  color: #fff;
-  text-transform: uppercase;
-  font-size: 26px;
-  margin-bottom: 5px;
-}
-#newuser .menu-subtitle{
-  margin-bottom: 20px;
-}
-#landing .menu-subtitle{
-  margin-bottom: 20px;
-  letter-spacing: 0.02em;
-  text-shadow: 0px 0px 10px #48f;
-}
-#landing .menu-subtitle span{
-  color: #48f;
 }
 
 .menu-desc{
@@ -236,11 +210,99 @@ a:hover{
   font-weight: 400;
 }
 
+#mainmenu .menu-section{
+  width: 900px;
+  margin: 0px auto;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+}
+#mainmenu .menu-tabs:after {
+  width: 880px;
+  border-bottom: 20px solid #333;
+  border-right: 20px solid transparent;
+  position: absolute;
+  content: "";
+  margin-top: 30px;
+}
+#mainmenu .menu-top{
+  background: #333;
+  padding: 0px 50px 20px;
+  margin-top: 20px;
+  border: 3px solid #333;
+}
+#mainmenu .menu-bottom{
+  padding: 20px 50px 50px;
+  border: 3px solid #333;
+
+}
+#mainmenu .menu-tabs{
+  width: 900px;
+  margin: 0px auto;
+  display: flex;
+  flex-direction: row;
+}
+#mainmenu .menu-tab{
+  margin-left: -10px;
+  width: 150px;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-bottom: 30px solid #000;
+  color: #fff;
+  text-transform: uppercase;
+  text-align: center;
+  z-index: 1;
+  font-size: 18px;
+  line-height: 30px;
+  cursor: pointer;
+}
+#mainmenu .menu-tab:first-child{
+  margin-left: 0px;
+}
+#mainmenu .menu-tab.selected{
+  border-bottom: 30px solid #333;
+  z-index: 2;
+  cursor: default;
+}
+.menu-subtitle{
+  color: #fff;
+  text-transform: uppercase;
+  font-size: 26px;
+  display: inline-block;
+}
+.menu-user{
+  color: rgba(255, 255, 255, 0.7);
+  display: inline-block;
+  font-size: 20px;
+  float: right;
+}
+.menu-tab-module{
+  display: none;
+}
+.zone-info{
+  margin: 10px 0px;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+#newuser .menu-subtitle{
+  margin-bottom: 20px;
+}
+#landing .menu-subtitle{
+  margin-bottom: 20px;
+  letter-spacing: 0.02em;
+  text-shadow: 0px 0px 10px #48f;
+}
+#landing .menu-subtitle span{
+  color: #48f;
+}
+
 #ship-input{
   height: 32px;
   margin: 15px 0px 30px 0px;
   display: flex;
   flex-direction: row;
+  margin-left: 2px;
 }
 .ship-choice{
   display: flex;
@@ -276,7 +338,7 @@ a:hover{
 #controls{
   font-size: 16px;
   color: #fff;
-  margin: 20px 0px;
+  margin: 20px 0px 0px;
 }
 .control-info{
   color: #88f;
