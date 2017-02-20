@@ -187,6 +187,17 @@ function auth_login(name, password, socket){
   }
 }
 
+function auth_logout(socket){
+  // log out
+  console.log(socket.player.displayName + " ("+ socket.player.pid +") logged out");
+  if(socket.loggedIn){
+    socket.loggedIn = false;
+    delete socket.player.pid;
+  }
+  delete socket.player.displayName;
+  socket.emit("logout-success");
+}
+
 var Sockets = {};
 var population = 0;
 var framerate = 30;
@@ -267,6 +278,9 @@ io.sockets.on("connection", function(socket){
   });
   socket.on("login", function(name, password){
     auth_login(name, password, socket);
+  });
+  socket.on("logout", function(){
+    auth_logout(socket);
   });
 
   // when player joins

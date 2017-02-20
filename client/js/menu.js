@@ -19,6 +19,7 @@ var loginPassword = document.getElementById("login-password-input");
 var loginSubmit = document.getElementById("login-submit-button");
 var loginError = document.getElementById("login-error");
 var joinButton = document.getElementById("join-button");
+var logoutButton = document.getElementById("logout-button");
 var tabs = document.getElementsByClassName("menu-tab");
 
 // navigation system
@@ -48,7 +49,7 @@ function navigate(e){
 }
 
 function loginSuccess(name, l){
-  if(l) loggedIn = true;
+  l ? loggedIn = true : logoutButton.innerHTML = "leave";
   username = name;
   navigate("mainmenu");
   prlog("Successfully logged in as "+name);
@@ -138,6 +139,19 @@ function initMenus(){
       nuSubmit.innerHTML = "Continue";
     }, 250);
   });
+  socket.on('logout-success', function(){
+    logoutButton.innerHTML = "...";
+    setTimeout(function(){
+      loggedIn = false;
+      username = "";
+      navigate("landing");
+      prlog("Successfully logged out");
+    }, 250);
+    setTimeout(function(){
+      logoutButton.innerHTML = "logout";
+      document.getElementById("username").innerHTML = "Guest";
+    }, 500);
+  });
 
   // ship choices
   for(var i=0, j=shipChoices.length; i<j; i++){
@@ -185,5 +199,8 @@ function initMenus(){
   });
   joinButton.addEventListener("click", function(){
     join();
+  });
+  logoutButton.addEventListener("click", function(){
+    socket.emit("logout");
   });
 }

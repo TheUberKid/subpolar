@@ -273,8 +273,9 @@ a:hover{
 .menu-user{
   color: rgba(255, 255, 255, 0.7);
   display: inline-block;
-  font-size: 20px;
+  font-size: 26px;
   float: right;
+  margin-right: 20px;
 }
 .menu-tab-module{
   display: none;
@@ -285,10 +286,30 @@ a:hover{
   color: rgba(255, 255, 255, 0.7);
 }
 .menu-footer{
-  color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.3);
   font-size: 16px;
   width: 890px;
   margin: 20px auto;
+}
+#logout-button{
+  display: inline-block;
+  text-align: center;
+  width: 90px;
+  height: 20px;
+  padding: 4px 10px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  font-family: "Share Tech Mono";
+  font-size: 20px;
+  text-transform: uppercase;
+  cursor: pointer;
+  float: right;
+  margin-top: -2px;
+  color: rgba(255, 255, 255, 0.7);
+}
+#logout-button:hover{
+  border: 2px solid #fff;
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 #newuser .menu-subtitle{
