@@ -796,7 +796,7 @@ function drawProjectiles(r){
                         origin.kills++;
                         e.bounty = 0;
                         console.log(origin.displayName + " killed " + e.displayName);
-                        emitRoom(r, "playerDeath", e.x, e.y, p.x, p.y, origin.displayName, e.displayName);
+                        emitRoom(r, "playerDeath", p.x, p.y, origin.id, e.id);
                       } else {
                         e.energy = 1;
                       }
@@ -812,7 +812,7 @@ function drawProjectiles(r){
                   origin.kills++;
                   e.bounty = 0;
                   console.log(origin.displayName + " killed " + e.displayName);
-                  emitRoom(r, "playerDeath", e.x, e.y, p.x, p.y, origin.displayName, e.displayName);
+                  emitRoom(r, "playerDeath", p.x, p.y, origin.id, e.id);
                 }
               }
               r.projectiles.splice(i, 1);
@@ -843,7 +843,7 @@ function drawProjectiles(r){
                         origin.kills++;
                         e.bounty = 0;
                         console.log(origin.displayName + " killed " + e.displayName);
-                        emitRoom(r, "playerDeath", e.x, e.y, p.x, p.y, origin.displayName, e.displayName);
+                        emitRoom(r, "playerDeath", p.x, p.y, origin.id, e.id);
                       } else {
                         e.energy = 1;
                       }

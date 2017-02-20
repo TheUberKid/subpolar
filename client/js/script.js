@@ -482,6 +482,7 @@ var keyGuides = document.getElementsByClassName("keyguide");
 var resetKeys = document.getElementById("reset-controls");
 var shipChosen = "falcon";
 var zoneChosen = "extreme games";
+var ppos, deathtimer;
 // this is called once all resources are loaded
 function init(){
   socket = io();
@@ -523,7 +524,8 @@ function init(){
     self.map = m;
   });
 
-  socket.on('update', function(ppos, objectives, time, players, rankings){
+  socket.on('update', function(pp, objectives, time, players, rankings){
+    ppos = pp;
     if(self.joined){
       ctx.clearRect(0, 0, canvas.width, canvas.height); // clear canvas
       for(var i in ppos){
@@ -608,15 +610,20 @@ function init(){
     repels.push(new Repel(x, y));
   });
   // when a player dies
-  socket.on('playerDeath', function(ex, ey, px, py, killer, killed){
+  socket.on('playerDeath', function(px, py, killer, killed){
     // temporary death animation
+    var p0 = ppos[killer];
+    var p1 = ppos[killed];
+    if(p1.id == self.id){
+      deathtimer = new Date().getTime();
+    }
     for(var i=0; i<15; i++){
-      thrusters.push(new Thruster(ex+(Math.round(Math.random()*10)-5), ey+(Math.round(Math.random()*10)-5), Math.round(Math.random()*360)));
+      thrusters.push(new Thruster(p0.x+(Math.round(Math.random()*10)-5), p0.y+(Math.round(Math.random()*10)-5), Math.round(Math.random()*360)));
     }
     for(var i=0; i<10; i++){
       thrusters.push(new Thruster(px+(Math.round(Math.random()*10)-5), py+(Math.round(Math.random()*10)-5), Math.round(Math.random()*360)));
     }
-    chat.messages.push(["kill", killed, killer])
+    chat.messages.push(["kill", p1.displayName, p0.displayName])
   });
 
   // when a bomb explodes
@@ -708,7 +715,7 @@ function drawPlayers(ppos){
   // display death message
   if(self.death){
     var currentTime = new Date();
-    var restime = 5-(currentTime.getTime()-self.death)/1000;
+    var restime = 5-(currentTime.getTime()-deathtimer)/1000;
     ctx.textAlign = "center";
     ctx.font = "20px Share Tech Mono";
     ctx.fillStyle = "#f3172d";
