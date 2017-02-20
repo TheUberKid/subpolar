@@ -293,7 +293,6 @@ function drawCircle(x, y, radius, fillcolor, strokecolor, strokewidth){
 }
 
 var socket;
-var clientId;
 var version;
 
 var self = {
@@ -510,11 +509,12 @@ function init(){
     self.rotate = null;
     mapdata = [];
     projectiles = [];
+    chat.messages = [];
 
   });
 
   socket.on('id', function(id, v){
-    clientId = id;
+    self.id = id;
     if(v) version = v;
     if(v) document.getElementById("version").innerHTML = v;
   });
@@ -528,10 +528,9 @@ function init(){
       ctx.clearRect(0, 0, canvas.width, canvas.height); // clear canvas
       for(var i in ppos){
         var p = ppos[i];
-        if(p.id === clientId){
+        if(p.id === self.id){
           self.x = p.x;
           self.y = p.y;
-          self.id = p.id;
           self.team = p.team;
           if(self.rotate == null) self.rotate = p.rotate;
           if(Math.abs(p.rotate - self.rotate) > 1 && Math.abs((p.rotate-360) - self.rotate) > 1 && Math.abs(p.rotate - (self.rotate-360)) > 1){
@@ -549,7 +548,7 @@ function init(){
         }
       }
       drawObjectives(objectives);
-      drawSelf(ppos);
+      drawSelf();
       drawThrusters();
       drawProjectiles();
       drawRepels();
@@ -638,7 +637,7 @@ function init(){
   });
 }
 
-function drawSelf(ppos){
+function drawSelf(){
   var s = ships[self.ship];
   if(!self.death){
     // client side rotation
@@ -683,7 +682,7 @@ function drawPlayers(ppos){
     if(p.joined){
       var s = ships[p.ship];
       if(!p.death){
-        if(p.id === clientId){ // if self
+        if(p.id === self.id){ // if self
 
           // if stealthed show transparency
           if(p.stealth) ctx.globalAlpha = 0.5;
@@ -804,7 +803,7 @@ function drawHUD(ppos, time, players, rankings){
   }
   for(var i in ppos){
     var p = ppos[i];
-    if(p.id !== clientId && Math.abs(p.x-self.x) < 1000 && Math.abs(p.y-self.y) < 1000 && !p.death){
+    if(p.id !== self.id && Math.abs(p.x-self.x) < 1000 && Math.abs(p.y-self.y) < 1000 && !p.death){
       ctx.strokeStyle = p.team === self.team ? "#56b4c9" : "#f3172d";
       var diffx = (p.x - self.x)/8;
       var diffy = (p.y - self.y)/8;
@@ -887,33 +886,35 @@ function drawHUD(ppos, time, players, rankings){
   // show top five
   var onLeaderboard = false;
   for(var i = 0; i < 5; i++){
-    if(rankings[i] != null){
+    var r = rankings[i];
+    if(r != null && ppos[r] != null){
       ctx.textAlign = "right";
-      if(rankings[i] === self.id){
+      if(r == self.id){
         onLeaderboard = true;
         ctx.fillStyle = "#00ffff";
       } else {
-        ctx.fillStyle = ppos[rankings[i]].team === self.team ? "#56b4c9" : "#f3172d";
+        ctx.fillStyle = ppos[r].team === self.team ? "#56b4c9" : "#f3172d";
       }
       ctx.fillText(i+1, canvas.width-245, 105 + (20*i));
       ctx.textAlign = "left";
-      ctx.fillText(ppos[rankings[i]].displayName, canvas.width-230, 105 + (20*i));
+      ctx.fillText(ppos[r].displayName, canvas.width-230, 105 + (20*i));
       ctx.textAlign = "right";
-      ctx.fillText(ppos[rankings[i]].bounty, canvas.width-75, 105 + (20*i));
-      ctx.fillText(ppos[rankings[i]].kills, canvas.width-20, 105 + (20*i));
+      ctx.fillText(ppos[r].bounty, canvas.width-75, 105 + (20*i));
+      ctx.fillText(ppos[r].kills, canvas.width-20, 105 + (20*i));
     }
   }
   if(!onLeaderboard){
-    for(var i=5, j=rankings.length; i<j; i++){
-      if(rankings[i] != null && rankings[i] === self.id){
+    for(var i in rankings){
+      var r = rankings[i];
+      if(r != null && r === self.id){
         ctx.textAlign = "right";
         ctx.fillStyle = "#00ffff";
         ctx.fillText(i+1, canvas.width-245, 105 + (20*5));
         ctx.textAlign = "left";
-        ctx.fillText(ppos[rankings[i]].displayName, canvas.width-230, 105 + (20*5));
+        ctx.fillText(ppos[r].displayName, canvas.width-230, 105 + (20*5));
         ctx.textAlign = "right";
-        ctx.fillText(ppos[rankings[i]].bounty, canvas.width-75, 105 + (20*5));
-        ctx.fillText(ppos[rankings[i]].kills, canvas.width-20, 105 + (20*5));
+        ctx.fillText(ppos[r].bounty, canvas.width-75, 105 + (20*5));
+        ctx.fillText(ppos[r].kills, canvas.width-20, 105 + (20*5));
         break;
       }
     }

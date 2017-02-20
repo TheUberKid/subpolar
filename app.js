@@ -187,7 +187,8 @@ function auth_login(name, password, socket){
   }
 }
 
-var Sockets = [];
+var Sockets = {};
+var population = 0;
 var framerate = 30;
 var radians = Math.PI/180;
 
@@ -195,18 +196,18 @@ var radians = Math.PI/180;
 var rooms = [];
 var Room = function(id, map){
   this.id = id;
-  this.players = [];
+  this.players = {};
+  this.population = 0;
   this.teams = [0, 0];
   this.map = map;
   this.objectives = JSON.parse(JSON.stringify(maps[map].objectives));
-  this.ppos = [];
   this.projectiles = [];
 }
 
 // player constructor
 // id is used to define the location of socket in socket array
 // pid is the login id of the user assigned to that player
-var Player = function(id, socket){
+var Player = function(id){
   this.id = id;
   this.x_velocity = 0;
   this.y_velocity = 0;
@@ -246,11 +247,13 @@ io.sockets.on("connection", function(socket){
   var clientIp = socket.request.connection.remoteAddress;
 
   // pick a unique id for the player
-  var id = Sockets.length;
+  var id = Math.floor(Math.random()*100000);
+  while(Sockets[id]) id = Math.floor(Math.random()*100000);
   socket.id = id;
-  socket.player = new Player(id, socket);
+  socket.player = new Player(id);
   socket.loggedIn = false;
   Sockets[id] = socket;
+  population++;
 
   // give player their id and version number
   socket.emit("id", id, version);
@@ -281,7 +284,7 @@ io.sockets.on("connection", function(socket){
       var r;
       for(var i=0, j=rooms.length; i<j; i++){
         var m = maps[rooms[i].map];
-        if(m.config.zone === zone && rooms[i].players.length < m.config.maxplayers){
+        if(m.config.zone === zone && rooms[i].population < m.config.maxplayers){
           r = rooms[i];
           p.room = r;
         }
@@ -294,7 +297,8 @@ io.sockets.on("connection", function(socket){
         p.room = r;
       }
       p.map = r.map;
-      r.players.push(socket.player);
+      r.players[socket.id] = socket.player;
+      r.population++;
       socket.emit("map", maps[p.map].mapdata, p.map);
 
       // assign player the team with the lowest players on that room
@@ -352,19 +356,16 @@ io.sockets.on("connection", function(socket){
 
   // on disconnect, remove player from arrays and update everyone else's ids
   socket.on('disconnect', function(){
-    Sockets.splice(socket.id, 1);
+    delete Sockets[id];
     var p = socket.player;
     var r = p.room;
 
     if(p.joined){
       console.log(socket.player.displayName + " disconnected from room "+r.id);
       r.teams[p.team]--;
+      r.population--;
       // delete player from their room
-      for(var i in r.players){
-        if(r.players[i].id === socket.player.id){
-          r.players.splice(i, 1);
-        }
-      }
+      delete r.players[id];
       // decrement projectile origins
       for(var i in r.projectiles){
         var t = r.projectiles[i];
@@ -372,38 +373,33 @@ io.sockets.on("connection", function(socket){
           r.projectiles.splice(i, 1);
           emitRoom(r, "projectileHit", t.id, t.x, t.y);
         }
-        if(t.origin > socket.id) t.origin--;
       }
     }
 
-    // decrement everyone's id
-    for(var i in Sockets) if(Sockets[i].id !== i){
-      Sockets[i].id = i;
-      Sockets[i].player.id = i;
-      Sockets[i].emit("id", i);
-    }
-
+    population--;
     // delete and disconnect socket
     socket.disconnect();
   });
 });
 
-var ppos = []; // player positions
 // emit system
 function emitGlobal(type, d1, d2, d3, d4, d5, d6){
-  Sockets.map(function(socket){
+  for(var i in Sockets){
+    var socket = Sockets[i];
     socket.emit(type, d1, d2, d3, d4, d5, d6);
-  });
+  }
 }
 function emitRoom(room, type, d1, d2, d3, d4, d5, d6){
-  room.players.map(function(p){
+  for(var i in room.players){
+    var p = room.players[i];
     if(Sockets[p.id]) Sockets[p.id].emit(type, d1, d2, d3, d4, d5, d6);
-  });
+  }
 }
 function emitTeam(room, team, type, d1, d2, d3, d4, d5, d6){
-  room.players.map(function(p){
+  for(var i in room.players){
+    var p = room.players[i];
     if(p.team === team && Sockets[p.id]) Sockets[p.id].emit(type, d1, d2, d3, d4, d5, d6);
-  });
+  }
 }
 
 // draw loops for each map
@@ -413,14 +409,14 @@ var loops = {
     var ppos = drawPlayers(r);
     var rankings = getLeaderboard(r);
     computeObjective(r);
-    emitRoom(r, "update", ppos, r.objectives, new Date().getTime(), Sockets.length, rankings);
+    emitRoom(r, "update", ppos, r.objectives, new Date().getTime(), population, rankings);
   },
   "trench wars": function(r){
     drawProjectiles(r);
     var ppos = drawPlayers(r);
     var rankings = getLeaderboard(r);
     computeObjective(r);
-    emitRoom(r, "update", ppos, r.objectives, new Date().getTime(), Sockets.length, rankings);
+    emitRoom(r, "update", ppos, r.objectives, new Date().getTime(), population, rankings);
   }
 };
 
@@ -428,7 +424,7 @@ var globalLoop = function(){
   for(var i = rooms.length - 1; i > -1; i--){
     var r = rooms[i];
     loops[maps[r.map].config.zone](r);
-    if(r.players.length < 1) rooms.splice(i, 1);
+    if(r.population < 1) rooms.splice(i, 1);
   }
 }
 setInterval(globalLoop, 1000/framerate);
@@ -460,7 +456,7 @@ function computeObjective(r){
     }
   }
 }
-// TODO change this to record who controls the point
+
 function checkObjective(p, r){
   if(r.map === "trenchWars"){
     var loc = r.objectives;
@@ -476,7 +472,7 @@ function checkObjective(p, r){
 
 function drawPlayers(r){
   var currentTime = new Date();
-  var ppos = [];
+  var ppos = {};
 
   // iterate through players
   for(var i in r.players){
@@ -490,11 +486,7 @@ function drawPlayers(r){
         console.log(p.displayName + " left room "+r.id);
         r.teams[p.team]--;
         // delete player from their room
-        for(var i in r.players){
-          if(r.players[i].id === p.id){
-            r.players.splice(i, 1);
-          }
-        }
+        delete r.players[p.id];
         // decrement projectile origins
         for(var i in r.projectiles){
           var t = r.projectiles[i];
@@ -502,9 +494,10 @@ function drawPlayers(r){
             r.projectiles.splice(i, 1);
             emitRoom(r, "projectileHit", t.id, t.x, t.y);
           }
-          if(t.origin > p.id) t.origin--;
         }
         p.joined = false;
+        p.kills = 0;
+        p.bounty = 0;
 
         Sockets[p.id].emit("leave");
         break;
@@ -589,7 +582,7 @@ function drawPlayers(r){
     }
 
     // add to player position array
-    ppos.push({
+    ppos[p.id] = {
       x: p.x,
       y: p.y,
       joined: p.joined,
@@ -604,7 +597,7 @@ function drawPlayers(r){
       kills: p.kills,
       stealth: p.stealth,
       abilitycd: p.abilitycd
-    });
+    };
   }
   // return player positions to emit
   return ppos;
@@ -902,7 +895,7 @@ function collisionCheckMap(p, size, callback){
 }
 function collisionCheckPlayers(r, p, size, callback){
   var collided = false;
-  for(var i=0, j=r.players.length; i<j; i++){
+  for(var i in r.players){
     var e = r.players[i];
     if(!p.death){
       var dist = Math.sqrt((p.x-e.x)*(p.x-e.x) + (p.y-e.y)*(p.y-e.y)); // pythagorean theorem to find distance
@@ -928,6 +921,8 @@ function spawn(r, p){
     } else {
       sp = maps[r.map].spawnpoints[p.team === 0 ? 1 : 4];
     }
+    p.rotate = p.team === 0 ? 90 : 270;
+    p.rotate += Math.round(Math.random()*50)-25;
   } else if(maps[r.map].config.respawn === "random"){
     // pick a random spawnpoint
     sp = maps[r.map].spawnpoints[Math.floor(Math.random()*maps[r.map].spawnpoints.length)];
@@ -937,10 +932,7 @@ function spawn(r, p){
     p.y = Math.floor(Math.random()*100)+sp[1];
     p.x_velocity = 0;
     p.y_velocity = 0;
-    p.rotate = p.team === 0 ? 90 : 270;
-    p.rotate += Math.round(Math.random()*50)-25;
     p.bounty = 10;
-    p.kills = 0;
     p.death = false;
     p.energy = s.maxenergy;
     p.abilitycd = 0;
@@ -949,9 +941,12 @@ function spawn(r, p){
 }
 
 function getLeaderboard(r){
-  var p = r.players.slice();
-  p.sort(function(a, b){return b.bounty - a.bounty;});
+  var p = [];
+  for(var i in r.players){
+    p.push([i, r.players[i]]);
+  }
+  p.sort(function(a, b){return b[1].bounty - a[1].bounty;});
   var arr = [];
-  for(var i=0, j=p.length; i<j; i++) if(p[i].joined) arr.push(i);
+  for(var i in p) if(p[i][1].joined) arr.push(p[i][0]);
   return arr;
 }
