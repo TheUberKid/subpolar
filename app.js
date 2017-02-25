@@ -1,25 +1,25 @@
-"use strict";
+'use strict';
 Number.prototype.pad = function(n){
-  return ("0".repeat(n)+this).slice(-n);
+  return ('0'.repeat(n)+this).slice(-n);
 }
 
-var version = "0.1.0";
+var version = '0.1.0';
 
 // universal step - must be synced with client
 var unistep = 4;
 
-var express = require("express");
+var express = require('express');
 var app = express();
-var serv = require("http").Server(app);
+var serv = require('http').Server(app);
 
 // database
 var mongoose = require('mongoose');
 function moduleAvailable(name) {
-    try {
-        require.resolve(name);
-        return true;
-    } catch(e){}
-    return false;
+  try {
+    require.resolve(name);
+    return true;
+  } catch(e){}
+  return false;
 }
 if(moduleAvailable('./config.js')){
   var config = require('./config.js');
@@ -36,14 +36,14 @@ if(moduleAvailable('./config.js')){
 }
 
 // serve index.html when accessing url
-app.get("/", function(req, res){
-  res.sendFile(__dirname + "/client/index.html");
+app.get('/', function(req, res){
+  res.sendFile(__dirname + '/client/index.html');
 });
-app.use("/client", express.static(__dirname + "/client")); // allow read of filepaths starting with /client/
-app.use("/.well-known", express.static(__dirname + "/.well-known"));
+app.use('/client', express.static(__dirname + '/client')); // allow read of filepaths starting with /client/
+app.use('/.well-known', express.static(__dirname + '/.well-known'));
 
 serv.listen(process.env.PORT || 5000);
-console.log("Server started");
+console.log('Server started');
 
 // maps
 var maps = require('./maps.js');
@@ -55,22 +55,22 @@ var crypto = require('crypto');
 function auth_register(name, password, socket){
   var n = name.replace(/\s+/g, '');
   if(n.length < name.length){
-    socket.emit("nu-error", "cannot have spaces in username");
+    socket.emit('nu-error', 'cannot have spaces in username');
     return 1;
   } else if(socket.loggedIn){
-    socket.emit("nu-error", "you are already logged in");
+    socket.emit('nu-error', 'you are already logged in');
     return 1;
-  } else if(name.substring(0, 5).toLowerCase() === "guest"){
-    socket.emit("nu-error", "guest names are reserved");
+  } else if(name.substring(0, 5).toLowerCase() === 'guest'){
+    socket.emit('nu-error', 'guest names are reserved');
     return 1;
   } else if(password.length < 7){
-    socket.emit("nu-error", "password must be at least 7 chars");
+    socket.emit('nu-error', 'password must be at least 7 chars');
     return 1;
   } else if(name.length === 0 || password.length === 0){
-    socket.emit("nu-error", "fields cannot be blank");
+    socket.emit('nu-error', 'fields cannot be blank');
     return 1;
   } else if(name.length > 14 || password.length > 16){
-    socket.emit("nu-error", "name or password too long");
+    socket.emit('nu-error', 'name or password too long');
     return 1;
   } else {
     var raw = name.toLowerCase();
@@ -101,11 +101,11 @@ function auth_register(name, password, socket){
         // save the player
         p.save(function(err) {
           if(err) throw err;
-          console.log('Registered new player: ' + p.username + " (" + p.id + ")");
+          console.log('Registered new player: ' + p.username + ' (' + p.id + ')');
         });
 
         // success
-        socket.emit("login-success", p.username, true);
+        socket.emit('login-success', p.username, true);
         socket.loggedIn = true;
         socket.player.pid = p.id;
         socket.player.displayName = p.username;
@@ -113,7 +113,7 @@ function auth_register(name, password, socket){
 
       } else {
         // user already exists
-        socket.emit("nu-error", "that name is already taken");
+        socket.emit('nu-error', 'that name is already taken');
         return 1;
       }
     });
@@ -123,33 +123,33 @@ function auth_register(name, password, socket){
 function auth_guest(name, socket){
   var n = name.replace(/\s+/g, '');
   if(n.length < name.length){
-    socket.emit("nu-error", "cannot have spaces in username");
+    socket.emit('nu-error', 'cannot have spaces in username');
   } else if(name.length > 0){
     if(name.length <= 7){
       // create a guest player
-      socket.player.displayName = "Guest "+name;
-      socket.emit("login-success", socket.player.displayName, false);
-      socket.player.pid = "guest";
+      socket.player.displayName = 'Guest '+name;
+      socket.emit('login-success', socket.player.displayName, false);
+      socket.player.pid = 'guest';
       return 0;
     } else {
-      socket.emit("nu-error", "name or password too long");
+      socket.emit('nu-error', 'name or password too long');
       return 1;
     }
   } else {
     // generate a username
-    socket.player.displayName = "Guest #" + Math.ceil(Math.random() * 999).pad(3);
-    socket.emit("login-success", socket.player.displayName, false);
-    socket.player.pid = "guest";
+    socket.player.displayName = 'Guest #' + Math.ceil(Math.random() * 999).pad(3);
+    socket.emit('login-success', socket.player.displayName, false);
+    socket.player.pid = 'guest';
     return 0;
   }
 }
 
 function auth_login(name, password, socket){
   if(socket.loggedIn){
-    socket.emit("login-error", "you are already logged in");
+    socket.emit('login-error', 'you are already logged in');
     return 1;
   } else if(name.length === 0 || password.length === 0){
-    socket.emit("login-error", "fields cannot be blank");
+    socket.emit('login-error', 'fields cannot be blank');
     return 1;
   } else {
     var raw = name.toLowerCase();
@@ -157,7 +157,7 @@ function auth_login(name, password, socket){
       if (err) throw err;
       // check if player exists
       if(player.length === 0){
-        socket.emit("login-error", "invalid login info");
+        socket.emit('login-error', 'invalid login info');
         return 1;
       } else {
 
@@ -171,14 +171,14 @@ function auth_login(name, password, socket){
         // compare hashes
         if(hashedPassword === p.hash){
           // valid login
-          console.log(p.username + " ("+ p.id + ") logged in");
-          socket.emit("login-success", p.username, true);
+          console.log(p.username + ' ('+ p.id + ') logged in');
+          socket.emit('login-success', p.username, true);
           socket.loggedIn = true;
           socket.player.pid = p.id;
           socket.player.displayName = p.username;
           return 0;
         } else {
-          socket.emit("login-error", "invalid login info");
+          socket.emit('login-error', 'invalid login info');
           return 1;
         }
 
@@ -189,13 +189,13 @@ function auth_login(name, password, socket){
 
 function auth_logout(socket){
   // log out
-  console.log(socket.player.displayName + " ("+ socket.player.pid +") logged out");
+  console.log(socket.player.displayName + ' ('+ socket.player.pid +') logged out');
   if(socket.loggedIn){
     socket.loggedIn = false;
     delete socket.player.pid;
   }
   delete socket.player.displayName;
-  socket.emit("logout-success");
+  socket.emit('logout-success');
 }
 
 var Sockets = {};
@@ -253,8 +253,8 @@ var Projectile = function(id, x, y, x_velocity, y_velocity, type, lifetime, dama
   this.map = map;
 }
 
-var io = require("socket.io")(serv,{});
-io.sockets.on("connection", function(socket){
+var io = require('socket.io')(serv,{});
+io.sockets.on('connection', function(socket){
   var clientIp = socket.request.connection.remoteAddress;
 
   // pick a unique id for the player
@@ -267,26 +267,26 @@ io.sockets.on("connection", function(socket){
   population++;
 
   // give player their id and version number
-  socket.emit("id", id, version);
+  socket.emit('id', id, version);
 
   // authentication
-  socket.on("register", function(name, password){
+  socket.on('register', function(name, password){
     auth_register(name, password, socket);
   });
-  socket.on("guest", function(name){
+  socket.on('guest', function(name){
     auth_guest(name, socket);
   });
-  socket.on("login", function(name, password){
+  socket.on('login', function(name, password){
     auth_login(name, password, socket);
   });
-  socket.on("logout", function(){
+  socket.on('logout', function(){
     auth_logout(socket);
   });
 
   // when player joins
-  socket.on("join", function(ship, zone){
+  socket.on('join', function(ship, zone){
     // validate inputs
-    if((socket.loggedIn || socket.player.pid === "guest") && ships.stats[ship] && loops[zone]){
+    if((socket.loggedIn || socket.player.pid === 'guest') && ships.stats[ship] && loops[zone]){
       var p = socket.player;
 
       // reset the player's keys
@@ -313,7 +313,7 @@ io.sockets.on("connection", function(socket){
       p.map = r.map;
       r.players[socket.id] = socket.player;
       r.population++;
-      socket.emit("map", maps[p.map].mapdata, p.map);
+      socket.emit('map', maps[p.map].mapdata, p.map);
 
       // assign player the team with the lowest players on that room
       var min = Math.min.apply(null, r.teams), // find team with lowest players
@@ -323,7 +323,7 @@ io.sockets.on("connection", function(socket){
 
       // log their join
       p.joined = true;
-      console.log(p.displayName + " joined room " + p.room.id + " on team " + p.team);
+      console.log(p.displayName + ' joined room ' + p.room.id + ' on team ' + p.team);
 
       // spawn them somewhere
       p.ship = ship;
@@ -348,21 +348,21 @@ io.sockets.on("connection", function(socket){
       var p = socket.player;
 
       // detect team chat
-      var type = m.charAt(0) === "!" ? "room" : "team";
-      if(m.charAt(0) === "!") m = m.slice(1);
+      var type = m.charAt(0) === '!' ? 'room' : 'team';
+      if(m.charAt(0) === '!') m = m.slice(1);
 
       // log chat message
       var truncm = m.substring(0,150);
-      console.log("ROOM" + socket.player.room.id + " > " + p.displayName + " > " + truncm + (type === "team" ? " [TEAM]" : " [ROOM]"));
+      console.log('ROOM' + socket.player.room.id + ' > ' + p.displayName + ' > ' + truncm + (type === 'team' ? ' [TEAM]' : ' [ROOM]'));
 
       // truncate message into groups of 50 chars to send at a time
       for(var i=0, j=Math.ceil(m.length/50); i<j; i++){
         var textblock = truncm.substring(i*50, (i+1)*50);
-        if(textblock.charAt(0) === " ") textblock = textblock.slice(1);
+        if(textblock.charAt(0) === ' ') textblock = textblock.slice(1);
 
         // send the message appropriately
-        type === "team" ? emitTeam(p.room, p.team, "newTeamMessage", p.displayName, textblock)
-                        : emitRoom(p.room, "newMessage", p.displayName, textblock);
+        type === 'team' ? emitTeam(p.room, p.team, 'newTeamMessage', p.displayName, textblock)
+                        : emitRoom(p.room, 'newMessage', p.displayName, textblock);
       }
 
     }
@@ -375,7 +375,7 @@ io.sockets.on("connection", function(socket){
     var r = p.room;
 
     if(p.joined){
-      console.log(socket.player.displayName + " disconnected from room "+r.id);
+      console.log(socket.player.displayName + ' disconnected from room '+r.id);
       r.teams[p.team]--;
       r.population--;
       // delete player from their room
@@ -385,7 +385,7 @@ io.sockets.on("connection", function(socket){
         var t = r.projectiles[i];
         if(t.origin === p.id){
           r.projectiles.splice(i, 1);
-          emitRoom(r, "projectileHit", t.id, t.x, t.y);
+          emitRoom(r, 'projectileHit', t.id, t.x, t.y);
         }
       }
     }
@@ -418,19 +418,19 @@ function emitTeam(room, team, type, d1, d2, d3, d4, d5, d6){
 
 // draw loops for each map
 var loops = {
-  "extreme games": function(r){
+  'extreme games': function(r){
     drawProjectiles(r);
     var ppos = drawPlayers(r);
     var rankings = getLeaderboard(r);
     computeObjective(r);
-    emitRoom(r, "update", ppos, r.objectives, new Date().getTime(), population, rankings);
+    emitRoom(r, 'update', ppos, r.objectives, new Date().getTime(), population, rankings);
   },
-  "trench wars": function(r){
+  'trench wars': function(r){
     drawProjectiles(r);
     var ppos = drawPlayers(r);
     var rankings = getLeaderboard(r);
     computeObjective(r);
-    emitRoom(r, "update", ppos, r.objectives, new Date().getTime(), population, rankings);
+    emitRoom(r, 'update', ppos, r.objectives, new Date().getTime(), population, rankings);
   }
 };
 
@@ -445,7 +445,7 @@ setInterval(globalLoop, 1000/framerate);
 
 // objectives
 function computeObjective(r){
-  if(r.map === "trenchWars"){
+  if(r.map === 'trenchWars'){
     // control points
     var loc = r.objectives;
     for(var i=0, j=loc.length; i<j; i++){
@@ -472,7 +472,7 @@ function computeObjective(r){
 }
 
 function checkObjective(p, r){
-  if(r.map === "trenchWars"){
+  if(r.map === 'trenchWars'){
     var loc = r.objectives;
     for(var i=0, j=loc.length; i<j; i++){
       var o = loc[i];
@@ -496,8 +496,8 @@ function drawPlayers(r){
     if(p.joined){
 
       // if player chooses to leave
-      if(p.keys["leave"]){
-        console.log(p.displayName + " left room "+r.id);
+      if(p.keys['leave']){
+        console.log(p.displayName + ' left room '+r.id);
         r.teams[p.team]--;
         // delete player from their room
         delete r.players[p.id];
@@ -506,14 +506,14 @@ function drawPlayers(r){
           var t = r.projectiles[i];
           if(t.origin === p.id){
             r.projectiles.splice(i, 1);
-            emitRoom(r, "projectileHit", t.id, t.x, t.y);
+            emitRoom(r, 'projectileHit', t.id, t.x, t.y);
           }
         }
         p.joined = false;
         p.kills = 0;
         p.bounty = 0;
 
-        Sockets[p.id].emit("leave");
+        Sockets[p.id].emit('leave');
         break;
       }
 
@@ -522,7 +522,7 @@ function drawPlayers(r){
         var velocity = Math.sqrt(p.x_velocity*p.x_velocity + p.y_velocity*p.y_velocity);
         // if shift key multiply maxspeed by 1.5
         var maxspeed = s.maxspeed;
-        if(p.keys["boost"] && (p.keys["up"] || p.keys["down"]) && p.energy > 15){
+        if(p.keys['boost'] && (p.keys['up'] || p.keys['down']) && p.energy > 15){
           maxspeed *= 1.75;
         }
 
@@ -542,7 +542,7 @@ function drawPlayers(r){
             p.y_velocity = p.y_velocity * -0.5;
             p.x_velocity = p.x_velocity * 0.5;
           }
-          if(pos === 1 || pos === 3){ // "left" or "right" collision: reverse x
+          if(pos === 1 || pos === 3){ // 'left' or 'right' collision: reverse x
             p.x = 22*(pos-2) + tx;
             p.x_velocity = p.x_velocity * -0.5;
             p.y_velocity = p.y_velocity * 0.5;
@@ -554,24 +554,24 @@ function drawPlayers(r){
 
         // movement
         if(!p.collided){
-          if(p.keys["left"]){
+          if(p.keys['left']){
             if(p.rotate < 0) p.rotate = 360;
             p.rotate-=s.turnspeed;
           }
-          if(p.keys["right"]){
+          if(p.keys['right']){
             if(p.rotate > 360) p.rotate = 0;
             p.rotate+=s.turnspeed;
           }
           // shift for thrusters
           var accel = s.accel;
-          if(p.keys["boost"] && (p.keys["up"] || p.keys["down"]) && p.energy > 15){
+          if(p.keys['boost'] && (p.keys['up'] || p.keys['down']) && p.energy > 15){
             accel = accel * 1.75;
             p.energy -= 2;
           }
-          if(p.keys["up"]){ // circular directional movement
+          if(p.keys['up']){ // circular directional movement
             p.x_velocity += accel*Math.cos(radians*(p.rotate-90));
             p.y_velocity += accel*Math.sin(radians*(p.rotate-90));
-          } else if(p.keys["down"]){
+          } else if(p.keys['down']){
             p.x_velocity -= accel*Math.cos(radians*(p.rotate-90));
             p.y_velocity -= accel*Math.sin(radians*(p.rotate-90));
           }
@@ -580,17 +580,17 @@ function drawPlayers(r){
         p.collided = false;
 
         // player actions
-        if(p.keys["attack"] && p.energy > s.bulletenergyuse && p.reload === 0) fireProjectile(r, p, 17);
-        if(p.keys["ability1"]) useAbility(r, p, 1);
+        if(p.keys['attack'] && p.energy > s.bulletenergyuse && p.reload === 0) fireProjectile(r, p, 17);
+        if(p.keys['ability1']) useAbility(r, p, 1);
 
         if(p.reload > 0) p.reload--;
         if(p.abilitycd > 0) p.abilitycd--;
-        if(p.energy < s.maxenergy && !(p.keys["boost"] && (p.keys["up"] || p.keys["down"])) && !p.stealth) p.energy += s.recharge;
+        if(p.energy < s.maxenergy && !(p.keys['boost'] && (p.keys['up'] || p.keys['down'])) && !p.stealth) p.energy += s.recharge;
 
       } else if(p.death){
         if(currentTime.getTime() - p.death > 5000){
           spawn(r, p);
-          emitRoom(r, "playerRespawn", p.x, p.y);
+          emitRoom(r, 'playerRespawn', p.x, p.y);
         }
       }
     }
@@ -625,21 +625,21 @@ function fireProjectile(r, p, e){
     if(e === 17){
 
       // falcon
-      if(p.ship === "falcon"){
+      if(p.ship === 'falcon'){
         var id = Math.round(Math.random()*10000);
         var x = p.x + 20*Math.cos(radians*(p.rotate-90));
         var y = p.y + 20*Math.sin(radians*(p.rotate-90));
         var x_velocity = s.bulletspeed*Math.cos(radians*(p.rotate-90)) + (p.x_velocity / 100);
         var y_velocity = s.bulletspeed*Math.sin(radians*(p.rotate-90)) + (p.y_velocity / 100);
-        var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, "falconShot", s.bulletlifetime * unistep, s.bulletdamage, 0, 0, p.id, p.map);
+        var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, 'falconShot', s.bulletlifetime * unistep, s.bulletdamage, 0, 0, p.id, p.map);
         r.projectiles.push(newProjectile);
         p.reload = s.reload;
         p.energy -= s.bulletenergyuse;
-        emitRoom(r, "projectile", newProjectile);
+        emitRoom(r, 'projectile', newProjectile);
       }
 
       // lancaster
-      if(p.ship === "lancaster"){
+      if(p.ship === 'lancaster'){
         for(var i=0; i<2; i++){
           var id = Math.round(Math.random()*10000);
           var rotdiff;
@@ -649,31 +649,31 @@ function fireProjectile(r, p, e){
           var y = p.y + 20*Math.sin(radians*(p.rotate-90+rotdiff));
           var x_velocity = s.bulletspeed*Math.cos(radians*(p.rotate-90)) + (p.x_velocity / 100);
           var y_velocity = s.bulletspeed*Math.sin(radians*(p.rotate-90)) + (p.y_velocity / 100);
-          var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, "lancasterShot", s.bulletlifetime * unistep, s.bulletdamage, 0, 0, p.id, p.map);
+          var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, 'lancasterShot', s.bulletlifetime * unistep, s.bulletdamage, 0, 0, p.id, p.map);
           r.projectiles.push(newProjectile);
-          emitRoom(r, "projectile", newProjectile);
+          emitRoom(r, 'projectile', newProjectile);
         }
         p.reload = s.reload;
         p.energy -= s.bulletenergyuse;
       }
 
       // ghost
-      if(p.ship === "ghost"){
+      if(p.ship === 'ghost'){
         var id = Math.round(Math.random()*10000);
         var x = p.x + 20*Math.cos(radians*(p.rotate-90));
         var y = p.y + 20*Math.sin(radians*(p.rotate-90));
         var x_velocity = s.bulletspeed*Math.cos(radians*(p.rotate-90)) + (p.x_velocity / 100);
         var y_velocity = s.bulletspeed*Math.sin(radians*(p.rotate-90)) + (p.y_velocity / 100);
-        var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, p.stealth ? "ghostAmbushShot" : "ghostShot", s.bulletlifetime * unistep, p.stealth ? s.bulletdamage*2 : s.bulletdamage, 0, 0, p.id, p.map);
+        var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, p.stealth ? 'ghostAmbushShot' : 'ghostShot', s.bulletlifetime * unistep, p.stealth ? s.bulletdamage*2 : s.bulletdamage, 0, 0, p.id, p.map);
         r.projectiles.push(newProjectile);
         p.reload = s.reload;
         p.energy -= s.bulletenergyuse;
         if(p.stealth) p.stealth = false;
-        emitRoom(r, "projectile", newProjectile);
+        emitRoom(r, 'projectile', newProjectile);
       }
 
       // aurora
-      if(p.ship === "aurora"){
+      if(p.ship === 'aurora'){
         for(var i=0; i<2; i++){
           var id = Math.round(Math.random()*10000);
           var rotdiff;
@@ -683,9 +683,9 @@ function fireProjectile(r, p, e){
           var y = p.y + 20*Math.sin(radians*(p.rotate-90+rotdiff));
           var x_velocity = s.bulletspeed*Math.cos(radians*(p.rotate-90)) + (p.x_velocity / 100);
           var y_velocity = s.bulletspeed*Math.sin(radians*(p.rotate-90)) + (p.y_velocity / 100);
-          var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, "auroraShot", s.bulletlifetime * unistep, s.bulletdamage, 0, 0, p.id, p.map);
+          var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, 'auroraShot', s.bulletlifetime * unistep, s.bulletdamage, 0, 0, p.id, p.map);
           r.projectiles.push(newProjectile);
-          emitRoom(r, "projectile", newProjectile);
+          emitRoom(r, 'projectile', newProjectile);
         }
         p.reload = s.reload;
         p.energy -= s.bulletenergyuse;
@@ -703,8 +703,8 @@ function useAbility(r, p, e){
     if(e === 1){
 
       // repel
-      if(p.ship === "falcon"){
-        emitRoom(r, "repel", p.x, p.y);
+      if(p.ship === 'falcon'){
+        emitRoom(r, 'repel', p.x, p.y);
         for(var i=0; i<r.projectiles.length; i++){
           var t = r.projectiles[i];
           var diffx = t.x - p.x;
@@ -714,42 +714,42 @@ function useAbility(r, p, e){
             t.x_velocity = diffx > 0 ? (100-diffx)*5 : (-100+diffx)*5;
             t.y_velocity = diffy > 0 ? (100-diffy)*5 : (-100+diffy)*5;
             t.origin = p.id;
-            emitRoom(r, "repelBounce", t);
+            emitRoom(r, 'repelBounce', t);
           }
         }
         p.abilitycd += s.abilitycd;
       }
 
       // bomb
-      if(p.ship === "lancaster" && p.energy > s.bombenergyuse){
+      if(p.ship === 'lancaster' && p.energy > s.bombenergyuse){
         var id = Math.round(Math.random()*10000);
         var x = p.x + 18*Math.cos(radians*(p.rotate-90));
         var y = p.y + 18*Math.sin(radians*(p.rotate-90));
         var x_velocity = s.bombspeed*Math.cos(radians*(p.rotate-90)) + (p.x_velocity / 100);
         var y_velocity = s.bombspeed*Math.sin(radians*(p.rotate-90)) + (p.y_velocity / 100);
-        var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, "lancasterBomb", s.bomblifetime * unistep, s.bombdamage, s.bombbounce, s.bombradius, p.id, p.map);
+        var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, 'lancasterBomb', s.bomblifetime * unistep, s.bombdamage, s.bombbounce, s.bombradius, p.id, p.map);
         r.projectiles.push(newProjectile);
         p.energy -= s.bombenergyuse;
         p.abilitycd += s.abilitycd;
-        emitRoom(r, "projectile", newProjectile);
+        emitRoom(r, 'projectile', newProjectile);
       }
 
       // stealth
-      if(p.ship === "ghost" && p.reload === 0){
+      if(p.ship === 'ghost' && p.reload === 0){
         p.stealth = !p.stealth;
         p.reload = 10;
       }
 
       // mine
-      if(p.ship === "aurora" && p.energy > s.mineenergyuse){
+      if(p.ship === 'aurora' && p.energy > s.mineenergyuse){
         var id = Math.round(Math.random()*10000);
         var x = p.x + 4*Math.cos(radians*(p.rotate-90));
         var y = p.y + 4*Math.sin(radians*(p.rotate-90));
-        var newProjectile = new Projectile(id, x, y, 0, 0, "auroraMine", s.minelifetime * unistep, s.minedamage, 0, s.mineradius, p.id, p.map);
+        var newProjectile = new Projectile(id, x, y, 0, 0, 'auroraMine', s.minelifetime * unistep, s.minedamage, 0, s.mineradius, p.id, p.map);
         r.projectiles.push(newProjectile);
         p.energy -= s.mineenergyuse;
         p.abilitycd += s.abilitycd;
-        emitRoom(r, "projectile", newProjectile);
+        emitRoom(r, 'projectile', newProjectile);
       }
     }
   }
@@ -765,54 +765,56 @@ function drawProjectiles(r){
     if(Sockets[p.origin]){
       for(var j = 0; j < unistep; j++){
 
+        // update projectile positions
         p.x = p.x + p.x_velocity / (unistep*100);
         p.y = p.y + p.y_velocity / (unistep*100);
         p.lifetime--;
 
         if(p.lifetime <= 0){
+
+          // delete projectiles if past lifetime
           r.projectiles.splice(i, 1);
           break;
+
         } else {
 
           // check collision with players
           var ccheck;
           ccheck = collisionCheckPlayers(r, p, 1, function(e){
+
             var origin = Sockets[p.origin].player;
             if(origin !== null && origin.team !== e.team && p.origin !== e.id && e.energy > 0){
+
               // return the position of the collison
-              emitRoom(r, "projectileHit", p.id, e.x, e.y);
-              // EXPLOSIIOOONNNS
+              emitRoom(r, 'projectileHit', p.id, e.x, e.y);
+
+              // if projectile is explosive, create an explosion
               if(p.explosive > 0){
-                emitRoom(r, "explosion", p.x, p.y);
+                emitRoom(r, 'explosion', p.x, p.y);
                 collisionCheckPlayers(r, p, p.explosive, function(e, dist){
+
+                  // check if explosion hits a player
                   if(e.energy > 0){
                     e.energy -= Math.max(Math.round(p.damage * ((p.explosive-dist)/p.explosive)),1);
-                    // if player died, return playerDeath
+
+                    // if player died, return player death
                     if(e.energy <= 0){
+
+                      // the player survives at 1 energy if they are the origin
                       if(p.origin !== e.id){
-                        var d = new Date();
-                        e.death = d.getTime();
-                        if(origin.team !== e.team) origin.bounty += e.bounty;
-                        origin.kills++;
-                        e.bounty = 0;
-                        console.log(origin.displayName + " killed " + e.displayName);
-                        emitRoom(r, "playerDeath", p.x, p.y, origin.id, e.id);
+                        kill(r, origin, e, p);
                       } else {
                         e.energy = 1;
                       }
+
                     }
                   }
+
                 });
               } else {
                 e.energy -= p.damage;
                 if(e.energy <= 0){
-                  var d = new Date();
-                  e.death = d.getTime();
-                  origin.bounty += e.bounty;
-                  origin.kills++;
-                  e.bounty = 0;
-                  console.log(origin.displayName + " killed " + e.displayName);
-                  emitRoom(r, "playerDeath", p.x, p.y, origin.id, e.id);
+                  kill(r, origin, e, p);
                 }
               }
               r.projectiles.splice(i, 1);
@@ -825,46 +827,56 @@ function drawProjectiles(r){
           // check collision with map
           ccheck = collisionCheckMap(p, 1, function(pos, tx, ty){
             var origin = Sockets[p.origin].player;
+
             // return the position of the collison
             if(p.bounce === 0){
-              emitRoom(r, "projectileHit", p.id, tx, ty);
-              // EXPLOSIIOOONNNS
+
+              emitRoom(r, 'projectileHit', p.id, tx, ty);
+              // if projectile is explosive, create an explosion
               if(p.explosive > 0 && origin !== null){
-                emitRoom(r, "explosion", tx, ty);
+
+                emitRoom(r, 'explosion', tx, ty);
                 collisionCheckPlayers(r, p, p.explosive, function(e, dist){
+
+                  // check if explosion hits a player
                   if(e.energy > 0){
-                    e.energy -= Math.max(Math.round(p.damage * ((p.explosive-dist)/p.explosive)), 1);
-                    // if player died, return playerDeath
+                    e.energy -= Math.max(Math.round(p.damage * ((p.explosive-dist)/p.explosive)),1);
+
+                    // if player died, return player death
                     if(e.energy <= 0){
+
+                      // the player survives at 1 energy if they are the origin
                       if(p.origin !== e.id){
-                        var d = new Date();
-                        e.death = d.getTime();
-                        if(origin.team !== e.team) origin.bounty += e.bounty;
-                        origin.kills++;
-                        e.bounty = 0;
-                        console.log(origin.displayName + " killed " + e.displayName);
-                        emitRoom(r, "playerDeath", p.x, p.y, origin.id, e.id);
+                        kill(r, origin, e, p);
                       } else {
                         e.energy = 1;
                       }
+
                     }
                   }
                 });
+
               }
               r.projectiles.splice(i, 1);
+
             } else {
+
+              // if projectile bounces, perform bounce
+
               if(pos === 0 || pos === 2){ // top or bottom collision: reverse y
                 p.y = 22*(pos-1) + ty;
                 p.y_velocity = p.y_velocity * -1;
               }
-              if(pos === 1 || pos === 3){ // "left" or "right" collision: reverse x
+              if(pos === 1 || pos === 3){ // 'left' or 'right' collision: reverse x
                 p.x = 22*(pos-2) + tx;
                 p.x_velocity = p.x_velocity * -1;
               }
-              emitRoom(r, "projectileBounce", p);
+              emitRoom(r, 'projectileBounce', p);
               p.bounce -= 1;
+
             }
           });
+
           if(ccheck) break;
         }
       }
@@ -895,7 +907,7 @@ function collisionCheckMap(p, size, callback){
           if(m[my-1] && m[my-1][mx] == 1) arr[0] = -16;
           if(m[my][mx-1] == 1) arr[1] = -16;
           if(m[my+1] && m[my+1][mx] == 1) arr[2] = -16;
-          if(m[my][mx+1] == 1) arr[3] = -15; // default to "right" if multiple match -16
+          if(m[my][mx+1] == 1) arr[3] = -15; // default to 'right' if multiple match -16
           var max = Math.max.apply(null, arr), // find the closest match in arr and return its index
               pos = arr.indexOf(max);
           p.collided = true;
@@ -925,7 +937,7 @@ function collisionCheckPlayers(r, p, size, callback){
 function spawn(r, p){
   var s = ships.stats[p.ship];
   var sp; // spawn point
-  if(maps[r.map].config.respawn === "trench"){
+  if(maps[r.map].config.respawn === 'trench'){
     var o = r.objectives;
     // spawn based on control of center
     if(o[1].controlled[0]){
@@ -937,7 +949,7 @@ function spawn(r, p){
     }
     p.rotate = p.team === 0 ? 90 : 270;
     p.rotate += Math.round(Math.random()*50)-25;
-  } else if(maps[r.map].config.respawn === "random"){
+  } else if(maps[r.map].config.respawn === 'random'){
     // pick a random spawnpoint
     sp = maps[r.map].spawnpoints[Math.floor(Math.random()*maps[r.map].spawnpoints.length)];
   }
@@ -952,6 +964,58 @@ function spawn(r, p){
     p.abilitycd = 0;
     if(p.stealth) p.stealth = false;
   }
+}
+
+// when a player dies
+function kill(r, origin, e, p){
+  var osocket = Sockets[origin.id];
+  var esocket = Sockets[e.id];
+  var d = new Date();
+  e.death = d.getTime();
+
+  // if not team kill award bounty
+  if(origin.team !== e.team){
+
+    origin.bounty += e.bounty;
+    origin.kills++;
+    console.log(origin.displayName + ' killed ' + e.displayName);
+
+    osocket.emit('newAnnouncement', {
+      text: 'Killed ' + e.displayName + ' (+' + e.bounty + ')',
+      lifetime: 100,
+      color: 'rgb(100, 255, 100)'
+    });
+    Sockets[e.id].emit('newAnnouncement', {
+      text: 'Killed by '+origin.displayName,
+      lifetime: 100,
+      color: 'rgb(255, 100, 100)'
+    });
+
+  } else {
+
+    // remove a little bounty if team kill
+    origin.bounty -= 10;
+    if(origin.bounty < 0) origin.bounty = 0;
+    console.log(origin.displayName + ' TK\'d ' + e.displayName);
+
+    // announce team kill
+    osocket.emit('newAnnouncement', {
+      text: 'TK\'d '+e.displayName  + ' (-10)',
+      lifetime: 100,
+      color: 'rgb(255, 100, 100)'
+    });
+    esocket.emit('newAnnouncement', {
+      text: 'TK\'d by '+origin.displayName,
+      lifetime: 100,
+      color: 'rgb(255, 100, 100)'
+    });
+
+  }
+
+  // update statistics
+  e.bounty = 0;
+  emitRoom(r, 'playerDeath', p.x, p.y, origin.id, e.id);
+
 }
 
 function getLeaderboard(r){

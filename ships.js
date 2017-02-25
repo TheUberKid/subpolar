@@ -1,5 +1,5 @@
 var ships = {
-  "falcon": {
+  'falcon': {
     accel: 20,
     maxspeed: 800,
     turnspeed: 8,
@@ -12,7 +12,7 @@ var ships = {
     reload: 30,
     abilitycd: 200
   },
-  "lancaster": {
+  'lancaster': {
     accel: 15,
     maxspeed: 700,
     turnspeed: 6,
@@ -31,7 +31,7 @@ var ships = {
     bombradius: 230,
     abilitycd: 200
   },
-  "ghost": {
+  'ghost': {
     accel: 18,
     maxspeed: 650,
     turnspeed: 6,
@@ -44,7 +44,7 @@ var ships = {
     reload: 7,
     abilitycd: 0
   },
-  "aurora": {
+  'aurora': {
     accel: 17,
     maxspeed: 700,
     turnspeed: 6,
@@ -64,5 +64,5 @@ var ships = {
 }
 
 module.exports = {
-  "stats": ships
+  'stats': ships
 };
