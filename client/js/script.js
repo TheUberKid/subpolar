@@ -353,13 +353,13 @@ var projectileTemplates = {
     lifetime: 10
   },
   'lancasterShot': {
-    color: 'rgb(255, 255, 100)',
+    color: 'rgb(255, 255, 175)',
     size: 1,
     lifetime: 7
   },
   'lancasterBomb': {
-    color: 'rgb(255, 100, 50)',
-    size: 4,
+    color: 'rgb(255, 150, 75)',
+    size: 3,
     lifetime: 10
   },
   'ghostShot': {
