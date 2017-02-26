@@ -13,10 +13,10 @@ function prlog(t){
 String.prototype.replaceAt = function(index, character){
   return this.substr(0, index) + character + this.substr(index+character.length);
 }
-Object.prototype.getKeyByValue = function(value){
-  for(var prop in this){
-    if( this.hasOwnProperty(prop)){
-      if(this[prop] === value) return prop;
+function getKeyByValue(obj, value){
+  for(var prop in obj){
+    if(obj.hasOwnProperty(prop)){
+      if(obj[prop] === value) return prop;
     }
   }
 }
@@ -353,7 +353,7 @@ var projectileTemplates = {
     lifetime: 10
   },
   'lancasterShot': {
-    color: 'rgb(255, 255, 150)',
+    color: 'rgb(255, 255, 100)',
     size: 1,
     lifetime: 7
   },
@@ -419,12 +419,12 @@ function keydown(e){
     e.preventDefault();
     e.stopPropagation();
   }
-  keys[keymap.getKeyByValue(e.which)] = true;
-  socket.emit('keydown', keymap.getKeyByValue(e.which));
+  keys[getKeyByValue(keymap, e.which)] = true;
+  socket.emit('keydown', getKeyByValue(keymap, e.which));
 }
 function keyup(e){
-  keys[keymap.getKeyByValue(e.which)] = false;
-  socket.emit('keyup', keymap.getKeyByValue(e.which));
+  keys[getKeyByValue(keymap, e.which)] = false;
+  socket.emit('keyup', getKeyByValue(keymap, e.which));
 }
 // chat key events
 function docKeydown(e){
@@ -555,8 +555,8 @@ function init(){
       drawThrusters();
       drawProjectiles();
       drawRepels();
-      if(mapdata) drawMap();
       drawTrails();
+      if(mapdata) drawMap();
       drawPlayers(ppos);
       drawHUD(ppos, time, players, rankings);
     }
@@ -566,7 +566,7 @@ function init(){
     projectiles.push(new Projectile(p.id, p.x, p.y, p.x_velocity, p.y_velocity, p.type, p.lifetime, p.bounce, p.origin));
   });
   socket.on('projectileHit', function(id, px, py){
-    for(var i in projectiles){
+    for(var i = projectiles.length-1; i>-1; i--){
       if(projectiles[i].id === id){
         var p = projectiles[i];
         var pt = projectileTemplates[projectiles[i].type];
@@ -863,7 +863,7 @@ function drawHUD(ppos, time, players, rankings){
   // announcements
   ctx.textAlign = 'center';
   ctx.font = '16px Share Tech Mono';
-  for(var i in chat.announcements){
+  for(var i=0, j=chat.announcements.length; i<j; i++){
     var a = chat.announcements[i];
     ctx.fillStyle = a.color;
     ctx.globalAlpha = Math.min(0.5, a.lifetime/100);
@@ -975,7 +975,7 @@ function drawHUD(ppos, time, players, rankings){
 
 // update projectiles
 function drawProjectiles(){
-  for(var i in projectiles){
+  for(var i = projectiles.length-1; i>-1; i--){
     var p = projectiles[i];
     var pt = projectileTemplates[p.type];
     var diffx = p.x - self.x;
@@ -983,7 +983,7 @@ function drawProjectiles(){
     for(var j = 0; j < unistep; j++){
       if(Math.abs(diffx) < canvas.width+8 && Math.abs(diffy) < canvas.height+8 && p.lifetime > 0){
         var trailstep = Math.round(Math.sqrt((p.x_velocity/100)*(p.x_velocity/100) + (p.y_velocity/100)*(p.y_velocity/100)) / (pt.size/2))+1;
-        for(var k = 0, l = Math.ceil(trailstep*1.5/unistep); k<l; k++){
+        for(var k = 0, l = Math.ceil(trailstep/unistep); k<l; k++){
           var t = new Trail(p.x - k*(p.x_velocity/(l*100)), p.y - k*(p.y_velocity/(l*100)), pt.size, pt.color, pt.lifetime - (1 / l * k));
           trails.push(t);
         }
@@ -1017,7 +1017,7 @@ function drawProjectiles(){
 // This is because they dont need to be step-checked per frame like other objects.
 // as such a trail lifetime is simply the number of frames it exists
 function drawTrails(){
-  for(var i in trails){
+  for(var i = trails.length-1; i > -1; i--){
     var t = trails[i];
     var diffx = t.x - self.x;
     var diffy = t.y - self.y;
