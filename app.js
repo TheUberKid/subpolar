@@ -717,6 +717,18 @@ function useAbility(r, p, e){
             emitRoom(r, 'repelBounce', t);
           }
         }
+        for(var i in r.players){
+          var t = r.players[i];
+          if(t.team !== p.team){
+            var diffx = t.x - p.x;
+            var diffy = t.y - p.y;
+            var distance = Math.sqrt(diffx*diffx + diffy*diffy);
+            if(distance < 120){
+              t.x_velocity = diffx > 0 ? Math.round(100-diffx)*2 : Math.round(-100+diffx)*2;
+              t.y_velocity = diffy > 0 ? Math.round(100-diffy)*2 : Math.round(-100+diffy)*2;
+            }
+          }
+        }
         p.abilitycd += s.abilitycd;
       }
 
@@ -862,12 +874,11 @@ function drawProjectiles(r){
             } else {
 
               // if projectile bounces, perform bounce
-
               if(pos === 0 || pos === 2){ // top or bottom collision: reverse y
                 p.y = 10*(pos-1) + ty;
                 p.y_velocity = p.y_velocity * -1;
               }
-              if(pos === 1 || pos === 3){ // 'left' or 'right' collision: reverse x
+              if(pos === 1 || pos === 3){ // left or right collision: reverse x
                 p.x = 10*(pos-2) + tx;
                 p.x_velocity = p.x_velocity * -1;
               }

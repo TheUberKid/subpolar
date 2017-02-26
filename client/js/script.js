@@ -558,7 +558,7 @@ function init(){
       drawTrails();
       if(mapdata) drawMap();
       drawPlayers(ppos);
-      drawHUD(ppos, time, players, rankings);
+      drawHUD(ppos, time, players, rankings, objectives);
     }
   });
 
@@ -812,9 +812,34 @@ function collisionCheckMap(p, size, callback){
   return false;
 }
 
-function drawHUD(ppos, time, players, rankings){
+function drawHUD(ppos, time, players, rankings, loc){
   var s = ships[self.ship];
-  // minimap
+
+  // minimap clipping
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(canvas.width - 270, canvas.height - 270, 250, 250);
+  ctx.clip();
+  // objectives
+  if(self.map === 'trenchWars'){
+    for(var i=0, j=loc.length; i<j; i++){
+      var o = loc[i];
+      var diffx = (o.x - self.x)/8;
+      var diffy = (o.y - self.y)/8;
+      if(Math.abs(diffx) < 135 && Math.abs(diffy) < 135){
+        var color = self.team === 0 ?
+          'rgba('+(o.control+100)+', '+Math.abs(o.control-100)+', '+Math.abs(o.control-100)+', 0.7)' :
+          'rgba('+Math.abs(o.control-100)+', '+(o.control+100)+', '+(o.control+100)+', 0.7)';
+        if(o.controlled[self.team]){
+          color = 'rgba(0, 255, 255, 0.7)';
+        } else if(o.controlled[Math.abs(self.team-1)]){
+          color = 'rgba(255, 0, 0, 0.7)';
+        }
+        drawCircle(canvas.width - 145 + diffx, canvas.height - 145 + diffy, 10, color);
+      }
+    }
+  }
+  // map
   ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
   ctx.fillRect(canvas.width - 270, canvas.height - 270, 250, 250);
   ctx.lineWidth = 1;
@@ -824,6 +849,7 @@ function drawHUD(ppos, time, players, rankings){
       if(mapdata[r] && mapdata[r][c] && mapdata[r][c] != 0) ctx.strokeRect(canvas.width - 145 + c*2 - self.x/8, canvas.height - 145 + r*2 - self.y/8, 1, 1);
     }
   }
+  // players
   for(var i in ppos){
     var p = ppos[i];
     if(p.id !== self.id && Math.abs(p.x-self.x) < 1000 && Math.abs(p.y-self.y) < 1000 && !p.death){
@@ -835,10 +861,12 @@ function drawHUD(ppos, time, players, rankings){
   }
   ctx.strokeStyle = 'rgb(100, 255, 100)';
   ctx.strokeRect(canvas.width - 145, canvas.height - 145, 1, 1);
-
   ctx.lineWidth = 3;
+  // canvas border
   ctx.strokeStyle = 'rgba(100, 100, 100, 0.5)';
   ctx.strokeRect(canvas.width - 270, canvas.height - 270, 250, 250);
+  // end clipping
+  ctx.restore();
 
   // energy bar
   if(!self.death){
