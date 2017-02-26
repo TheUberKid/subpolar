@@ -450,11 +450,17 @@ function computeObjective(r){
     var loc = r.objectives;
     for(var i=0, j=loc.length; i<j; i++){
       var o = loc[i];
+      var name = "";
+      if(i === 0) name = "western";
+      if(i === 1) name = "central";
+      if(i === 2) name = "eastern";
+      // change control based on contesting players
       if(o.contested[0] && !o.contested[1] && !o.controlled[0]){
         o.control--;
       } else if(o.contested[1] && !o.contested[0] && o.control < 100){
         o.control++;
       } else if(Math.abs(o.control) < 100 && !o.contested[0] && !o.contested[1]){
+        // slowly reset control if nobody is contesting
         if(o.controlled[0] === o.controlled[1]){
           if(o.control > 0) o.control--;
           if(o.control < 0) o.control++;
@@ -463,9 +469,60 @@ function computeObjective(r){
           if(o.controlled[1]) o.control++;
         }
       }
-      if(o.control <= -100) o.controlled = [true, false];
-      if(o.control >= 100)  o.controlled = [false, true];
-      if(o.control === 0)   o.controlled = [false, false];
+      // determine control
+      if(o.control <= -100 && !o.controlled[0]){
+        emitTeam(r, 0, "newAnnouncement", {
+          text: "Your team controls the "+name+" trench.",
+          lifetime: 200,
+          color: "rgb(150, 255, 150)"
+        });
+        emitTeam(r, 1, "newAnnouncement", {
+          text: "The enemy controls the "+name+" trench.",
+          lifetime: 200,
+          color: "rgb(255, 150, 150)"
+        });
+        o.controlled = [true, false];
+      }
+      if(o.control >= 100 && !o.controlled[1]){
+        emitTeam(r, 1, "newAnnouncement", {
+          text: "Your team controls the "+name+" trench.",
+          lifetime: 200,
+          color: "rgb(150, 255, 150)"
+        });
+        emitTeam(r, 0, "newAnnouncement", {
+          text: "The enemy controls the "+name+" trench.",
+          lifetime: 200,
+          color: "rgb(255, 150, 150)"
+        });
+        o.controlled = [false, true];
+      }
+      if(o.control === 0){
+        if(o.controlled[0]){
+          emitTeam(r, 0, "newAnnouncement", {
+            text: "Lost control of the "+name+" trench.",
+            lifetime: 200,
+            color: "rgb(150, 100, 255)"
+          });
+          emitTeam(r, 1, "newAnnouncement", {
+            text: "The enemy lost control of the "+name+" trench.",
+            lifetime: 200,
+            color: "rgb(150, 100, 255)"
+          });
+        }
+        if(o.controlled[1]){
+          emitTeam(r, 1, "newAnnouncement", {
+            text: "Lost control of the "+name+" trench.",
+            lifetime: 200,
+            color: "rgb(150, 100, 255)"
+          });
+          emitTeam(r, 0, "newAnnouncement", {
+            text: "The enemy lost control of the "+name+" trench.",
+            lifetime: 200,
+            color: "rgb(150, 100, 255)"
+          });
+        }
+        o.controlled = [false, false];
+      }
       o.contested = [false, false];
     }
   }
