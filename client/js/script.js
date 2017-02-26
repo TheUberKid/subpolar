@@ -865,11 +865,13 @@ function drawHUD(ppos, time, players, rankings){
   ctx.font = '16px Share Tech Mono';
   for(var i=0, j=chat.announcements.length; i<j; i++){
     var a = chat.announcements[i];
-    ctx.fillStyle = a.color;
-    ctx.globalAlpha = Math.min(0.5, a.lifetime/100);
-    ctx.fillText(a.text, canvas.width/2, canvas.height - 200 + (i*20));
-    a.lifetime--;
-    if(a.lifetime <= 0) delete chat.announcements[i];
+    if(a){
+      ctx.fillStyle = a.color;
+      ctx.globalAlpha = Math.min(0.5, a.lifetime/100);
+      ctx.fillText(a.text, canvas.width/2, canvas.height - 200 + (i*20));
+      a.lifetime--;
+      if(a.lifetime <= 0) delete chat.announcements[i];
+    }
   }
   ctx.globalAlpha = 1;
 
@@ -984,7 +986,7 @@ function drawProjectiles(){
       if(Math.abs(diffx) < canvas.width+8 && Math.abs(diffy) < canvas.height+8 && p.lifetime > 0){
         var trailstep = Math.round(Math.sqrt((p.x_velocity/100)*(p.x_velocity/100) + (p.y_velocity/100)*(p.y_velocity/100)) / (pt.size/2))+1;
         for(var k = 0, l = Math.ceil(trailstep/unistep); k<l; k++){
-          var t = new Trail(p.x - k*(p.x_velocity/(l*100)), p.y - k*(p.y_velocity/(l*100)), pt.size, pt.color, pt.lifetime - (1 / l * k));
+          var t = new Trail(p.x - k*(p.x_velocity/(l*100)), p.y - k*(p.y_velocity/(l*100)), pt.size, pt.color, pt.lifetime - (k / l));
           trails.push(t);
         }
       }
