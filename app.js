@@ -556,6 +556,7 @@ function drawPlayers(r){
       if(p.keys['leave']){
         console.log(p.displayName + ' left room '+r.id);
         r.teams[p.team]--;
+        r.population--;
         // delete player from their room
         delete r.players[p.id];
         // decrement projectile origins
@@ -692,7 +693,7 @@ function fireProjectile(r, p, e){
         r.projectiles.push(newProjectile);
         p.reload = s.reload;
         p.energy -= s.bulletenergyuse;
-        emitRoom(r, 'projectile', newProjectile);
+        emitRoom(r, 'projectile', newProjectile, p.rotate);
       }
 
       // lancaster
@@ -708,7 +709,7 @@ function fireProjectile(r, p, e){
           var y_velocity = s.bulletspeed*Math.sin(radians*(p.rotate-90)) + (p.y_velocity / 100);
           var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, 'lancasterShot', s.bulletlifetime * unistep, s.bulletdamage, 0, 0, p.id, p.map);
           r.projectiles.push(newProjectile);
-          emitRoom(r, 'projectile', newProjectile);
+          emitRoom(r, 'projectile', newProjectile, p.rotate);
         }
         p.reload = s.reload;
         p.energy -= s.bulletenergyuse;
@@ -726,7 +727,7 @@ function fireProjectile(r, p, e){
         p.reload = s.reload;
         p.energy -= s.bulletenergyuse;
         if(p.stealth) p.stealth = false;
-        emitRoom(r, 'projectile', newProjectile);
+        emitRoom(r, 'projectile', newProjectile, p.rotate);
       }
 
       // aurora
@@ -742,7 +743,7 @@ function fireProjectile(r, p, e){
           var y_velocity = s.bulletspeed*Math.sin(radians*(p.rotate-90)) + (p.y_velocity / 100);
           var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, 'auroraShot', s.bulletlifetime * unistep, s.bulletdamage, 0, 0, p.id, p.map);
           r.projectiles.push(newProjectile);
-          emitRoom(r, 'projectile', newProjectile);
+          emitRoom(r, 'projectile', newProjectile, p.rotate);
         }
         p.reload = s.reload;
         p.energy -= s.bulletenergyuse;
@@ -768,8 +769,8 @@ function useAbility(r, p, e){
           var diffy = t.y - p.y;
           var distance = Math.sqrt(diffx*diffx + diffy*diffy);
           if(distance < 120){
-            t.x_velocity = diffx > 0 ? (100-diffx)*5 : (-100+diffx)*5;
-            t.y_velocity = diffy > 0 ? (100-diffy)*5 : (-100+diffy)*5;
+            t.x_velocity = diffx > 0 ? (120-diffx)*5 : (-120+diffx)*5;
+            t.y_velocity = diffy > 0 ? (120-diffy)*5 : (-120+diffy)*5;
             t.origin = p.id;
             emitRoom(r, 'repelBounce', t);
           }
@@ -780,9 +781,9 @@ function useAbility(r, p, e){
             var diffx = t.x - p.x;
             var diffy = t.y - p.y;
             var distance = Math.sqrt(diffx*diffx + diffy*diffy);
-            if(distance < 120){
-              t.x_velocity = diffx > 0 ? Math.round(100-diffx)*2 : Math.round(-100+diffx)*2;
-              t.y_velocity = diffy > 0 ? Math.round(100-diffy)*2 : Math.round(-100+diffy)*2;
+            if(distance < 140){
+              t.x_velocity = diffx > 0 ? Math.round(140-diffx)*3 : Math.round(-140+diffx)*3;
+              t.y_velocity = diffy > 0 ? Math.round(140-diffy)*3 : Math.round(-140+diffy)*3;
             }
           }
         }
@@ -796,11 +797,11 @@ function useAbility(r, p, e){
         var y = p.y + 18*Math.sin(radians*(p.rotate-90));
         var x_velocity = s.bombspeed*Math.cos(radians*(p.rotate-90)) + (p.x_velocity / 100);
         var y_velocity = s.bombspeed*Math.sin(radians*(p.rotate-90)) + (p.y_velocity / 100);
-        var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, 'lancasterBomb', s.bomblifetime * unistep, s.bombdamage, s.bombbounce, s.bombradius, p.id, p.map);
+        var newProjectile = new Projectile(id, x, y, p.rotate, x_velocity, y_velocity, 'lancasterBomb', s.bomblifetime * unistep, s.bombdamage, s.bombbounce, s.bombradius, p.id, p.map);
         r.projectiles.push(newProjectile);
         p.energy -= s.bombenergyuse;
         p.abilitycd += s.abilitycd;
-        emitRoom(r, 'projectile', newProjectile);
+        emitRoom(r, 'projectile', newProjectile, p.rotate);
       }
 
       // stealth
@@ -814,11 +815,11 @@ function useAbility(r, p, e){
         var id = Math.round(Math.random()*10000);
         var x = p.x + 4*Math.cos(radians*(p.rotate-90));
         var y = p.y + 4*Math.sin(radians*(p.rotate-90));
-        var newProjectile = new Projectile(id, x, y, 0, 0, 'auroraMine', s.minelifetime * unistep, s.minedamage, 0, s.mineradius, p.id, p.map);
+        var newProjectile = new Projectile(id, x, y, p.rotate, 0, 0, 'auroraMine', s.minelifetime * unistep, s.minedamage, 0, s.mineradius, p.id, p.map);
         r.projectiles.push(newProjectile);
         p.energy -= s.mineenergyuse;
         p.abilitycd += s.abilitycd;
-        emitRoom(r, 'projectile', newProjectile);
+        emitRoom(r, 'projectile', newProjectile, p.rotate);
       }
     }
   }

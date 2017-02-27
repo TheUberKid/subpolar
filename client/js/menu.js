@@ -1,6 +1,5 @@
 var loggedIn = false;
 var username;
-
 var nav = document.getElementsByClassName('nav');
 var menus = document.getElementsByClassName('display-menu');
 var menuModules = document.getElementsByClassName('menu-tab-module');
@@ -21,6 +20,11 @@ var loginError = document.getElementById('login-error');
 var joinButton = document.getElementById('join-button');
 var logoutButton = document.getElementById('logout-button');
 var tabs = document.getElementsByClassName('menu-tab');
+var keyGuides = document.getElementsByClassName('keyguide');
+var resetKeys = document.getElementById('reset-controls');
+var shipChoices = document.getElementsByClassName('ship-choice');
+var shipChosen = 'falcon';
+var zoneChosen = 'extreme games';
 
 // navigation system
 function navigate(e){
@@ -153,54 +157,59 @@ function initMenus(){
     }, 500);
   });
 
-  // ship choices
-  for(var i=0, j=shipChoices.length; i<j; i++){
-    shipChoices[i].addEventListener('click', function(e){
-      var self = e.currentTarget;
-      shipChosen = self.dataset.name;
-      document.getElementById('shipname').innerHTML = self.dataset.name;
-      for(var k=0; k<j; k++){
-        shipChoices[k].className = 'ship-choice';
-      }
-      self.className = 'ship-choice selected';
-    });
-  }
-
-  for(var l=0, m=keyGuides.length; l<m; l++){
-    keyGuides[l].innerHTML = keyCodes[keymap[keyGuides[l].dataset.action]];
-    keyGuides[l].addEventListener('click', function(e){
-      blur();
-      var self = e.currentTarget;
-      if(self.className === 'keyguide'){
-        for(var n=0; n<m; n++){
-          keyGuides[n].innerHTML = keyCodes[keymap[keyGuides[n].dataset.action]];
-          keyGuides[n].className = 'keyguide';
-        }
-        self.className = 'keyguide selectedkey';
-        self.innerHTML = 'press a key';
-      } else {
-        self.className = 'keyguide';
-        self.innerHTML = keyCodes[keymap[self.dataset.action]];
-      }
-    });
-  }
-  document.addEventListener('keydown', keychange);
-  resetKeys.addEventListener('click', function(){
-    keymap = defaultkeys;
-    blur();
-    for(var i=0, j=keyGuides.length; i<j; i++){
-      keyGuides[i].innerHTML = keyCodes[keymap[keyGuides[i].dataset.action]];
-    }
-    for(var key in keymap){
-      if(keymap.hasOwnProperty(key)){
-        delete_cookie(key);
-      }
-    }
-  });
   joinButton.addEventListener('click', function(){
     join();
   });
   logoutButton.addEventListener('click', function(){
     socket.emit('logout');
+  });
+
+  // used when joining the game
+  function join(){
+    document.removeEventListener('keydown', keychange);
+    self.joined = true;
+    socket.emit('join', shipChosen, zoneChosen);
+    self.ship = shipChosen;
+    document.body.style.backgroundColor = '#222';
+    document.getElementById('background').style.display = 'none';
+
+    var n = document.getElementsByClassName('display-menu')
+    for(var i=0, j=n.length; i<j; i++){
+      n[i].className = 'display-menu';
+    }
+    document.getElementById('background').style.display = 'none';
+
+    // key events
+    canvas.addEventListener('keydown', keydown);
+    document.addEventListener('keydown', docKeydown);
+    canvas.addEventListener('keyup', keyup);
+    canvas.style.display = 'block';
+    canvas.focus();
+  }
+
+  socket.on('leave', function(){
+    document.addEventListener('keydown', keychange);
+    self.joined = false;
+    document.body.style.backgroundColor = 'none';
+
+    navigate('mainmenu');
+    document.getElementById('background').style.display = 'block';
+
+    // key events
+    canvas.removeEventListener('keydown', keydown);
+    document.removeEventListener('keydown', docKeydown);
+    canvas.removeEventListener('keyup', keyup);
+    document.getElementById('display').style.display = 'none';
+
+    // reset to defaults
+    for(var key in keys){
+      keys[key] = false;
+    }
+    self.rotate = null;
+    mapdata = [];
+    projectiles = [];
+    chat.messages = [];
+    chat.announcements = [];
+
   });
 }
