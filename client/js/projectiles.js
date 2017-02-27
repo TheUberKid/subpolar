@@ -4,7 +4,9 @@ var projectileTemplates = {
   'falconShot': {
     color: 'rgb(255, 255, 255)',
     size: 1,
-    lifetime: 10
+    lifetime: 10,
+    ripplesize: 1,
+    ripplelife: 10
   },
   'lancasterShot': {
     color: 'rgb(255, 255, 175)',
@@ -14,7 +16,9 @@ var projectileTemplates = {
   'lancasterBomb': {
     color: 'rgb(255, 150, 75)',
     size: 3,
-    lifetime: 10
+    lifetime: 10,
+    ripplesize: 2,
+    ripplelife: 15
   },
   'ghostShot': {
     color: 'rgb(175, 255, 175)',
@@ -44,9 +48,10 @@ function initProjectiles(){
     var rippleCount = 0;
     var pt = projectileTemplates[p.type];
     if(p.type === 'falconShot'){
-      ripples.push(new Ripple(p.x, p.y, rotate, pt.color, 10));
-      rippleCount = 6;
+      ripples.push(new Ripple(p.x, p.y, rotate, pt.ripplesize, pt.color, pt.ripplelife));
+      rippleCount = 8;
     }
+    if(p.type === 'lancasterBomb') ripples.push(new Ripple(p.x, p.y, rotate, pt.ripplesize, pt.color, pt.ripplelife));
     projectiles.push(new Projectile(p.id, p.x, p.y, rotate, p.x_velocity, p.y_velocity, p.type, p.lifetime, p.bounce, p.origin, rippleCount));
   });
 
@@ -152,7 +157,7 @@ function drawProjectiles(){
     }
     // create ripples
     if(p.trail && p.rippleCount > 0){
-      if(p.rippleCount % 3 === 1) ripples.push(new Ripple(p.x, p.y, p.rotate, pt.color, 10));
+      if(p.rippleCount % 3 === 0) ripples.push(new Ripple(p.x, p.y, p.rotate, pt.ripplesize, pt.color, pt.ripplelife));
       p.rippleCount--;
     }
   }

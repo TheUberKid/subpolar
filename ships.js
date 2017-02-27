@@ -23,13 +23,13 @@ var ships = {
     bulletspeed: 1500,
     recharge: 2,
     reload: 10,
-    bombenergyuse: 240,
+    bombenergyuse: 0,
     bombdamage: 500,
     bomblifetime: 120,
     bombspeed: 1400,
     bombbounce: 1,
     bombradius: 230,
-    abilitycd: 200
+    abilitycd: 360
   },
   'ghost': {
     accel: 18,

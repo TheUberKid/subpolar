@@ -18,12 +18,14 @@ var Trail = function(x, y, size, color, lifetime){
 
 // Ripples from shots
 var ripples = [];
-var Ripple = function(x, y, rotate, color, lifetime){
+var Ripple = function(x, y, rotate, size, color, lifetime){
   this.x = x;
   this.y = y;
   this.rotate = rotate;
+  this.size = size;
   this.color = color;
   this.lifetime = lifetime;
+  this.maxlife = lifetime;
 }
 
 // Repels
@@ -92,7 +94,7 @@ function drawParticles(){
     if(p.lifetime < 0) repels.splice(i, 1);
   }
 
-  // ripples - the particle that appears when a weapon is fired
+  // the particle that appears when a weapon is fired
   for(var i = ripples.length-1; i > -1; i--){
     var r = ripples[i];
     var diffx = r.x - self.x;
@@ -102,8 +104,8 @@ function drawParticles(){
       ctx.translate((canvas.width/2) + diffx, (canvas.height/2) + diffy);
       ctx.rotate(radians*r.rotate);
       ctx.scale(1, 0.3);
-      ctx.globalAlpha = r.lifetime/10;
-      drawCircle(0, 0, Math.min(30-(r.lifetime*3), 10), 'transparent', r.color, 4);
+      ctx.globalAlpha = r.lifetime/r.maxlife;
+      drawCircle(0, 0, Math.min(30-((r.lifetime/r.maxlife)*30), 10)*r.size, 'transparent', r.color, 4);
       ctx.restore();
     }
     r.lifetime--;
