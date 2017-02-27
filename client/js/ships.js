@@ -12,7 +12,7 @@ var ships = {
     maxspeed: 700,
     turnspeed: 6,
     maxenergy: 250,
-    abilitycd: 360,
+    abilitycd: 300,
     image: 'lancaster.png'
   },
   'ghost': {
