@@ -7,7 +7,7 @@ var ships = {
     bulletenergyuse: 200,
     bulletlifetime: 100,
     bulletdamage: 300,
-    bulletspeed: 1900,
+    bulletspeed: 1800,
     recharge: 2,
     reload: 30,
     abilitycd: 200

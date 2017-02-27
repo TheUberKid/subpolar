@@ -797,7 +797,7 @@ function useAbility(r, p, e){
         var y = p.y + 18*Math.sin(radians*(p.rotate-90));
         var x_velocity = s.bombspeed*Math.cos(radians*(p.rotate-90)) + (p.x_velocity / 100);
         var y_velocity = s.bombspeed*Math.sin(radians*(p.rotate-90)) + (p.y_velocity / 100);
-        var newProjectile = new Projectile(id, x, y, p.rotate, x_velocity, y_velocity, 'lancasterBomb', s.bomblifetime * unistep, s.bombdamage, s.bombbounce, s.bombradius, p.id, p.map);
+        var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, 'lancasterBomb', s.bomblifetime * unistep, s.bombdamage, s.bombbounce, s.bombradius, p.id, p.map);
         r.projectiles.push(newProjectile);
         p.energy -= s.bombenergyuse;
         p.abilitycd += s.abilitycd;
@@ -815,7 +815,7 @@ function useAbility(r, p, e){
         var id = Math.round(Math.random()*10000);
         var x = p.x + 4*Math.cos(radians*(p.rotate-90));
         var y = p.y + 4*Math.sin(radians*(p.rotate-90));
-        var newProjectile = new Projectile(id, x, y, p.rotate, 0, 0, 'auroraMine', s.minelifetime * unistep, s.minedamage, 0, s.mineradius, p.id, p.map);
+        var newProjectile = new Projectile(id, x, y, 0, 0, 'auroraMine', s.minelifetime * unistep, s.minedamage, 0, s.mineradius, p.id, p.map);
         r.projectiles.push(newProjectile);
         p.energy -= s.mineenergyuse;
         p.abilitycd += s.abilitycd;
