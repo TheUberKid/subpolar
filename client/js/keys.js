@@ -40,7 +40,7 @@ function initKeys(){
       }
     }
   });
-  
+
 }
 
 function initChat(){
@@ -67,7 +67,6 @@ function initChat(){
     if(chat.announcements.length === 0){
       chat.announcements[0] = m;
     }
-    console.log(chat.announcements);
   });
 }
 

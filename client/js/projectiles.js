@@ -154,7 +154,6 @@ function drawProjectiles(){
     if(p.trail && p.rippleCount > 0){
       if(p.rippleCount % 3 === 1) ripples.push(new Ripple(p.x, p.y, p.rotate, pt.color, 10));
       p.rippleCount--;
-      console.log("hi");
     }
   }
 }
