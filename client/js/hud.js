@@ -131,11 +131,21 @@ function drawHUD(ppos, time, players, rankings, loc){
     ctx.save();
     // image
     ctx.globalAlpha = 0.5;
+    if(self.stealth) ctx.globalAlpha = 1;
     drawImg(s.abilityimage, canvas.width-310, canvas.height-30, 74);
     ctx.globalAlpha = 1;
-    if(self.abilitycd === 0 && !self.stealth){
+
+    if(self.abilitycd === 0 && self.ship !== 'ghost'){
       ctx.shadowBlur = 2;
-      ctx.shadowColor = "rgba(255, 255, 255, 0.7)";
+      ctx.shadowColor = 'rgba(255, 255, 255, 0.7)';
+    } else if(self.ship === 'ghost'){
+      if(self.stealth){
+        ctx.shadowBlur = 2;
+        ctx.shadowColor = 'rgba(255, 255, 255, 0.7)';
+        self.abilitycd = 0;
+      } else {
+        self.abilitycd = 1;
+      }
     }
 
     // text
@@ -146,14 +156,16 @@ function drawHUD(ppos, time, players, rankings, loc){
     ctx.fillText(keyCodes[keymap['ability1']].toUpperCase(), canvas.width-310, canvas.height-30);
 
     // border
-    ctx.strokeStyle = 'rgba(255, 255, 255, '+ (self.abilitycd === 0 && !self.stealth ? '1' : '0.5') + ')';
+    ctx.strokeStyle = 'rgba(255, 255, 255, '+ (self.abilitycd === 0 ? '1' : '0.5') + ')';
     ctx.strokeRect(canvas.width-374, canvas.height-94, 74, 74);
 
     // progress bar
-    ctx.fillStyle = 'rgba(0, 0, 0, '+ (self.abilitycd === 0 && !self.stealth ? '1' : '0.5') + ')';
-    var ypos = self.stealth ? canvas.height-93 : canvas.height-21-(self.abilitycd/s.abilitycd)*72;
-    var height = self.stealth ? 72 : (self.abilitycd/s.abilitycd)*72;
-    ctx.fillRect(canvas.width-373, ypos, 72, height);
+    if(self.ship !== 'ghost'){
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+      var ypos = self.stealth ? canvas.height-93 : canvas.height-21-(self.abilitycd/s.abilitycd)*72;
+      var height = self.stealth ? 72 : (self.abilitycd/s.abilitycd)*72;
+      ctx.fillRect(canvas.width-373, ypos, 72, height);
+    }
     ctx.restore();
   }
 }
