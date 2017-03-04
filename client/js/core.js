@@ -38,7 +38,10 @@ var images = [
   'ghost.png',
   'aurora.png',
   'smoke.png',
-  'wall.png'
+  'wall.png',
+  'repel.png',
+  'cloak.png',
+  'bomb.png'
 ];
 var loadedImages = {};
 var promiseArray = images.map(function(imgurl){

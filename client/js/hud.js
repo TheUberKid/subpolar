@@ -125,23 +125,35 @@ function drawHUD(ppos, time, players, rankings, loc){
   }
   ctx.globalAlpha = 1;
 
-  // ability cooldown
+  // ability cooldown and image
   if(s != null){
+    // ability 1
     ctx.save();
-    ctx.strokeStyle = 'rgba(255, 255, 255, '+ (self.abilitycd === 0 && !self.stealth ? '1' : '0.5') + ')';
-    ctx.fillStyle = 'rgba(255, 255, 255, '+ (self.abilitycd === 0 && !self.stealth ? '1' : '0.25') + ')';
-    ctx.lineWidth = 1;
-    ctx.textAlign = 'right';
-    ctx.font = '14px Share Tech Mono';
     if(self.abilitycd === 0 && !self.stealth){
       ctx.shadowBlur = 2;
       ctx.shadowColor = "rgba(255, 255, 255, 0.7)";
     }
+    // image
+    ctx.globalAlpha = 0.25;
+    drawImg(s.abilityimage, canvas.width-310, canvas.height-30, 74);
+    ctx.globalAlpha = 1;
+
+    // text
+    ctx.lineWidth = 1;
+    ctx.textAlign = 'right';
+    ctx.font = '14px Share Tech Mono';
+    ctx.fillStyle = 'rgb(255, 255, 255)';
     ctx.fillText(keyCodes[keymap['ability1']].toUpperCase(), canvas.width-310, canvas.height-30);
-    ctx.strokeRect(canvas.width-375, canvas.height-95, 75, 75);
-    var ypos = self.stealth ? canvas.height-95 : canvas.height-20-(self.abilitycd/s.abilitycd)*75;
-    var height = self.stealth ? 75 : (self.abilitycd/s.abilitycd)*75;
-    ctx.fillRect(canvas.width-375, ypos, 75, height);
+
+    // border
+    ctx.strokeStyle = 'rgba(255, 255, 255, '+ (self.abilitycd === 0 && !self.stealth ? '1' : '0.5') + ')';
+    ctx.strokeRect(canvas.width-374, canvas.height-94, 74, 74);
+
+    // progress bar
+    ctx.fillStyle = 'rgba(255, 255, 255, '+ (self.abilitycd === 0 && !self.stealth ? '1' : '0.25') + ')';
+    var ypos = self.stealth ? canvas.height-93 : canvas.height-21-(self.abilitycd/s.abilitycd)*72;
+    var height = self.stealth ? 72 : (self.abilitycd/s.abilitycd)*72;
+    ctx.fillRect(canvas.width-373, ypos, 72, height);
     ctx.restore();
   }
 }

@@ -5,15 +5,17 @@ var ships = {
     turnspeed: 8,
     maxenergy: 250,
     abilitycd: 200,
-    image: 'falcon.png'
+    image: 'falcon.png',
+    abilityimage: 'repel.png'
   },
   'lancaster': {
     accel: 15,
     maxspeed: 700,
     turnspeed: 6,
     maxenergy: 250,
-    abilitycd: 300,
-    image: 'lancaster.png'
+    abilitycd: 320,
+    image: 'lancaster.png',
+    abilityimage: 'bomb.png'
   },
   'ghost': {
     accel: 20,
@@ -21,7 +23,8 @@ var ships = {
     turnspeed: 6,
     maxenergy: 200,
     abilitycd: 0,
-    image: 'ghost.png'
+    image: 'ghost.png',
+    abilityimage: 'cloak.png'
   },
   'aurora': {
     accel: 15,
