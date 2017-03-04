@@ -763,18 +763,22 @@ function useAbility(r, p, e){
       // repel
       if(p.ship === 'falcon'){
         emitRoom(r, 'repel', p.x, p.y);
+        // push away enemy projectiles
         for(var i=0; i<r.projectiles.length; i++){
           var t = r.projectiles[i];
-          var diffx = t.x - p.x;
-          var diffy = t.y - p.y;
-          var distance = Math.sqrt(diffx*diffx + diffy*diffy);
-          if(distance < 120){
-            t.x_velocity = diffx > 0 ? (120-diffx)*5 : (-120+diffx)*5;
-            t.y_velocity = diffy > 0 ? (120-diffy)*5 : (-120+diffy)*5;
-            t.origin = p.id;
-            emitRoom(r, 'repelBounce', t);
+          if(r.players[t.origin].team !== p.team){
+            var diffx = t.x - p.x;
+            var diffy = t.y - p.y;
+            var distance = Math.sqrt(diffx*diffx + diffy*diffy);
+            if(distance < 120){
+              t.x_velocity = diffx > 0 ? (120-diffx)*5 : (-120+diffx)*5;
+              t.y_velocity = diffy > 0 ? (120-diffy)*5 : (-120+diffy)*5;
+              t.origin = p.id;
+              emitRoom(r, 'repelBounce', t);
+            }
           }
         }
+        // push away enemy ships
         for(var i in r.players){
           var t = r.players[i];
           if(t.team !== p.team){

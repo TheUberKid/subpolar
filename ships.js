@@ -29,7 +29,7 @@ var ships = {
     bombspeed: 1400,
     bombbounce: 1,
     bombradius: 230,
-    abilitycd: 300
+    abilitycd: 320
   },
   'ghost': {
     accel: 18,

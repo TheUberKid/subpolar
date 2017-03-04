@@ -33,7 +33,7 @@ var repels = [];
 var Repel = function(x, y){
   this.x = x;
   this.y = y;
-  this.lifetime = 15;
+  this.lifetime = 13;
 }
 
 // thruster particle effect
@@ -86,10 +86,9 @@ function drawParticles(){
     var p = repels[i];
     var diffx = p.x - self.x;
     var diffy = p.y - self.y;
-    drawCircle((canvas.width/2)+diffx, (canvas.height/2)+diffy, 80-(p.lifetime * 4), 'rgba(195, 180, 135, '+(p.lifetime/80)+')');
-    drawCircle((canvas.width/2)+diffx, (canvas.height/2)+diffy, 80-(p.lifetime * 4), 'transparent', 'rgba(215, 200, 130, '+(p.lifetime/60)+')', 5);
-    drawCircle((canvas.width/2)+diffx, (canvas.height/2)+diffy, 90-(p.lifetime * 4.5), 'transparent', 'rgba(225, 210, 125, '+(p.lifetime/40)+')', 5);
-    drawCircle((canvas.width/2)+diffx, (canvas.height/2)+diffy, 100-(p.lifetime * 5), 'transparent', 'rgba(240, 220, 120, '+(p.lifetime/20)+')', 6);
+    drawCircle((canvas.width/2)+diffx, (canvas.height/2)+diffy,
+      Math.min(8*(13-p.lifetime), 45)+20, 'rgba(240, 220, 170, '+Math.max((p.lifetime-8)/5, p.lifetime/50)+')',
+      'rgba(235, 220, 150, '+Math.min(0.6, p.lifetime/5)+')', Math.max((p.lifetime-3)*2, 1));
     p.lifetime--;
     if(p.lifetime < 0) repels.splice(i, 1);
   }
