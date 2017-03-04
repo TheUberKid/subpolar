@@ -129,14 +129,14 @@ function drawHUD(ppos, time, players, rankings, loc){
   if(s != null){
     // ability 1
     ctx.save();
+    // image
+    ctx.globalAlpha = 0.5;
+    drawImg(s.abilityimage, canvas.width-310, canvas.height-30, 74);
+    ctx.globalAlpha = 1;
     if(self.abilitycd === 0 && !self.stealth){
       ctx.shadowBlur = 2;
       ctx.shadowColor = "rgba(255, 255, 255, 0.7)";
     }
-    // image
-    ctx.globalAlpha = 0.25;
-    drawImg(s.abilityimage, canvas.width-310, canvas.height-30, 74);
-    ctx.globalAlpha = 1;
 
     // text
     ctx.lineWidth = 1;
@@ -150,7 +150,7 @@ function drawHUD(ppos, time, players, rankings, loc){
     ctx.strokeRect(canvas.width-374, canvas.height-94, 74, 74);
 
     // progress bar
-    ctx.fillStyle = 'rgba(255, 255, 255, '+ (self.abilitycd === 0 && !self.stealth ? '1' : '0.25') + ')';
+    ctx.fillStyle = 'rgba(0, 0, 0, '+ (self.abilitycd === 0 && !self.stealth ? '1' : '0.5') + ')';
     var ypos = self.stealth ? canvas.height-93 : canvas.height-21-(self.abilitycd/s.abilitycd)*72;
     var height = self.stealth ? 72 : (self.abilitycd/s.abilitycd)*72;
     ctx.fillRect(canvas.width-373, ypos, 72, height);
