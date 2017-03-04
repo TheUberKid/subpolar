@@ -3,8 +3,12 @@ function drawHUD(ppos, time, players, rankings, loc){
 
   // energy bar
   if(!self.death){
+    ctx.save();
+    ctx.shadowBlur = Math.max(Math.round((self.energy-(s.maxenergy-100))/20)-1, 0);
+    ctx.shadowColor = 'rgb('+Math.round(250-self.energy)+', '+Math.round(self.energy)+', 0)';;
     ctx.fillStyle = 'rgb('+Math.round(250-self.energy)+', '+Math.round(self.energy)+', 0)';
     ctx.fillRect(canvas.width/2+16, canvas.height/2+30, self.energy/3, 3);
+    ctx.restore();
   }
 
   // fps
@@ -123,15 +127,21 @@ function drawHUD(ppos, time, players, rankings, loc){
 
   // ability cooldown
   if(s != null){
+    ctx.save();
     ctx.strokeStyle = 'rgba(255, 255, 255, '+ (self.abilitycd === 0 && !self.stealth ? '1' : '0.5') + ')';
     ctx.fillStyle = 'rgba(255, 255, 255, '+ (self.abilitycd === 0 && !self.stealth ? '1' : '0.25') + ')';
     ctx.lineWidth = 1;
     ctx.textAlign = 'right';
     ctx.font = '14px Share Tech Mono';
+    if(self.abilitycd === 0 && !self.stealth){
+      ctx.shadowBlur = 2;
+      ctx.shadowColor = "rgba(255, 255, 255, 0.7)";
+    }
     ctx.fillText(keyCodes[keymap['ability1']].toUpperCase(), canvas.width-310, canvas.height-30);
     ctx.strokeRect(canvas.width-375, canvas.height-95, 75, 75);
     var ypos = self.stealth ? canvas.height-95 : canvas.height-20-(self.abilitycd/s.abilitycd)*75;
     var height = self.stealth ? 75 : (self.abilitycd/s.abilitycd)*75;
     ctx.fillRect(canvas.width-375, ypos, 75, height);
+    ctx.restore();
   }
 }

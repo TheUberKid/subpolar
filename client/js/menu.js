@@ -208,6 +208,10 @@ function initMenus(){
     self.rotate = null;
     mapdata = [];
     projectiles = [];
+    trails = [];
+    repels = [];
+    ripples = [];
+    thrusters = [];
     chat.messages = [];
     chat.announcements = [];
 

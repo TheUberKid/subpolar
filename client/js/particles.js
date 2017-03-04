@@ -49,6 +49,7 @@ function drawParticles(){
   // NOTE: Trail lifetimes are counted as less than a normal lifetime measurement.
   // This is because they dont need to be step-checked per frame like other objects.
   // as such a trail lifetime is simply the number of frames it exists
+  ctx.save();
   for(var i = trails.length-1; i > -1; i--){
     var t = trails[i];
     var diffx = t.x - self.x;
@@ -62,7 +63,7 @@ function drawParticles(){
     t.lifetime--;
     if(t.lifetime <= 0) trails.splice(i, 1);
   }
-  ctx.globalAlpha = 1;
+  ctx.restore();
 
   // thruster particles
   for(var i = thrusters.length-1; i > -1; i--){ // iterate backwards to splice
@@ -86,9 +87,15 @@ function drawParticles(){
     var p = repels[i];
     var diffx = p.x - self.x;
     var diffy = p.y - self.y;
-    drawCircle((canvas.width/2)+diffx, (canvas.height/2)+diffy,
-      Math.min(8*(13-p.lifetime), 45)+20, 'rgba(240, 220, 170, '+Math.max((p.lifetime-8)/5, p.lifetime/50)+')',
-      'rgba(235, 220, 150, '+Math.min(0.6, p.lifetime/5)+')', Math.max((p.lifetime-3)*2, 1));
+    if(Math.abs(diffx) < canvas.width+45 && Math.abs(diffy) < canvas.height+45){
+      ctx.save();
+      ctx.shadowBlur = 1;
+      ctx.shadowColor = "rgba(255, 255, 255, 0.2)";
+      drawCircle((canvas.width/2)+diffx, (canvas.height/2)+diffy,
+        Math.min(8*(13-p.lifetime), 45)+20, 'rgba(240, 220, 170, '+Math.max((p.lifetime-8)/5, 0)+')',
+        'rgba(235, 220, 150, '+Math.min(0.6, p.lifetime/5)+')', Math.max((p.lifetime-3)*2, 1));
+      ctx.restore();
+    }
     p.lifetime--;
     if(p.lifetime < 0) repels.splice(i, 1);
   }
@@ -98,7 +105,7 @@ function drawParticles(){
     var r = ripples[i];
     var diffx = r.x - self.x;
     var diffy = r.y - self.y;
-    if(Math.abs(diffx) < canvas.width && Math.abs(diffy) < canvas.height){
+    if(Math.abs(diffx) < canvas.width+10 && Math.abs(diffy) < canvas.height+10){
       ctx.save();
       ctx.translate((canvas.width/2) + diffx, (canvas.height/2) + diffy);
       ctx.rotate(radians*r.rotate);

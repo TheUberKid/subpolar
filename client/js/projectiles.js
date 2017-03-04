@@ -6,7 +6,8 @@ var projectileTemplates = {
     size: 1,
     lifetime: 10,
     ripplesize: 1,
-    ripplelife: 10
+    ripplelife: 10,
+    ripplecount: 3
   },
   'lancasterShot': {
     color: 'rgb(255, 255, 175)',
@@ -18,7 +19,8 @@ var projectileTemplates = {
     size: 3,
     lifetime: 10,
     ripplesize: 2,
-    ripplelife: 15
+    ripplelife: 15,
+    ripplecount: 1
   },
   'ghostShot': {
     color: 'rgb(175, 255, 175)',
@@ -28,7 +30,7 @@ var projectileTemplates = {
   'ghostAmbushShot': {
     color: 'rgb(255, 255, 255)',
     size: 1,
-    lifetime: 7
+    lifetime: 7,
   },
   'auroraShot': {
     color: 'rgb(155, 200, 255)',
@@ -47,11 +49,10 @@ function initProjectiles(){
   socket.on('projectile', function(p, rotate){
     var rippleCount = 0;
     var pt = projectileTemplates[p.type];
-    if(p.type === 'falconShot'){
+    if(pt.ripplecount && pt.ripplecount > 0){
       ripples.push(new Ripple(p.x, p.y, rotate, pt.ripplesize, pt.color, pt.ripplelife));
-      rippleCount = 8;
+      rippleCount = pt.ripplecount*3 - 1;
     }
-    if(p.type === 'lancasterBomb') ripples.push(new Ripple(p.x, p.y, rotate, pt.ripplesize, pt.color, pt.ripplelife));
     projectiles.push(new Projectile(p.id, p.x, p.y, rotate, p.x_velocity, p.y_velocity, p.type, p.lifetime, p.bounce, p.origin, rippleCount));
   });
 
