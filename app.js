@@ -238,7 +238,7 @@ var Player = function(id){
 // NOTE: this is a different projectile object than the client's projectile.
 // These are only used for keeping track of projectiles and updating them, and are not passed to the client.
 // Instead, an emit is triggered when a bullet is fired and separate computations are performed on the client side.
-var Projectile = function(id, x, y, x_velocity, y_velocity, type, lifetime, damage, bounce, explosive, origin, map, penetrate){
+var Projectile = function(id, x, y, x_velocity, y_velocity, type, lifetime, damage, bounce, explosive, penetrate, origin, map){
   this.id = id;
   this.x = x;
   this.y = y;
@@ -249,9 +249,9 @@ var Projectile = function(id, x, y, x_velocity, y_velocity, type, lifetime, dama
   this.damage = damage;
   this.bounce = bounce; // how many times the projectile can bounce
   this.explosive = explosive; // explosion radius. 0 if does not explode
+  this.penetrate = penetrate*unistep; // amount of frames in which the bullet can penetrate through players
   this.origin = origin; // id of who created the projectile
   this.map = map;
-  this.penetrate = penetrate !== null ? penetrate*unistep : 0;
 }
 
 var io = require('socket.io')(serv,{});
@@ -690,7 +690,8 @@ function fireProjectile(r, p, e){
         var y = p.y + 20*Math.sin(radians*(p.rotate-90));
         var x_velocity = s.bulletspeed*Math.cos(radians*(p.rotate-90)) + (p.x_velocity / 100);
         var y_velocity = s.bulletspeed*Math.sin(radians*(p.rotate-90)) + (p.y_velocity / 100);
-        var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, 'falconShot', s.bulletlifetime * unistep, s.bulletdamage, 0, 0, p.id, p.map, 4);
+        var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, 'falconShot',
+          s.bulletlifetime * unistep, s.bulletdamage, 0, 0, 4, p.id, p.map);
         r.projectiles.push(newProjectile);
         p.reload = s.reload;
         p.energy -= s.bulletenergyuse;
@@ -708,7 +709,8 @@ function fireProjectile(r, p, e){
           var y = p.y + 20*Math.sin(radians*(p.rotate-90+rotdiff));
           var x_velocity = s.bulletspeed*Math.cos(radians*(p.rotate-90)) + (p.x_velocity / 100);
           var y_velocity = s.bulletspeed*Math.sin(radians*(p.rotate-90)) + (p.y_velocity / 100);
-          var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, 'lancasterShot', s.bulletlifetime * unistep, s.bulletdamage, 0, 0, p.id, p.map);
+          var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, 'lancasterShot',
+            s.bulletlifetime * unistep, s.bulletdamage, 0, 0, 0, p.id, p.map);
           r.projectiles.push(newProjectile);
           emitRoom(r, 'projectile', newProjectile, p.rotate);
         }
@@ -723,7 +725,9 @@ function fireProjectile(r, p, e){
         var y = p.y + 20*Math.sin(radians*(p.rotate-90));
         var x_velocity = s.bulletspeed*Math.cos(radians*(p.rotate-90)) + (p.x_velocity / 100);
         var y_velocity = s.bulletspeed*Math.sin(radians*(p.rotate-90)) + (p.y_velocity / 100);
-        var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, p.stealth ? 'ghostAmbushShot' : 'ghostShot', s.bulletlifetime * unistep, p.stealth ? s.bulletdamage*2 : s.bulletdamage, 0, 0, p.id, p.map);
+        var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity,
+          p.stealth ? 'ghostAmbushShot' : 'ghostShot',
+          s.bulletlifetime * unistep, p.stealth ? s.bulletdamage*2 : s.bulletdamage, 0, 0, 0, p.id, p.map);
         r.projectiles.push(newProjectile);
         p.reload = s.reload;
         p.energy -= s.bulletenergyuse;
@@ -742,7 +746,8 @@ function fireProjectile(r, p, e){
           var y = p.y + 20*Math.sin(radians*(p.rotate-90+rotdiff));
           var x_velocity = s.bulletspeed*Math.cos(radians*(p.rotate-90)) + (p.x_velocity / 100);
           var y_velocity = s.bulletspeed*Math.sin(radians*(p.rotate-90)) + (p.y_velocity / 100);
-          var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, 'auroraShot', s.bulletlifetime * unistep, s.bulletdamage, 0, 0, p.id, p.map);
+          var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity,
+            'auroraShot', s.bulletlifetime * unistep, s.bulletdamage, 0, 0, 0, p.id, p.map);
           r.projectiles.push(newProjectile);
           emitRoom(r, 'projectile', newProjectile, p.rotate);
         }
@@ -802,7 +807,7 @@ function useAbility(r, p, e){
         var y = p.y + 18*Math.sin(radians*(p.rotate-90));
         var x_velocity = s.bombspeed*Math.cos(radians*(p.rotate-90)) + (p.x_velocity / 100);
         var y_velocity = s.bombspeed*Math.sin(radians*(p.rotate-90)) + (p.y_velocity / 100);
-        var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, 'lancasterBomb', s.bomblifetime * unistep, s.bombdamage, s.bombbounce, s.bombradius, p.id, p.map);
+        var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, 'lancasterBomb', s.bomblifetime * unistep, s.bombdamage, s.bombbounce, s.bombradius, 0, p.id, p.map);
         r.projectiles.push(newProjectile);
         p.energy -= s.bombenergyuse;
         p.abilitycd += s.abilitycd;
@@ -820,7 +825,7 @@ function useAbility(r, p, e){
         var id = Math.round(Math.random()*10000);
         var x = p.x + 4*Math.cos(radians*(p.rotate-90));
         var y = p.y + 4*Math.sin(radians*(p.rotate-90));
-        var newProjectile = new Projectile(id, x, y, 0, 0, 'auroraMine', s.minelifetime * unistep, s.minedamage, 0, s.mineradius, p.id, p.map);
+        var newProjectile = new Projectile(id, x, y, 0, 0, 'auroraMine', s.minelifetime * unistep, s.minedamage, 0, s.mineradius, 0, p.id, p.map);
         r.projectiles.push(newProjectile);
         p.energy -= s.mineenergyuse;
         p.abilitycd += s.abilitycd;
