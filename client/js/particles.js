@@ -12,6 +12,15 @@ function initParticles(){
   });
 }
 
+// Stars
+var stars = [];
+var Star = function(x, y, size, brightness){
+  this.x = x;
+  this.y = y;
+  this.size = size;
+  this.brightness = brightness;
+}
+
 // Trails
 var trails = [];
 var Trail = function(x, y, size, color, lifetime){
@@ -97,7 +106,7 @@ function drawParticles(){
     if(Math.abs(diffx) < canvas.width+45 && Math.abs(diffy) < canvas.height+45){
       ctx.save();
       ctx.shadowBlur = 1;
-      ctx.shadowColor = "rgba(255, 255, 255, 0.2)";
+      ctx.shadowColor = 'rgba(255, 255, 255, 0.2)';
       drawCircle((canvas.width/2)+diffx, (canvas.height/2)+diffy,
         Math.min(8*(13-p.lifetime), 45)+20, 'rgba(240, 220, 170, '+Math.max((p.lifetime-8)/5, 0)+')',
         'rgba(235, 220, 150, '+Math.min(0.6, p.lifetime/5)+')', Math.max((p.lifetime-3)*2, 1));
@@ -107,7 +116,7 @@ function drawParticles(){
     if(p.lifetime < 0) repels.splice(i, 1);
   }
 
-  // the particle that appears when a weapon is fired
+  // ripple particle (when certain weapons are fired)
   for(var i = ripples.length-1; i > -1; i--){
     var r = ripples[i];
     var diffx = r.x - self.x;
@@ -124,4 +133,32 @@ function drawParticles(){
     r.lifetime--;
     if(r.lifetime < 0) ripples.splice(i, 1);
   }
+}
+
+// the background
+function drawBackground(){
+  // stars
+  for(var i=0, j=stars.length; i<j; i++){
+    var s = stars[i];
+    if(s.x > -10 && s.x < canvas.width+10 && s.y > -10 && s.y < canvas.height+10){
+      ctx.save();
+      ctx.shadowBlur = s.brightness*s.size;
+      ctx.shadowColor = '#fff';
+      ctx.globalAlpha = (s.brightness/20)+0.1;
+      drawCircle(s.x, s.y, s.size/2, '#fff');
+      ctx.restore();
+    } else {
+      if(s.x < -10) s.x += canvas.width+20;
+      if(s.y < -10) s.y += canvas.height+20;
+      if(s.x > canvas.width+10) s.x -= canvas.width+20;
+      if(s.y > canvas.height+10) s.y -= canvas.height+20;
+    }
+    if(self.changeX){
+      s.x += (self.changeX/50)*(s.size*6);
+      s.y += (self.changeY/50)*(s.size*6);
+    }
+  }
+  ctx.fillStyle = 'rgba(0, 0, 25, 0.3)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
 }

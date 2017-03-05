@@ -185,6 +185,19 @@ function initMenus(){
     canvas.addEventListener('keyup', keyup);
     canvas.style.display = 'block';
     canvas.focus();
+
+    // background
+    stars = [];
+    var amount = canvas.width * canvas.height / 10000;
+    for(var i=0; i<amount; i++){
+      var newStar = new Star(
+        Math.round(Math.random()*(canvas.width+20))-10,
+        Math.round(Math.random()*(canvas.height+20))-10,
+        Math.round(Math.random()*5),
+        Math.round(Math.random()*8)
+      );
+      stars.push(newStar);
+    }
   }
 
   socket.on('leave', function(){
@@ -212,6 +225,7 @@ function initMenus(){
     repels = [];
     ripples = [];
     thrusters = [];
+    stars = [];
     chat.messages = [];
     chat.announcements = [];
 

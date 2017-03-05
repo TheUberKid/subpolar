@@ -106,7 +106,9 @@ var socket;
 var version;
 
 var self = {
-  joined: false
+  joined: false,
+  changeX: 0,
+  changeY: 0
 };
 
 var ppos, deathtimer;
@@ -135,6 +137,8 @@ function init(){
       for(var i in ppos){
         var p = ppos[i];
         if(p.id === self.id){
+          self.changeX = self.x - p.x;
+          self.changeY = self.y - p.y;
           self.x = p.x;
           self.y = p.y;
           self.team = p.team;
@@ -153,6 +157,7 @@ function init(){
           self.stealth = p.stealth;
         }
       }
+      drawBackground();
       drawObjectives(objectives);
       drawSelf();
       drawProjectiles();

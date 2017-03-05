@@ -4,6 +4,7 @@ body{
   padding: 0px;
   font-family: "Share Tech Mono", monospace;
   -webkit-appearance: none;
+  overflow-x: hidden;
 }
 a{
   color: #aaa;
@@ -30,13 +31,14 @@ a:hover{
   position: fixed;
   display: none;
   margin: auto;
+  overflow-x: hidden;
 }
 #display:focus{
   outline: none;
 }
 
 .menu-wrapper{
-  position: fixed;
+  position: absolute;
   display: inline-block;
   width: 100vw;
   top: 0;
