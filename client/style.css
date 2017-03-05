@@ -2,7 +2,7 @@ body{
   background-color: #000;
   margin: 0px;
   padding: 0px;
-  font-family: "Share Tech Mono", monospace;
+  font-family: 'Share Tech Mono', monospace;
   -webkit-appearance: none;
   overflow-x: hidden;
 }
@@ -95,7 +95,7 @@ a:hover{
 
 .menu-desc{
   color: #fff;
-  font-family: "Roboto";
+  font-family: 'Roboto';
   font-weight: 300;
   font-size: 16px;
   line-height: 22px;
@@ -106,7 +106,7 @@ a:hover{
   border-radius: 2px;
   color: #fff;
   background: #48f;
-  font-family: "Roboto";
+  font-family: 'Roboto';
   font-weight: 400;
   font-size: 20px;
   text-transform: uppercase;
@@ -151,7 +151,7 @@ a:hover{
 .input-label{
   display: inline-block;
   font-size: 20px;
-  font-family: "Share Tech Mono", monospace;
+  font-family: 'Share Tech Mono', monospace;
   margin-top: 10px;
   color: rgba(255, 255, 255, 0.7);
 }
@@ -163,7 +163,7 @@ a:hover{
   box-shadow: none;
   outline: none;
   font-size: 20px;
-  font-family: "Share Tech Mono", monospace;
+  font-family: 'Share Tech Mono', monospace;
   color: #fff;
   border: 2px solid rgba(255, 255, 255, 0.5);
   background-color: transparent;
@@ -184,7 +184,7 @@ a:hover{
   height: 20px;
   padding: 5px 10px;
   border: 2px solid rgba(255, 255, 255, 0.5);
-  font-family: "Share Tech Mono";
+  font-family: 'Share Tech Mono';
   font-size: 20px;
   text-transform: uppercase;
   cursor: pointer;
@@ -223,7 +223,7 @@ a:hover{
   border-bottom: 20px solid #333;
   border-right: 20px solid transparent;
   position: absolute;
-  content: "";
+  content: '';
   margin-top: 30px;
 }
 #mainmenu .menu-top{
@@ -300,7 +300,7 @@ a:hover{
   height: 20px;
   padding: 4px 10px;
   border: 2px solid rgba(255, 255, 255, 0.5);
-  font-family: "Share Tech Mono";
+  font-family: 'Share Tech Mono';
   font-size: 20px;
   text-transform: uppercase;
   cursor: pointer;
@@ -444,6 +444,6 @@ a:hover{
   padding: 2px 10px;
   align-self: flex-end;
   outline: 2px #fff !important;
-  font-family: "Share Tech Mono", monospace;
+  font-family: 'Share Tech Mono', monospace;
   font-size: 16px;
 }

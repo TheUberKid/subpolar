@@ -238,7 +238,7 @@ var Player = function(id){
 // NOTE: this is a different projectile object than the client's projectile.
 // These are only used for keeping track of projectiles and updating them, and are not passed to the client.
 // Instead, an emit is triggered when a bullet is fired and separate computations are performed on the client side.
-var Projectile = function(id, x, y, x_velocity, y_velocity, type, lifetime, damage, bounce, explosive, origin, map){
+var Projectile = function(id, x, y, x_velocity, y_velocity, type, lifetime, damage, bounce, explosive, origin, map, penetrate){
   this.id = id;
   this.x = x;
   this.y = y;
@@ -251,6 +251,7 @@ var Projectile = function(id, x, y, x_velocity, y_velocity, type, lifetime, dama
   this.explosive = explosive; // explosion radius. 0 if does not explode
   this.origin = origin; // id of who created the projectile
   this.map = map;
+  this.penetrate = penetrate !== null ? penetrate*unistep : 0;
 }
 
 var io = require('socket.io')(serv,{});
@@ -450,10 +451,10 @@ function computeObjective(r){
     var loc = r.objectives;
     for(var i=0, j=loc.length; i<j; i++){
       var o = loc[i];
-      var name = "";
-      if(i === 0) name = "western";
-      if(i === 1) name = "central";
-      if(i === 2) name = "eastern";
+      var name = '';
+      if(i === 0) name = 'western';
+      if(i === 1) name = 'central';
+      if(i === 2) name = 'eastern';
       // change control based on contesting players
       if(o.contested[0] && !o.contested[1] && !o.controlled[0]){
         o.control--;
@@ -471,54 +472,54 @@ function computeObjective(r){
       }
       // determine control
       if(o.control <= -100 && !o.controlled[0]){
-        emitTeam(r, 0, "newAnnouncement", {
-          text: "Your team controls the "+name+" trench.",
+        emitTeam(r, 0, 'newAnnouncement', {
+          text: 'Your team controls the '+name+' trench.',
           lifetime: 200,
-          color: "rgb(150, 255, 150)"
+          color: 'rgb(150, 255, 150)'
         });
-        emitTeam(r, 1, "newAnnouncement", {
-          text: "The enemy controls the "+name+" trench.",
+        emitTeam(r, 1, 'newAnnouncement', {
+          text: 'The enemy controls the '+name+' trench.',
           lifetime: 200,
-          color: "rgb(255, 150, 150)"
+          color: 'rgb(255, 150, 150)'
         });
         o.controlled = [true, false];
       }
       if(o.control >= 100 && !o.controlled[1]){
-        emitTeam(r, 1, "newAnnouncement", {
-          text: "Your team controls the "+name+" trench.",
+        emitTeam(r, 1, 'newAnnouncement', {
+          text: 'Your team controls the '+name+' trench.',
           lifetime: 200,
-          color: "rgb(150, 255, 150)"
+          color: 'rgb(150, 255, 150)'
         });
-        emitTeam(r, 0, "newAnnouncement", {
-          text: "The enemy controls the "+name+" trench.",
+        emitTeam(r, 0, 'newAnnouncement', {
+          text: 'The enemy controls the '+name+' trench.',
           lifetime: 200,
-          color: "rgb(255, 150, 150)"
+          color: 'rgb(255, 150, 150)'
         });
         o.controlled = [false, true];
       }
       if(o.control === 0){
         if(o.controlled[0]){
-          emitTeam(r, 0, "newAnnouncement", {
-            text: "Lost control of the "+name+" trench.",
+          emitTeam(r, 0, 'newAnnouncement', {
+            text: 'Lost control of the '+name+' trench.',
             lifetime: 200,
-            color: "rgb(150, 100, 255)"
+            color: 'rgb(150, 100, 255)'
           });
-          emitTeam(r, 1, "newAnnouncement", {
-            text: "The enemy lost control of the "+name+" trench.",
+          emitTeam(r, 1, 'newAnnouncement', {
+            text: 'The enemy lost control of the '+name+' trench.',
             lifetime: 200,
-            color: "rgb(150, 100, 255)"
+            color: 'rgb(150, 100, 255)'
           });
         }
         if(o.controlled[1]){
-          emitTeam(r, 1, "newAnnouncement", {
-            text: "Lost control of the "+name+" trench.",
+          emitTeam(r, 1, 'newAnnouncement', {
+            text: 'Lost control of the '+name+' trench.',
             lifetime: 200,
-            color: "rgb(150, 100, 255)"
+            color: 'rgb(150, 100, 255)'
           });
-          emitTeam(r, 0, "newAnnouncement", {
-            text: "The enemy lost control of the "+name+" trench.",
+          emitTeam(r, 0, 'newAnnouncement', {
+            text: 'The enemy lost control of the '+name+' trench.',
             lifetime: 200,
-            color: "rgb(150, 100, 255)"
+            color: 'rgb(150, 100, 255)'
           });
         }
         o.controlled = [false, false];
@@ -689,7 +690,7 @@ function fireProjectile(r, p, e){
         var y = p.y + 20*Math.sin(radians*(p.rotate-90));
         var x_velocity = s.bulletspeed*Math.cos(radians*(p.rotate-90)) + (p.x_velocity / 100);
         var y_velocity = s.bulletspeed*Math.sin(radians*(p.rotate-90)) + (p.y_velocity / 100);
-        var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, 'falconShot', s.bulletlifetime * unistep, s.bulletdamage, 0, 0, p.id, p.map);
+        var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, 'falconShot', s.bulletlifetime * unistep, s.bulletdamage, 0, 0, p.id, p.map, 4);
         r.projectiles.push(newProjectile);
         p.reload = s.reload;
         p.energy -= s.bulletenergyuse;
@@ -843,6 +844,7 @@ function drawProjectiles(r){
         p.x = p.x + p.x_velocity / (unistep*100);
         p.y = p.y + p.y_velocity / (unistep*100);
         p.lifetime--;
+        if(p.penetrate > 0) p.penetrate--;
 
         if(p.lifetime <= 0){
 
@@ -860,7 +862,7 @@ function drawProjectiles(r){
             if(origin !== null && origin.team !== e.team && p.origin !== e.id && e.energy > 0){
 
               // return the position of the collison
-              emitRoom(r, 'projectileHit', p.id, e.x, e.y);
+              if(p.penetrate === 0) emitRoom(r, 'projectileHit', p.id, e.x, e.y);
 
               // if projectile is explosive, create an explosion
               if(p.explosive > 0){
@@ -891,7 +893,7 @@ function drawProjectiles(r){
                   kill(r, origin, e, p);
                 }
               }
-              r.projectiles.splice(i, 1);
+              if(p.penetrate === 0) r.projectiles.splice(i, 1);
             } else {
               ccheck = false;
             }

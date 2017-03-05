@@ -154,8 +154,8 @@ function drawBackground(){
       if(s.y > canvas.height+10) s.y -= canvas.height+20;
     }
     if(self.changeX){
-      s.x += (self.changeX/50)*(s.size*6);
-      s.y += (self.changeY/50)*(s.size*6);
+      s.x += (self.changeX/50)*(s.size*4);
+      s.y += (self.changeY/50)*(s.size*4);
     }
   }
   ctx.fillStyle = 'rgba(0, 0, 25, 0.3)';

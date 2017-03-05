@@ -2,78 +2,78 @@
 <html>
   <head>
     <title>Subspace Polarity</title>
-    <link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:400,300" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="/client/style.css">
+    <link href='https://fonts.googleapis.com/css?family=Share+Tech+Mono' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet'>
+    <link rel='stylesheet' type='text/css' href='/client/style.css'>
   </head>
-  <body oncontextmenu="return false">
+  <body oncontextmenu='return false'>
 
-    <div id="background">
-      <video loop muted autoplay id="background-video" src="/client/img/spacebg.mp4" type="video/mp4"></video>
+    <div id='background'>
+      <video loop muted autoplay id='background-video' src='/client/img/spacebg.mp4' type='video/mp4'></video>
     </div>
 
-    <canvas id="display" width="1200" height="750" tabindex=0></canvas>
-    <div id="chat-wrapper">
-      <input id="chat-input" type="text" maxlength="150" placeholder="Use ! for global chat."></div>
+    <canvas id='display' width='1200' height='750' tabindex=0></canvas>
+    <div id='chat-wrapper'>
+      <input id='chat-input' type='text' maxlength='150' placeholder='Use ! for global chat.'></div>
     </div>
 
-    <div id="landing" class="display-menu current-menu">
-      <div class="menu-wrapper">
-        <div class="landing-title-wrapper">
-          <span data-text="Subspace Polarity" class="landing-title noselect">Subspace Polarity</span>
+    <div id='landing' class='display-menu current-menu'>
+      <div class='menu-wrapper'>
+        <div class='landing-title-wrapper'>
+          <span data-text='Subspace Polarity' class='landing-title noselect'>Subspace Polarity</span>
         </div>
-        <div class="menu-section">
-          <div class="menu-subtitle">
+        <div class='menu-section'>
+          <div class='menu-subtitle'>
             Meet people from all over the world,
             <br> <span>then kill them!</span>
           </div>
-          <div class="menu-desc">
+          <div class='menu-desc'>
             The ultimate online PVP arena, featuring massively fun skill-based space combat.
             <br>100% free to play and free to win, with no ads, ever!
             <br>
             <br>Registration is optional - jump in and play in seconds!
           </div>
         </div>
-        <div class="landing-button-wrapper">
-          <div class="button nav" data-target="login">
+        <div class='landing-button-wrapper'>
+          <div class='button nav' data-target='login'>
             Log In
           </div>
-          <div class="button nav" data-target="newuser">
+          <div class='button nav' data-target='newuser'>
             I'm New
           </div>
         </div>
-        <div class="landing-footer">
-          Developed by <a href="http://zeki.us" target="_blank">Zeki Xu</a>
+        <div class='landing-footer'>
+          Developed by <a href='http://zeki.us' target='_blank'>Zeki Xu</a>
           <br>
-          Icons taken from <a href="http://game-icons.net/about.html" target="_blank">Game Icons</a>
+          Icons taken from <a href='http://game-icons.net/about.html' target='_blank'>Game Icons</a>
           <br>
-          Play the original 1997 <a href="http://subspace-continuum.com/" target="_blank">Subspace Continuum</a>
+          Play the original 1997 <a href='http://subspace-continuum.com/' target='_blank'>Subspace Continuum</a>
         </div>
       </div>
     </div>
 
-    <div id="login" class="display-menu">
-      <div class="dark-background"></div>
-      <div class="menu-wrapper">
-        <div class="menu-section centered">
-          <div class="menu-subtitle">
+    <div id='login' class='display-menu'>
+      <div class='dark-background'></div>
+      <div class='menu-wrapper'>
+        <div class='menu-section centered'>
+          <div class='menu-subtitle'>
             Login information
           </div>
-          <div class="menu-desc">
+          <div class='menu-desc'>
 
-            <div id="login-error" class="error-message"></div>
+            <div id='login-error' class='error-message'></div>
 
-            <div class="input-label">Username</div><br>
-            <input id="login-name-input" class="input-field" type="text" maxlength="14"><br>
+            <div class='input-label'>Username</div><br>
+            <input id='login-name-input' class='input-field' type='text' maxlength='14'><br>
 
-            <div class="input-label">Password</div><br>
-            <input id="login-password-input" class="input-field" type="password"><br>
+            <div class='input-label'>Password</div><br>
+            <input id='login-password-input' class='input-field' type='password'><br>
 
-            <div class="input-button-wrapper" id="login-form">
-              <div id="login-submit-button" class="button">
+            <div class='input-button-wrapper' id='login-form'>
+              <div id='login-submit-button' class='button'>
                 Verify
               </div>
-              <div class="button nav" data-target="landing">
+              <div class='button nav' data-target='landing'>
                 Back
               </div>
             </div>
@@ -83,42 +83,42 @@
       </div>
     </div>
 
-    <div id="newuser" class="display-menu">
-      <div class="dark-background"></div>
-      <div class="menu-wrapper">
-        <div class="menu-section centered">
-          <div class="menu-subtitle">
+    <div id='newuser' class='display-menu'>
+      <div class='dark-background'></div>
+      <div class='menu-wrapper'>
+        <div class='menu-section centered'>
+          <div class='menu-subtitle'>
             New User / Guest Login
           </div>
-          <div class="menu-desc">
+          <div class='menu-desc'>
 
-            <div class="input-button-wrapper">
-              <div id="register-form-nav" class="button selected">
+            <div class='input-button-wrapper'>
+              <div id='register-form-nav' class='button selected'>
                 Register
               </div>
-              <div id="guest-form-nav" class="button">
+              <div id='guest-form-nav' class='button'>
                 Play as Guest
               </div>
             </div>
 
-            <div id="newuser-error" class="error-message"></div>
+            <div id='newuser-error' class='error-message'></div>
 
-            <div id="register-form">
-              <div class="input-label">Username</div><br>
-              <input id="register-name-input" class="input-field" type="text" maxlength="14"><br>
+            <div id='register-form'>
+              <div class='input-label'>Username</div><br>
+              <input id='register-name-input' class='input-field' type='text' maxlength='14'><br>
 
-              <div class="input-label">Password</div><br>
-              <input id="register-password-input" class="input-field" type="password"><br>
+              <div class='input-label'>Password</div><br>
+              <input id='register-password-input' class='input-field' type='password'><br>
             </div>
-            <div id="guest-form" style="display: none">
-              <div class="input-label">Display Name (Optional)</div><br>
-              <input id="guest-name-input" class="input-field" type="text" maxlength="7"><br>
+            <div id='guest-form' style='display: none'>
+              <div class='input-label'>Display Name (Optional)</div><br>
+              <input id='guest-name-input' class='input-field' type='text' maxlength='7'><br>
             </div>
-            <div class="input-button-wrapper">
-              <div id="newuser-submit-button" class="button">
+            <div class='input-button-wrapper'>
+              <div id='newuser-submit-button' class='button'>
                 Continue
               </div>
-              <div class="button nav" data-target="landing">
+              <div class='button nav' data-target='landing'>
                 Back
               </div>
             </div>
@@ -128,119 +128,119 @@
       </div>
     </div>
 
-    <div id="mainmenu" class="display-menu">
-      <div class="menu-wrapper">
+    <div id='mainmenu' class='display-menu'>
+      <div class='menu-wrapper'>
 
-        <div class="menu-tabs">
-          <div id="default-menu-tab" class="menu-tab" data-zone="extreme games">
+        <div class='menu-tabs'>
+          <div id='default-menu-tab' class='menu-tab' data-zone='extreme games'>
             extreme games
           </div>
-          <div class="menu-tab" data-zone="trench wars">
+          <div class='menu-tab' data-zone='trench wars'>
             trench wars
           </div>
-          <div class="menu-tab" data-zone="settings">
+          <div class='menu-tab' data-zone='settings'>
             settings
           </div>
         </div>
 
-        <div class="menu-section centered">
-          <div class="menu-top">
-            <div class="menu-subtitle">
+        <div class='menu-section centered'>
+          <div class='menu-top'>
+            <div class='menu-subtitle'>
               Subspace Polarity
             </div>
-            <div id="logout-button">Log out</div>
-            <div class="menu-user">
-              <span id="username">Guest</span>
+            <div id='logout-button'>Log out</div>
+            <div class='menu-user'>
+              <span id='username'>Guest</span>
             </div>
           </div>
-          <div class="menu-bottom">
-            <div class="menu-subtitle" id="zone-name">
+          <div class='menu-bottom'>
+            <div class='menu-subtitle' id='zone-name'>
               Extreme Games
             </div>
             <br>
 
-            <div class="menu-tab-module extreme-games">
-              <div class="zone-info">
+            <div class='menu-tab-module extreme-games'>
+              <div class='zone-info'>
                 Extreme Games is a free-for-all deathmatch on a large and spacious map.
                 <br>
                 The first player to reach 15 kills wins.
               </div>
             </div>
 
-            <div class="menu-tab-module trench-wars">
-              <div class="zone-info">
+            <div class='menu-tab-module trench-wars'>
+              <div class='zone-info'>
                 In Trench Wars, you must work together with your team to attack and defend trenches by capturing control points.
                 Respawn timers slowly increase as the game continues.
                 The game ends when all three trenches are controlled by one team.
               </div>
             </div>
 
-            <div class="menu-tab-module extreme-games trench-wars">
-              <div class="input-label">
-                Choose a ship: <span id="shipname">falcon</span>
+            <div class='menu-tab-module extreme-games trench-wars'>
+              <div class='input-label'>
+                Choose a ship: <span id='shipname'>falcon</span>
               </div>
-              <div id="ship-input">
-                <div class="ship-choice selected" data-name="falcon">
-                  <img src="/client/img/falcon.png">
+              <div id='ship-input'>
+                <div class='ship-choice selected' data-name='falcon'>
+                  <img src='/client/img/falcon.png'>
                 </div>
-                <div class="ship-choice" data-name="lancaster">
-                  <img src="/client/img/lancaster.png">
+                <div class='ship-choice' data-name='lancaster'>
+                  <img src='/client/img/lancaster.png'>
                 </div>
-                <div class="ship-choice" data-name="ghost">
-                  <img src="/client/img/ghost.png">
+                <div class='ship-choice' data-name='ghost'>
+                  <img src='/client/img/ghost.png'>
                 </div>
-                <!--div class="ship-choice" data-name="aurora">
-                  <img src="/client/img/aurora.png">
+                <!--div class='ship-choice' data-name='aurora'>
+                  <img src='/client/img/aurora.png'>
                 </div-->
               </div>
               <br>
             </div>
 
-            <div class="menu-tab-module extreme-games trench-wars">
-              <div id="join-button" class="button">play</div>
+            <div class='menu-tab-module extreme-games trench-wars'>
+              <div id='join-button' class='button'>play</div>
             </div>
 
-            <div class="menu-tab-module settings">
-              <div id="controls">
-                <span class="control-info">Controls (click a key to change binding)</span><br>
-                <span class="keyguide" data-action="up"></span> /
-                <span class="keyguide" data-action="down"></span> to use boosters
+            <div class='menu-tab-module settings'>
+              <div id='controls'>
+                <span class='control-info'>Controls (click a key to change binding)</span><br>
+                <span class='keyguide' data-action='up'></span> /
+                <span class='keyguide' data-action='down'></span> to use boosters
                 <br>
-                <span class="keyguide" data-action="left"></span> /
-                <span class="keyguide" data-action="right"></span> to rotate
+                <span class='keyguide' data-action='left'></span> /
+                <span class='keyguide' data-action='right'></span> to rotate
                 <br>
-                <span class="keyguide" data-action="attack"></span> to shoot
+                <span class='keyguide' data-action='attack'></span> to shoot
                 <br>
-                <span class="keyguide" data-action="boost"></span> to boost (uses energy)
+                <span class='keyguide' data-action='boost'></span> to boost (uses energy)
                 <br>
-                <span class="keyguide" data-action="ability1"></span> to use ship's ability
+                <span class='keyguide' data-action='ability1'></span> to use ship's ability
                 <br>
-                <span class="keyguide" data-action="chat"></span> to chat
+                <span class='keyguide' data-action='chat'></span> to chat
                 <br>
-                <span class="keyguide" data-action="leave"></span> to leave
+                <span class='keyguide' data-action='leave'></span> to leave
                 <br>
-                <span id="reset-controls">RESET TO DEFAULTS</span>
+                <span id='reset-controls'>RESET TO DEFAULTS</span>
               </div>
             </div>
 
           </div>
         </div>
-        <div class="menu-footer">
-          polarity v<span id="version"></span> | copyright Zeki Xu
+        <div class='menu-footer'>
+          polarity v<span id='version'></span> | copyright Zeki Xu
         </div>
       </div>
     </div>
 
-    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
-    <script src="/client/js/includes.js"></script>
-    <script src="/client/js/keys.js"></script>
-    <script src="/client/js/maps.js"></script>
-    <script src="/client/js/particles.js"></script>
-    <script src="/client/js/projectiles.js"></script>
-    <script src="/client/js/ships.js"></script>
-    <script src="/client/js/hud.js"></script>
-    <script src="/client/js/menu.js"></script>
-    <script src="/client/js/core.js"></script>
+    <script src='https://cdn.socket.io/socket.io-1.4.5.js'></script>
+    <script src='/client/js/includes.js'></script>
+    <script src='/client/js/keys.js'></script>
+    <script src='/client/js/maps.js'></script>
+    <script src='/client/js/particles.js'></script>
+    <script src='/client/js/projectiles.js'></script>
+    <script src='/client/js/ships.js'></script>
+    <script src='/client/js/hud.js'></script>
+    <script src='/client/js/menu.js'></script>
+    <script src='/client/js/core.js'></script>
 
   </body>
 </html>
