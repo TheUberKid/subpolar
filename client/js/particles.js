@@ -3,6 +3,13 @@ function initParticles(){
   socket.on('repel', function(x, y){
     repels.push(new Repel(x, y));
   });
+
+  // when a bomb explodes
+  socket.on('explosion', function(ex, ey){
+    for(var i=0; i<25; i++){
+      thrusters.push(new Thruster(ex+(Math.round(Math.random()*10)-5), ey+(Math.round(Math.random()*10)-5), Math.round(Math.random()*360)));
+    }
+  });
 }
 
 // Trails

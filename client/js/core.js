@@ -163,28 +163,4 @@ function init(){
       drawMinimap(ppos, objectives)
     }
   });
-
-  // when a player dies
-  socket.on('playerDeath', function(px, py, killer, killed){
-    // temporary death animation
-    var p0 = ppos[killer];
-    var p1 = ppos[killed];
-    if(p1.id == self.id){
-      deathtimer = new Date().getTime();
-    }
-    for(var i=0; i<15; i++){
-      thrusters.push(new Thruster(px+(Math.round(Math.random()*10)-5), py+(Math.round(Math.random()*10)-5), Math.round(Math.random()*360)));
-    }
-    for(var i=0; i<10; i++){
-      thrusters.push(new Thruster(px+(Math.round(Math.random()*10)-5), py+(Math.round(Math.random()*10)-5), Math.round(Math.random()*360)));
-    }
-    chat.messages.push(['kill', p1.displayName, p0.displayName])
-  });
-
-  // when a bomb explodes
-  socket.on('explosion', function(ex, ey){
-    for(var i=0; i<25; i++){
-      thrusters.push(new Thruster(ex+(Math.round(Math.random()*10)-5), ey+(Math.round(Math.random()*10)-5), Math.round(Math.random()*360)));
-    }
-  });
 }
