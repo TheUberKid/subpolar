@@ -194,7 +194,7 @@ function initMenus(){
         Math.round(Math.random()*(canvas.width+20))-10,
         Math.round(Math.random()*(canvas.height+20))-10,
         Math.round(Math.random()*5),
-        Math.round(Math.random()*8)
+        Math.round(Math.random()*3)+4
       );
       stars.push(newStar);
     }

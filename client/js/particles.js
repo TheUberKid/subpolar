@@ -137,16 +137,12 @@ function drawParticles(){
 
 // the background
 function drawBackground(){
+
   // stars
   for(var i=0, j=stars.length; i<j; i++){
     var s = stars[i];
     if(s.x > -10 && s.x < canvas.width+10 && s.y > -10 && s.y < canvas.height+10){
-      ctx.save();
-      ctx.shadowBlur = s.brightness*s.size;
-      ctx.shadowColor = '#fff';
-      ctx.globalAlpha = (s.brightness/20)+0.1;
-      drawCircle(s.x, s.y, s.size/2, '#fff');
-      ctx.restore();
+      drawCircle(s.x, s.y, s.size/2, 'rgba(255, 255, 255, '+(s.brightness/10)+')');
     } else {
       if(s.x < -10) s.x += canvas.width+20;
       if(s.y < -10) s.y += canvas.height+20;
@@ -158,7 +154,13 @@ function drawBackground(){
       s.y += (self.changeY/50)*(s.size*4);
     }
   }
-  ctx.fillStyle = 'rgba(0, 0, 25, 0.3)';
+
+  // nebula
+  var bgfill = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  bgfill.addColorStop(0, 'rgba(0, 0, 0, 0.4)');
+  bgfill.addColorStop(0.5, 'rgba(10, 10, 30, 0.7)');
+  bgfill.addColorStop(1, 'rgba(0, 0, 0, 0.4)');
+  ctx.fillStyle = bgfill;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 }
