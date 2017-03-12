@@ -209,10 +209,14 @@ var Room = function(id, map){
   this.id = id;
   this.players = {};
   this.population = 0;
-  this.teams = [0, 0];
+  this.teams = maps[map].config.teams ? [0, 0] : [];
   this.map = map;
+  this.zone = maps[map].config.zone;
+  this.starttime = 0;
+  this.countdown = 0;
   this.objectives = JSON.parse(JSON.stringify(maps[map].objectives));
   this.projectiles = [];
+  this.state = 'lobby';
 }
 
 // player constructor
@@ -299,7 +303,7 @@ io.sockets.on('connection', function(socket){
       var r;
       for(var i=0, j=rooms.length; i<j; i++){
         var m = maps[rooms[i].map];
-        if(m.config.zone === zone && rooms[i].population < m.config.maxplayers){
+        if(m.config.zone === zone && rooms[i].population < m.config.maxplayers && rooms[i].state !== 'ended'){
           r = rooms[i];
           p.room = r;
         }
@@ -316,11 +320,26 @@ io.sockets.on('connection', function(socket){
       r.population++;
       socket.emit('map', maps[p.map].mapdata, p.map);
 
-      // assign player the team with the lowest players on that room
-      var min = Math.min.apply(null, r.teams), // find team with lowest players
-          team = r.teams.indexOf(min);
-      r.teams[team]++;
-      p.team = team;
+      if(maps[p.map].config.teams){
+        // assign player the team with the lowest players on that room
+        var min = Math.min.apply(null, r.teams), // find team with lowest players
+            team = r.teams.indexOf(min);
+        r.teams[team]++;
+        p.team = team;
+      } else {
+        // otherwise players do not have teams
+        p.team = Math.round(Math.random()*10000);
+      }
+
+      // notify them if in lobby
+      if(r.state === 'lobby'){
+        socket.emit('newAnnouncement', {
+          text: 'Waiting for more players...',
+          lifetime: 60*60*1000,
+          sent: new Date().getTime(),
+          color: 'rgb(255, 255, 255)'
+        });
+      }
 
       // log their join
       p.joined = true;
@@ -444,99 +463,170 @@ var globalLoop = function(){
 }
 setInterval(globalLoop, 1000/framerate);
 
-// objectives
+// objectives and round regulation
 function computeObjective(r){
-  if(r.map === 'trenchWars'){
-    // control points
-    var loc = r.objectives;
-    for(var i=0, j=loc.length; i<j; i++){
-      var o = loc[i];
-      var name = '';
-      if(i === 0) name = 'western';
-      if(i === 1) name = 'central';
-      if(i === 2) name = 'eastern';
-      // change control based on contesting players
-      if(o.contested[0] && !o.contested[1] && !o.controlled[0]){
-        o.control--;
-      } else if(o.contested[1] && !o.contested[0] && o.control < 100){
-        o.control++;
-      } else if(Math.abs(o.control) < 100 && !o.contested[0] && !o.contested[1]){
-        // slowly reset control if nobody is contesting
-        if(o.controlled[0] === o.controlled[1]){
-          if(o.control > 0) o.control--;
-          if(o.control < 0) o.control++;
-        } else {
-          if(o.controlled[0]) o.control--;
-          if(o.controlled[1]) o.control++;
+  // if game is currently running
+  if(r.state === 'active'){
+    if(r.zone === 'extreme games'){
+      // win condition
+      for(var i in r.players){
+        var p = r.players[i];
+        if(p.kills >= 10){
+          r.state = 'ended';
+          emitRoom(r, 'newAnnouncement', {
+            text: p.displayName + ' has won!',
+            lifetime: 3000,
+            sent: new Date().getTime(),
+            color: 'rgb(150, 255, 150)'
+          });
+          console.log(p.displayName + ' has won in room ' + r.id);
+          break;
         }
       }
-      // determine control
-      if(o.control <= -100 && !o.controlled[0]){
-        emitTeam(r, 0, 'newAnnouncement', {
-          text: 'Your team controls the '+name+' trench.',
-          lifetime: 200,
-          color: 'rgb(150, 255, 150)'
-        });
-        emitTeam(r, 1, 'newAnnouncement', {
-          text: 'The enemy controls the '+name+' trench.',
-          lifetime: 200,
-          color: 'rgb(255, 150, 150)'
-        });
-        o.controlled = [true, false];
-      }
-      if(o.control >= 100 && !o.controlled[1]){
-        emitTeam(r, 1, 'newAnnouncement', {
-          text: 'Your team controls the '+name+' trench.',
-          lifetime: 200,
-          color: 'rgb(150, 255, 150)'
-        });
-        emitTeam(r, 0, 'newAnnouncement', {
-          text: 'The enemy controls the '+name+' trench.',
-          lifetime: 200,
-          color: 'rgb(255, 150, 150)'
-        });
-        o.controlled = [false, true];
-      }
-      if(o.control === 0){
-        if(o.controlled[0]){
-          emitTeam(r, 0, 'newAnnouncement', {
-            text: 'Lost control of the '+name+' trench.',
-            lifetime: 200,
-            color: 'rgb(150, 100, 255)'
-          });
-          emitTeam(r, 1, 'newAnnouncement', {
-            text: 'The enemy lost control of the '+name+' trench.',
-            lifetime: 200,
-            color: 'rgb(150, 100, 255)'
-          });
+    }
+    if(r.zone === 'trench wars'){
+      // control points
+      var loc = r.objectives;
+      for(var i=0, j=loc.length; i<j; i++){
+        var o = loc[i];
+        var name = '';
+        if(i === 0) name = 'western';
+        if(i === 1) name = 'central';
+        if(i === 2) name = 'eastern';
+        // change control based on contesting players
+        if(o.contested[0] && !o.contested[1] && !o.controlled[0]){
+          o.control--;
+        } else if(o.contested[1] && !o.contested[0] && o.control < 100){
+          o.control++;
+        } else if(Math.abs(o.control) < 100 && !o.contested[0] && !o.contested[1]){
+          // slowly reset control if nobody is contesting
+          if(o.controlled[0] === o.controlled[1]){
+            if(o.control > 0) o.control--;
+            if(o.control < 0) o.control++;
+          } else {
+            if(o.controlled[0]) o.control--;
+            if(o.controlled[1]) o.control++;
+          }
         }
-        if(o.controlled[1]){
-          emitTeam(r, 1, 'newAnnouncement', {
-            text: 'Lost control of the '+name+' trench.',
-            lifetime: 200,
-            color: 'rgb(150, 100, 255)'
+        // determine control
+        if(o.control <= -100 && !o.controlled[0]){
+          emitTeam(r, 0, 'newNotice', {
+            text: 'Your team controls the '+name+' trench.',
+            lifetime: 5000,
+            sent: new Date().getTime(),
+            color: 'rgb(150, 255, 150)'
           });
-          emitTeam(r, 0, 'newAnnouncement', {
-            text: 'The enemy lost control of the '+name+' trench.',
-            lifetime: 200,
-            color: 'rgb(150, 100, 255)'
+          emitTeam(r, 1, 'newNotice', {
+            text: 'The enemy controls the '+name+' trench.',
+            lifetime: 5000,
+            sent: new Date().getTime(),
+            color: 'rgb(255, 150, 150)'
           });
+          o.controlled = [true, false];
         }
-        o.controlled = [false, false];
+        if(o.control >= 100 && !o.controlled[1]){
+          emitTeam(r, 1, 'newNotice', {
+            text: 'Your team controls the '+name+' trench.',
+            lifetime: 5000,
+            sent: new Date().getTime(),
+            color: 'rgb(150, 255, 150)'
+          });
+          emitTeam(r, 0, 'newNotice', {
+            text: 'The enemy controls the '+name+' trench.',
+            lifetime: 5000,
+            sent: new Date().getTime(),
+            color: 'rgb(255, 150, 150)'
+          });
+          o.controlled = [false, true];
+        }
+        if(o.control === 0){
+          if(o.controlled[0]){
+            emitTeam(r, 0, 'newNotice', {
+              text: 'Lost control of the '+name+' trench.',
+              lifetime: 5000,
+              sent: new Date().getTime(),
+              color: 'rgb(150, 100, 255)'
+            });
+            emitTeam(r, 1, 'newNotice', {
+              text: 'The enemy lost control of the '+name+' trench.',
+              lifetime: 5000,
+              sent: new Date().getTime(),
+              color: 'rgb(150, 100, 255)'
+            });
+          }
+          if(o.controlled[1]){
+            emitTeam(r, 1, 'newNotice', {
+              text: 'Lost control of the '+name+' trench.',
+              lifetime: 5000,
+              sent: new Date().getTime(),
+              color: 'rgb(150, 100, 255)'
+            });
+            emitTeam(r, 0, 'newNotice', {
+              text: 'The enemy lost control of the '+name+' trench.',
+              lifetime: 5000,
+              sent: new Date().getTime(),
+              color: 'rgb(150, 100, 255)'
+            });
+          }
+          o.controlled = [false, false];
+        }
+        o.contested = [false, false];
       }
-      o.contested = [false, false];
+    }
+
+  } else if(r.state === 'lobby'){
+    // if the round hasn't started yet, satisfy start conditions and start the round
+    if(r.population >= maps[r.map].config.minplayers){
+      r.state = 'countdown';
+      r.starttime = new Date().getTime() + (1000*5);
+      r.countdown = 5;
+    }
+
+  } else if(r.state === 'countdown'){
+    // countdown until the start of the round
+    var t = r.starttime - new Date().getTime();
+    if(t <= 0){
+      r.state = 'active';
+      emitRoom(r, 'newAnnouncement', {
+        text: 'The round has begun!',
+        lifetime: 3000,
+        sent: new Date().getTime(),
+        color: 'rgb(150, 255, 150)'
+      });
+      for(var i in r.players) spawn(r, r.players[i]);
+    } else {
+      // countdown timer
+      if(t < r.countdown*1000){
+        emitRoom(r, 'newAnnouncement', {
+          text: r.countdown + ' second(s) until the round begins!',
+          lifetime: 1500,
+          sent: new Date().getTime(),
+          color: 'rgb(255, 255, 255)'
+        });
+        r.countdown--;
+      }
+    }
+  } else if(r.state === 'ended'){
+    // when a team or player wins
+    if(r.zone === 'extreme games'){
+
+    }
+    if(r.zone === 'trench wars'){
+
     }
   }
 }
 
 function checkObjective(p, r){
-  if(r.map === 'trenchWars'){
-    var loc = r.objectives;
-    for(var i=0, j=loc.length; i<j; i++){
-      var o = loc[i];
-      // check distance
-      if(Math.sqrt(Math.pow(o.x - p.x, 2) + Math.pow(o.y - p.y, 2)) < 120){
-        o.contested[p.team] = true;
+  if(r.state === 'active'){
+    if(r.zone === 'trench wars'){
+      var loc = r.objectives;
+      for(var i=0, j=loc.length; i<j; i++){
+        var o = loc[i];
+        // check distance
+        if(Math.sqrt(Math.pow(o.x - p.x, 2) + Math.pow(o.y - p.y, 2)) < 120){
+          o.contested[p.team] = true;
+        }
       }
     }
   }
@@ -678,7 +768,7 @@ function drawPlayers(r){
 
 // called when a projectile is fired
 function fireProjectile(r, p, e){
-  if(p.joined){
+  if(p.joined && r.state === 'active'){
     var s = ships.stats[p.ship];
     // bullets
     if(e === 17){
@@ -761,7 +851,7 @@ function fireProjectile(r, p, e){
 
 // called when an ability is used
 function useAbility(r, p, e){
-  if(p.joined && p.abilitycd <= 0){
+  if(p.joined && p.abilitycd <= 0 && r.state === 'active'){
     var s = ships.stats[p.ship];
 
     if(e === 1){
@@ -1060,14 +1150,16 @@ function kill(r, origin, e, p){
     origin.kills++;
     console.log(origin.displayName + ' killed ' + e.displayName);
 
-    osocket.emit('newAnnouncement', {
+    osocket.emit('newNotice', {
       text: 'Killed ' + e.displayName + ' (+' + e.bounty + ')',
-      lifetime: 100,
+      lifetime: 3000,
+      sent: new Date().getTime(),
       color: 'rgb(100, 255, 100)'
     });
-    Sockets[e.id].emit('newAnnouncement', {
+    Sockets[e.id].emit('newNotice', {
       text: 'Killed by '+origin.displayName,
-      lifetime: 100,
+      lifetime: 3000,
+      sent: new Date().getTime(),
       color: 'rgb(255, 100, 100)'
     });
 
@@ -1079,14 +1171,16 @@ function kill(r, origin, e, p){
     console.log(origin.displayName + ' TK\'d ' + e.displayName);
 
     // announce team kill
-    osocket.emit('newAnnouncement', {
+    osocket.emit('newNotice', {
       text: 'TK\'d '+e.displayName  + ' (-10)',
-      lifetime: 100,
+      lifetime: 3000,
+      sent: new Date().getTime(),
       color: 'rgb(255, 100, 100)'
     });
-    esocket.emit('newAnnouncement', {
+    esocket.emit('newNotice', {
       text: 'TK\'d by '+origin.displayName,
-      lifetime: 100,
+      lifetime: 3000,
+      sent: new Date().getTime(),
       color: 'rgb(255, 100, 100)'
     });
 

@@ -5,7 +5,8 @@ var behemothBattle = {
     zone: 'extreme games',
     respawn: 'random',
     teams: false,
-    maxplayers: 16
+    maxplayers: 16,
+    minplayers: 2
   },
   spawnpoints: [
     [200, 650],
@@ -276,7 +277,8 @@ var trenchWars = {
     zone: 'trench wars',
     respawn: 'trench',
     teams: true,
-    maxplayers: 20
+    maxplayers: 20,
+    minplayers: 2
   },
   spawnpoints: [
     [200, 1584],

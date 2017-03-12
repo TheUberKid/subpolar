@@ -1,12 +1,3 @@
-// chat and keys
-var chat = {
-  input: document.getElementById('chat-input'),
-  wrapper: document.getElementById('chat-wrapper'),
-  open: false,
-  messages: [],
-  announcements: [],
-}
-
 function initKeys(){
 
   for(var l=0, m=keyGuides.length; l<m; l++){
@@ -41,33 +32,6 @@ function initKeys(){
     }
   });
 
-}
-
-function initChat(){
-
-  // when a message is received, add it to messages array and splice old entries
-  socket.on('newMessage', function(n, m){
-    chat.messages.push(['chat', n, m]);
-    if(chat.messages.length > 30) chat.messages.splice(0, 1);
-  });
-  socket.on('newTeamMessage', function(n, m){
-    chat.messages.push(['teamchat', n, m]);
-    if(chat.messages.length > 30) chat.messages.splice(0, 1);
-  });
-  socket.on('newAnnouncement', function(m){
-    for(var i=0, j=chat.announcements.length; i<j; i++){
-      var a = chat.announcements[i];
-      if(a == null){
-        chat.announcements[i] = m;
-        break;
-      } else if(i === chat.announcements.length-1){
-        chat.announcements[chat.announcements.length] = m;
-      }
-    }
-    if(chat.announcements.length === 0){
-      chat.announcements[0] = m;
-    }
-  });
 }
 
 // key mappings

@@ -227,7 +227,13 @@ function initMenus(){
     thrusters = [];
     stars = [];
     chat.messages = [];
-    chat.announcements = [];
+    chat.notices = [];
+    chat.announcement = {
+      text: '',
+      lifetime: 0,
+      sent: 0,
+      color: 'transparent'
+    };
 
     // clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);

@@ -1,3 +1,50 @@
+var chat = {
+  input: document.getElementById('chat-input'),
+  wrapper: document.getElementById('chat-wrapper'),
+  open: false,
+  messages: [],
+  announcement: {
+    text: '',
+    lifetime: 0,
+    sent: 0,
+    color: 'transparent'
+  },
+  notices: []
+}
+
+function initChat(){
+
+  // when a message is received, add it to messages array and splice old entries
+  socket.on('newMessage', function(n, m){
+    chat.messages.push(['chat', n, m]);
+    if(chat.messages.length > 30) chat.messages.splice(0, 1);
+  });
+  socket.on('newTeamMessage', function(n, m){
+    chat.messages.push(['teamchat', n, m]);
+    if(chat.messages.length > 30) chat.messages.splice(0, 1);
+  });
+  socket.on('newNotice', function(m){
+    for(var i=0, j=chat.notices.length; i<j; i++){
+      var a = chat.notices[i];
+      if(a == null){
+        chat.notices[i] = m;
+        break;
+      } else if(i === chat.notices.length-1){
+        chat.notices[chat.notices.length] = m;
+      }
+    }
+    if(chat.notices.length === 0){
+      chat.notices[0] = m;
+    }
+  });
+  socket.on('newAnnouncement', function(m){
+    chat.announcement.text = m.text;
+    chat.announcement.lifetime = m.lifetime;
+    chat.announcement.sent = m.sent;
+    chat.announcement.color = m.color;
+  });
+}
+
 function drawHUD(ppos, time, players, rankings, loc){
   var s = ships[self.ship];
 
@@ -27,15 +74,30 @@ function drawHUD(ppos, time, players, rankings, loc){
 
   // announcements
   ctx.textAlign = 'center';
-  ctx.font = '16px Share Tech Mono';
-  for(var i=0, j=chat.announcements.length; i<j; i++){
-    var a = chat.announcements[i];
-    if(a){
+  ctx.font = '20px Share Tech Mono';
+  var a = chat.announcement;
+  if(a){
+    var lifetime = (a.sent + a.lifetime) - new Date().getTime();
+    if(lifetime > 0){
       ctx.fillStyle = a.color;
-      ctx.globalAlpha = Math.min(0.5, a.lifetime/100);
+      ctx.globalAlpha = Math.min(0.5, lifetime/2000);
+      ctx.fillText(a.text, canvas.width/2, canvas.height/2 - 120);
+    }
+  }
+
+  // notices
+  ctx.font = '16px Share Tech Mono';
+  for(var i=0, j=chat.notices.length; i<j; i++){
+    var a = chat.notices[i];
+    if(a){
+      var lifetime = (a.sent + a.lifetime) - new Date().getTime();
+      if(lifetime <= 0){
+        delete chat.notices[i];
+        break;
+      }
+      ctx.fillStyle = a.color;
+      ctx.globalAlpha = Math.min(0.5, lifetime/2000);
       ctx.fillText(a.text, canvas.width/2, canvas.height - 200 + (i*20));
-      a.lifetime--;
-      if(a.lifetime <= 0) delete chat.announcements[i];
     }
   }
   ctx.globalAlpha = 1;
