@@ -435,7 +435,6 @@ io.sockets.on('connection', function(socket){
         socket.emit('newAnnouncement', {
           text: 'Waiting for more players...',
           lifetime: 60*60*1000,
-          sent: new Date().getTime(),
           color: 'rgb(255, 255, 255)'
         });
       }
@@ -467,7 +466,7 @@ io.sockets.on('connection', function(socket){
       var p = socket.player;
 
       // detect team chat
-      var type = m.charAt(0) === '!' ? 'room' : 'team';
+      var type = m.charAt(0) === '!' ? 'team' : 'room';
       if(m.charAt(0) === '!') m = m.slice(1);
 
       // log chat message
@@ -574,9 +573,13 @@ function computeObjective(r){
           r.state = 'ended';
           emitRoom(r, 'newAnnouncement', {
             text: p.displayName + ' has won!',
-            lifetime: 3000,
-            sent: new Date().getTime(),
-            color: 'rgb(150, 255, 150)'
+            lifetime: 10000,
+            color: 'rgb(255, 150, 150)'
+          });
+          sockets[p.id].emit('newAnnouncement', {
+            text: p.displayName + ' has won!',
+            lifetime: 10000,
+            color: 'rgb(200, 255, 200)'
           });
           console.log(p.displayName + ' has won in room ' + r.id);
           break;
@@ -612,13 +615,11 @@ function computeObjective(r){
           emitTeam(r, 0, 'newNotice', {
             text: 'Your team controls the '+name+' trench.',
             lifetime: 5000,
-            sent: new Date().getTime(),
             color: 'rgb(150, 255, 150)'
           });
           emitTeam(r, 1, 'newNotice', {
             text: 'The enemy controls the '+name+' trench.',
             lifetime: 5000,
-            sent: new Date().getTime(),
             color: 'rgb(255, 150, 150)'
           });
           o.controlled = [true, false];
@@ -627,13 +628,11 @@ function computeObjective(r){
           emitTeam(r, 1, 'newNotice', {
             text: 'Your team controls the '+name+' trench.',
             lifetime: 5000,
-            sent: new Date().getTime(),
             color: 'rgb(150, 255, 150)'
           });
           emitTeam(r, 0, 'newNotice', {
             text: 'The enemy controls the '+name+' trench.',
             lifetime: 5000,
-            sent: new Date().getTime(),
             color: 'rgb(255, 150, 150)'
           });
           o.controlled = [false, true];
@@ -643,13 +642,11 @@ function computeObjective(r){
             emitTeam(r, 0, 'newNotice', {
               text: 'Lost control of the '+name+' trench.',
               lifetime: 5000,
-              sent: new Date().getTime(),
               color: 'rgb(150, 100, 255)'
             });
             emitTeam(r, 1, 'newNotice', {
               text: 'The enemy lost control of the '+name+' trench.',
               lifetime: 5000,
-              sent: new Date().getTime(),
               color: 'rgb(150, 100, 255)'
             });
           }
@@ -657,13 +654,11 @@ function computeObjective(r){
             emitTeam(r, 1, 'newNotice', {
               text: 'Lost control of the '+name+' trench.',
               lifetime: 5000,
-              sent: new Date().getTime(),
               color: 'rgb(150, 100, 255)'
             });
             emitTeam(r, 0, 'newNotice', {
               text: 'The enemy lost control of the '+name+' trench.',
               lifetime: 5000,
-              sent: new Date().getTime(),
               color: 'rgb(150, 100, 255)'
             });
           }
@@ -687,7 +682,7 @@ function computeObjective(r){
     if(t <= 0){
       r.state = 'active';
       emitRoom(r, 'newAnnouncement', {
-        text: 'The round has begun!',
+        text: 'Fight!',
         lifetime: 3000,
         color: 'rgb(150, 255, 150)'
       });
