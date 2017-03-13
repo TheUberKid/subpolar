@@ -689,7 +689,6 @@ function computeObjective(r){
       emitRoom(r, 'newAnnouncement', {
         text: 'The round has begun!',
         lifetime: 3000,
-        sent: new Date().getTime(),
         color: 'rgb(150, 255, 150)'
       });
       for(var i in r.players) spawn(r, r.players[i]);
@@ -699,7 +698,6 @@ function computeObjective(r){
         emitRoom(r, 'newAnnouncement', {
           text: r.countdown + ' second(s) until the round begins!',
           lifetime: 1500,
-          sent: new Date().getTime(),
           color: 'rgb(255, 255, 255)'
         });
         r.countdown--;
@@ -1252,13 +1250,11 @@ function kill(r, origin, e, p){
     osocket.emit('newNotice', {
       text: 'Killed ' + e.displayName + ' (+' + e.bounty + ')',
       lifetime: 3000,
-      sent: new Date().getTime(),
       color: 'rgb(100, 255, 100)'
     });
     Sockets[e.id].emit('newNotice', {
       text: 'Killed by '+origin.displayName,
       lifetime: 3000,
-      sent: new Date().getTime(),
       color: 'rgb(255, 100, 100)'
     });
 
@@ -1273,13 +1269,11 @@ function kill(r, origin, e, p){
     osocket.emit('newNotice', {
       text: 'TK\'d '+e.displayName  + ' (-10)',
       lifetime: 3000,
-      sent: new Date().getTime(),
       color: 'rgb(255, 100, 100)'
     });
     esocket.emit('newNotice', {
       text: 'TK\'d by '+origin.displayName,
       lifetime: 3000,
-      sent: new Date().getTime(),
       color: 'rgb(255, 100, 100)'
     });
 

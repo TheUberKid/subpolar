@@ -24,6 +24,7 @@ function initChat(){
     if(chat.messages.length > 30) chat.messages.splice(0, 1);
   });
   socket.on('newNotice', function(m){
+    m.sent = new Date().getTime();
     for(var i=0, j=chat.notices.length; i<j; i++){
       var a = chat.notices[i];
       if(a == null){
@@ -40,7 +41,7 @@ function initChat(){
   socket.on('newAnnouncement', function(m){
     chat.announcement.text = m.text;
     chat.announcement.lifetime = m.lifetime;
-    chat.announcement.sent = m.sent;
+    chat.announcement.sent = new Date().getTime();
     chat.announcement.color = m.color;
   });
 }
