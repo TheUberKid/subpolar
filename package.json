@@ -6,6 +6,7 @@
     "node": "6.9.2"
   },
   "dependencies": {
+    "connect-timeout": "^1.8.0",
     "ejs": "^2.4.1",
     "express": "^4.14.1",
     "mongodb": "^2.2.22",
