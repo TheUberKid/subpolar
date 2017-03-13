@@ -177,7 +177,7 @@ a:hover{
   display: flex;
   justify-content: space-between;
 }
-#login .button, #newuser .button, #mainmenu .button{
+#login .button, #newuser .button, #mainmenu .button, #sessionloading .button{
   display: inline-block;
   text-align: center;
   width: 145px;
@@ -189,7 +189,7 @@ a:hover{
   text-transform: uppercase;
   cursor: pointer;
 }
-#login .button:hover, #newuser .button:hover, #mainmenu .button:hover{
+#login .button:hover, #newuser .button:hover, #mainmenu .button:hover, #sessionloading .button:hover{
   border: 2px solid #fff;
 }
 #newuser .button.selected{

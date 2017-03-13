@@ -6,14 +6,16 @@ Number.prototype.pad = function(n){
 var version = '0.1.0';
 
 // universal step - must be synced with client
+// this determines how many 'micro-calculations' are done per frame for more accurate collision checking and movement
 var unistep = 4;
 
 var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
 
-// database
+// database variables
 var mongoose = require('mongoose');
+
 function moduleAvailable(name) {
   try {
     require.resolve(name);
@@ -21,6 +23,7 @@ function moduleAvailable(name) {
   } catch(e){}
   return false;
 }
+// test if in local environment or on server
 if(moduleAvailable('./config.js')){
   var config = require('./config.js');
   mongoose.connect(config.dbkey);
@@ -35,25 +38,37 @@ if(moduleAvailable('./config.js')){
   });
 }
 
-// serve index.html when accessing url
+// serve index.html when a user accesses the url
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/client/index.html');
 });
 app.use('/client', express.static(__dirname + '/client')); // allow read of filepaths starting with /client/
 app.use('/.well-known', express.static(__dirname + '/.well-known'));
 
+// delete requests if they timeout (30 seconds)
+var timeout = require('connect-timeout');
+app.use(timeout(30*1000));
+app.use(haltOnTimedout);
+function haltOnTimedout(req, res, next){
+  if (!req.timedout) next();
+}
+
 serv.listen(process.env.PORT || 5000);
 console.log('Server started');
 
-// maps
+// map and ship data
 var maps = require('./maps.js');
 var ships = require('./ships.js');
-var auth_Player = require('./models/player');
+
+// database models
+var db_User = require('./models/user');
+var db_Session = require('./models/session');
 
 var crypto = require('crypto');
-// authentication systems
+// validates user registration attempts
 function auth_register(name, password, socket){
   var n = name.replace(/\s+/g, '');
+  // check for problems
   if(n.length < name.length){
     socket.emit('nu-error', 'cannot have spaces in username');
     return 1;
@@ -75,9 +90,10 @@ function auth_register(name, password, socket){
   } else {
     var raw = name.toLowerCase();
     // check if user already exists
-    auth_Player.count({rawname: raw}, function(err, count){
+    db_User.count({rawname: raw}, function(err, count){
       if(err) throw err;
 
+      // good to go
       if(count === 0){
         // generate a salt
         var s = crypto.randomBytes(Math.ceil(3/2))
@@ -89,8 +105,8 @@ function auth_register(name, password, socket){
         hash.update(password);
         var hashedPassword = hash.digest('hex');
 
-        // create new player
-        var p = auth_Player({
+        // create a new player
+        var u = db_User({
           username: name,
           rawname: raw,
           hash: hashedPassword,
@@ -98,21 +114,25 @@ function auth_register(name, password, socket){
           admin: false
         });
 
-        // save the player
-        p.save(function(err) {
+        // save the player's information
+        u.save(function(err){
           if(err) throw err;
-          console.log('Registered new player: ' + p.username + ' (' + p.id + ')');
+          console.log('Registered new player: ' + u.username + ' (' + u.id + ')');
+
+          // return success and log in the new player
+          socket.emit('login-success', u.username, true);
+          socket.loggedIn = true;
+          socket.player.pid = u.id;
+          socket.player.displayName = u.username;
+
+          // return a session token to the client
+          var token = generate_session(u.id);
+          socket.emit('session', token);
+          return 0;
         });
 
-        // success
-        socket.emit('login-success', p.username, true);
-        socket.loggedIn = true;
-        socket.player.pid = p.id;
-        socket.player.displayName = p.username;
-        return 0;
-
       } else {
-        // user already exists
+        // the user already exists
         socket.emit('nu-error', 'that name is already taken');
         return 1;
       }
@@ -120,6 +140,7 @@ function auth_register(name, password, socket){
   }
 }
 
+// called when a guest logs in
 function auth_guest(name, socket){
   var n = name.replace(/\s+/g, '');
   if(n.length < name.length){
@@ -136,7 +157,7 @@ function auth_guest(name, socket){
       return 1;
     }
   } else {
-    // generate a username
+    // generate a guest username
     socket.player.displayName = 'Guest #' + Math.ceil(Math.random() * 999).pad(3);
     socket.emit('login-success', socket.player.displayName, false);
     socket.player.pid = 'guest';
@@ -144,7 +165,9 @@ function auth_guest(name, socket){
   }
 }
 
+// validate login information
 function auth_login(name, password, socket){
+  // check for problems
   if(socket.loggedIn){
     socket.emit('login-error', 'you are already logged in');
     return 1;
@@ -153,31 +176,37 @@ function auth_login(name, password, socket){
     return 1;
   } else {
     var raw = name.toLowerCase();
-    auth_Player.find({rawname: raw}, function(err, player){
+    db_User.find({rawname: raw}, function(err, user){
       if (err) throw err;
-      // check if player exists
-      if(player.length === 0){
+      // check if user actually exists
+      if(user.length === 0){
         socket.emit('login-error', 'invalid login info');
         return 1;
       } else {
 
-        var p = player[0];
+        var u = user[0];
 
         // hash password input with stored salt
-        var hash = crypto.createHmac('sha512', p.salt);
+        var hash = crypto.createHmac('sha512', u.salt);
         hash.update(password);
         var hashedPassword = hash.digest('hex');
 
         // compare hashes
-        if(hashedPassword === p.hash){
-          // valid login
-          console.log(p.username + ' ('+ p.id + ') logged in');
-          socket.emit('login-success', p.username, true);
+        if(hashedPassword === u.hash){
+          // if the hashes match, it is a valid login
+          console.log(u.username + ' ('+ u.id + ') logged in');
+          socket.emit('login-success', u.username, true);
           socket.loggedIn = true;
-          socket.player.pid = p.id;
-          socket.player.displayName = p.username;
+          socket.player.pid = u.id;
+          socket.player.displayName = u.username;
+
+          // return a session token to the client
+          var token = generate_session(u.id);
+          socket.emit('session', token);
           return 0;
+
         } else {
+          // otherwise the information is incorrect
           socket.emit('login-error', 'invalid login info');
           return 1;
         }
@@ -187,19 +216,87 @@ function auth_login(name, password, socket){
   }
 }
 
+// when a user wants to log out
 function auth_logout(socket){
-  // log out
   console.log(socket.player.displayName + ' ('+ socket.player.pid +') logged out');
   if(socket.loggedIn){
     socket.loggedIn = false;
+    // destroy their sessions
+    db_Session.remove({pid: socket.player.pid}, function(err){
+      if (err) return handleError(err);
+    });
     delete socket.player.pid;
   }
   delete socket.player.displayName;
   socket.emit('logout-success');
 }
 
-var Sockets = {};
-var population = 0;
+// function to create session tokens
+function generate_session(id){
+  // generates and returns a session
+  var h = crypto.randomBytes(Math.ceil(3/2))
+          .toString('hex')
+          .slice(0, 3);
+
+  // create session token with sha512
+  var token = crypto.createHmac('sha512', h).digest('hex');
+
+  var s = db_Session({
+    hash: token,
+    pid: id,
+    expires: new Date().getTime() + (1000*60*60*24*30)
+  });
+  s.save(function(err) {
+    if(err) throw err;
+  });
+
+  return token;
+}
+
+// log in users with a session token
+function auth_session(token, socket){
+
+  db_Session.find({hash: token}, function(err, session){
+    if (err) throw err;
+
+    // check if session is valid
+    if(session.length > 0){
+      var s = session[0];
+      if(s.expires > new Date().getTime()){
+
+        // find the relevant user
+        db_User.find({_id: s.pid}, function(err, user){
+          if (err) throw err;
+
+          if(user.length > 0){
+            var u = user[0];
+            console.log(u.username + ' ('+ u.id + ') logged in');
+            socket.emit('login-success', u.username, true);
+            socket.loggedIn = true;
+            socket.player.pid = u.id;
+            socket.player.displayName = u.username;
+            return 0;
+          } else {
+            socket.emit('session-error');
+            return 1;
+          }
+        });
+      } else {
+        db_Session.remove({hash: token}, function(err){
+          if(err) return handleError(err);
+        });
+        socket.emit('session-error');
+        return 1;
+      }
+    } else {
+      socket.emit('session-error');
+      return 1;
+    }
+  });
+}
+
+var Sockets = {}; // array of all socket connections
+var population = 0; // total number of online players
 var framerate = 30;
 var radians = Math.PI/180;
 
@@ -220,7 +317,6 @@ var Room = function(id, map){
 }
 
 // player constructor
-// id is used to define the location of socket in socket array
 // pid is the login id of the user assigned to that player
 var Player = function(id){
   this.id = id;
@@ -241,7 +337,7 @@ var Player = function(id){
 // projectile constructor
 // NOTE: this is a different projectile object than the client's projectile.
 // These are only used for keeping track of projectiles and updating them, and are not passed to the client.
-// Instead, an emit is triggered when a bullet is fired and separate computations are performed on the client side.
+// Instead, an event is triggered when a bullet is fired and separate computations are performed on the client side.
 var Projectile = function(id, x, y, x_velocity, y_velocity, type, lifetime, damage, bounce, explosive, penetrate, origin, map){
   this.id = id;
   this.x = x;
@@ -283,6 +379,9 @@ io.sockets.on('connection', function(socket){
   });
   socket.on('login', function(name, password){
     auth_login(name, password, socket);
+  });
+  socket.on('session', function(token){
+    auth_session(token, socket);
   });
   socket.on('logout', function(){
     auth_logout(socket);
@@ -471,7 +570,7 @@ function computeObjective(r){
       // win condition
       for(var i in r.players){
         var p = r.players[i];
-        if(p.kills >= 10){
+        if(p.kills >= 10 || r.population === 1){
           r.state = 'ended';
           emitRoom(r, 'newAnnouncement', {
             text: p.displayName + ' has won!',
