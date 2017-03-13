@@ -576,7 +576,7 @@ function computeObjective(r){
             lifetime: 10000,
             color: 'rgb(255, 150, 150)'
           });
-          sockets[p.id].emit('newAnnouncement', {
+          Sockets[p.id].emit('newAnnouncement', {
             text: p.displayName + ' has won!',
             lifetime: 10000,
             color: 'rgb(200, 255, 200)'
