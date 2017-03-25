@@ -295,6 +295,7 @@ var trenchWars = {
       control: -100,
       contested: [false, false],
       controlled: [true, false],
+      timesince: 0
     },
     {
       x: 5200,
@@ -309,6 +310,7 @@ var trenchWars = {
       control: 100,
       contested: [false, false],
       controlled: [false, true],
+      timesince: 0
     }
   ],
   mapdata: [

@@ -666,6 +666,60 @@ function computeObjective(r){
         }
         o.contested = [false, false];
       }
+
+      // win condition
+      loc[0].control >= 100 ? loc[0].timesince++ : loc[0].timesince = 0;
+      loc[2].control <= -100 ? loc[2].timesince++ : loc[2].timesince = 0;
+      if(loc[0].timesince % 30 === 1){
+        emitTeam(r, 1, 'newAnnouncement', {
+          text: 'Your team wins in '+Math.ceil((450-loc[0].timesince)/30)+' seconds!',
+          lifetime: 1500,
+          color: 'rgb(150, 255, 150)'
+        });
+        emitTeam(r, 0, 'newAnnouncement', {
+          text: 'The enemy team wins in '+Math.ceil((450-loc[0].timesince)/30)+' seconds!',
+          lifetime: 1500,
+          color: 'rgb(255, 150, 150)'
+        });
+      }
+      if(loc[2].timesince % 30 === 1){
+        emitTeam(r, 0, 'newAnnouncement', {
+          text: 'Your team wins in '+Math.ceil((450-loc[2].timesince)/30)+' seconds!',
+          lifetime: 1500,
+          color: 'rgb(150, 255, 150)'
+        });
+        emitTeam(r, 1, 'newAnnouncement', {
+          text: 'The enemy team wins in '+Math.ceil((450-loc[2].timesince)/30)+' seconds!',
+          lifetime: 1500,
+          color: 'rgb(255, 150, 150)'
+        });
+      }
+      if(loc[0].timesince === 450){
+        r.state = 'ended';
+        emitTeam(r, 1, 'newAnnouncement', {
+          text: 'Your team has won!',
+          lifetime: 10000,
+          color: 'rgb(255, 255, 255)'
+        });
+        emitTeam(r, 0, 'newAnnouncement', {
+          text: 'Your team has lost!',
+          lifetime: 10000,
+          color: 'rgb(255, 255, 255)'
+        });
+      }
+      if(loc[2].timesince === 450){
+        r.state = 'ended';
+        emitTeam(r, 0, 'newAnnouncement', {
+          text: 'Your team has won!',
+          lifetime: 10000,
+          color: 'rgb(255, 255, 255)'
+        });
+        emitTeam(r, 1, 'newAnnouncement', {
+          text: 'Your team has lost!',
+          lifetime: 10000,
+          color: 'rgb(255, 255, 255)'
+        });
+      }
     }
 
   } else if(r.state === 'lobby'){
