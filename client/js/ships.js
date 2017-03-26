@@ -51,12 +51,13 @@ function initShips(){
   }
 
   // when a player dies
-  socket.on('playerDeath', function(px, py, killer, killed){
+  socket.on('playerDeath', function(px, py, killer, killed, deathTime){
     // temporary death animation
     var p0 = ppos[killer];
     var p1 = ppos[killed];
+    self.deathTime = deathTime;
     if(p1.id == self.id){
-      deathtimer = new Date().getTime();
+      timeOfDeath = new Date().getTime();
     }
     for(var i=0; i<15; i++){
       thrusters.push(new Thruster(px+(Math.round(Math.random()*10)-5), py+(Math.round(Math.random()*10)-5), Math.round(Math.random()*360)));
@@ -139,7 +140,7 @@ function drawPlayers(ppos){
   // display death message
   if(self.death){
     var currentTime = new Date();
-    var restime = 5-(currentTime.getTime()-deathtimer)/1000;
+    var restime = (self.deathTime-(currentTime.getTime()-timeOfDeath))/1000;
     ctx.textAlign = 'center';
     ctx.font = '20px Share Tech Mono';
     ctx.fillStyle = '#f3172d';

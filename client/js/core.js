@@ -111,7 +111,7 @@ var self = {
   changeY: 0
 };
 
-var ppos, deathtimer;
+var ppos, timeOfDeath;
 // this is called once all resources are loaded
 function init(){
   socket = io();

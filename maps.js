@@ -278,7 +278,7 @@ var trenchWars = {
     respawn: 'trench',
     teams: true,
     maxplayers: 20,
-    minplayers: 2
+    minplayers: 4
   },
   spawnpoints: [
     [200, 1584],

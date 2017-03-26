@@ -327,6 +327,7 @@ var Player = function(id){
   this.collided = false;
   this.reload = 0; // minimum reload time
   this.death = false;
+  this.deathTime = 0;
   this.joined = false;
   this.bounty = 10;
   this.kills = 0;
@@ -883,7 +884,7 @@ function drawPlayers(r){
         if(p.energy < s.maxenergy && !(p.keys['boost'] && (p.keys['up'] || p.keys['down'])) && !p.stealth) p.energy += s.recharge;
 
       } else if(p.death){
-        if(currentTime.getTime() - p.death > 5000){
+        if(currentTime.getTime() - p.death > p.deathTime){
           spawn(r, p);
           emitRoom(r, 'playerRespawn', p.x, p.y);
         }
@@ -901,6 +902,7 @@ function drawPlayers(r){
       ship: p.ship,
       energy: p.energy,
       death: p.death,
+      deathTime: p.deathTime,
       displayName: p.displayName,
       bounty: p.bounty,
       kills: p.kills,
@@ -1276,6 +1278,7 @@ function spawn(r, p){
     p.y_velocity = 0;
     p.bounty = 10;
     p.death = false;
+    p.deathTime = 0;
     p.energy = s.maxenergy;
     p.abilitycd = 0;
     if(p.stealth) p.stealth = false;
@@ -1288,6 +1291,12 @@ function kill(r, origin, e, p){
   var esocket = Sockets[e.id];
   var d = new Date();
   e.death = d.getTime();
+  if(maps[e.map].config.zone === "extreme games"){
+    e.deathTime = 5000;
+  }
+  if(maps[e.map].config.zone === "trench wars"){
+    e.deathTime = (d.getTime() - r.starttime)/60 + 3000;
+  }
 
   // if not team kill award bounty
   if(origin.team !== e.team){
@@ -1330,7 +1339,7 @@ function kill(r, origin, e, p){
 
   // update statistics
   e.bounty = 0;
-  emitRoom(r, 'playerDeath', p.x, p.y, origin.id, e.id);
+  emitRoom(r, 'playerDeath', p.x, p.y, origin.id, e.id, e.deathTime);
 
 }
 
