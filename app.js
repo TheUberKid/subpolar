@@ -310,6 +310,7 @@ var Room = function(id, map){
   this.map = map;
   this.zone = maps[map].config.zone;
   this.starttime = 0;
+  this.endtime = 0;
   this.countdown = 0;
   this.objectives = JSON.parse(JSON.stringify(maps[map].objectives));
   this.projectiles = [];
@@ -579,6 +580,7 @@ function computeObjective(r){
         var p = r.players[i];
         if(p.kills >= 10 || r.population === 1){
           r.state = 'ended';
+          r.endtime = new Date().getTime();
           emitRoom(r, 'newAnnouncement', {
             text: p.displayName + ' has won!',
             lifetime: 10000,
@@ -704,6 +706,7 @@ function computeObjective(r){
       }
       if(loc[0].timesince === 450){
         r.state = 'ended';
+        r.endtime = new Date().getTime();
         emitTeam(r, 1, 'newAnnouncement', {
           text: 'Your team has won!',
           lifetime: 10000,
@@ -717,6 +720,7 @@ function computeObjective(r){
       }
       if(loc[2].timesince === 450){
         r.state = 'ended';
+        r.endtime = new Date().getTime();
         emitTeam(r, 0, 'newAnnouncement', {
           text: 'Your team has won!',
           lifetime: 10000,
@@ -761,12 +765,30 @@ function computeObjective(r){
       }
     }
   } else if(r.state === 'ended'){
-    // when a team or player wins
-    if(r.zone === 'extreme games'){
+    // when a team or player wins, remove all players after 10 seconds
+    if(new Date().getTime() - r.endtime > 10*1000){
+      for(var i in r.players){
+        var p = r.players[i];
+        console.log(p.displayName + ' left room '+r.id);
+        r.teams[p.team]--;
+        r.population--;
+        // delete player from their room
+        delete r.players[p.id];
+        // decrement projectile origins
+        for(var i in r.projectiles){
+          var t = r.projectiles[i];
+          if(t.origin === p.id){
+            r.projectiles.splice(i, 1);
+            emitRoom(r, 'projectileHit', t.id, t.x, t.y);
+          }
+        }
+        p.joined = false;
+        p.kills = 0;
+        p.bounty = 0;
 
-    }
-    if(r.zone === 'trench wars'){
-
+        Sockets[p.id].emit('leave');
+        break;
+      }
     }
   }
 }
@@ -1298,10 +1320,10 @@ function kill(r, origin, e, p){
   var esocket = Sockets[e.id];
   var d = new Date();
   e.death = d.getTime();
-  if(maps[e.map].config.zone === "extreme games"){
+  if(maps[e.map].config.zone === 'extreme games'){
     e.deathTime = 5000;
   }
-  if(maps[e.map].config.zone === "trench wars"){
+  if(maps[e.map].config.zone === 'trench wars'){
     e.deathTime = (d.getTime() - r.starttime)/60 + 3000;
   }
 
