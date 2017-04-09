@@ -120,7 +120,7 @@ function auth_register(name, password, socket){
           console.log('Registered new player: ' + u.username + ' (' + u.id + ')');
 
           // return success and log in the new player
-          socket.emit('login-success', u.username, true);
+          socket.emit('login-success', u.username, true, true);
           socket.loggedIn = true;
           socket.player.pid = u.id;
           socket.player.displayName = u.username;
@@ -149,7 +149,7 @@ function auth_guest(name, socket){
     if(name.length <= 7){
       // create a guest player
       socket.player.displayName = 'Guest '+name;
-      socket.emit('login-success', socket.player.displayName, false);
+      socket.emit('login-success', socket.player.displayName, false, true);
       socket.player.pid = 'guest';
       return 0;
     } else {
@@ -159,7 +159,7 @@ function auth_guest(name, socket){
   } else {
     // generate a guest username
     socket.player.displayName = 'Guest #' + Math.ceil(Math.random() * 999).pad(3);
-    socket.emit('login-success', socket.player.displayName, false);
+    socket.emit('login-success', socket.player.displayName, false, true);
     socket.player.pid = 'guest';
     return 0;
   }
@@ -195,7 +195,7 @@ function auth_login(name, password, socket){
         if(hashedPassword === u.hash){
           // if the hashes match, it is a valid login
           console.log(u.username + ' ('+ u.id + ') logged in');
-          socket.emit('login-success', u.username, true);
+          socket.emit('login-success', u.username, true, false);
           socket.loggedIn = true;
           socket.player.pid = u.id;
           socket.player.displayName = u.username;
@@ -271,7 +271,7 @@ function auth_session(token, socket){
           if(user.length > 0){
             var u = user[0];
             console.log(u.username + ' ('+ u.id + ') logged in');
-            socket.emit('login-success', u.username, true);
+            socket.emit('login-success', u.username, true, false);
             socket.loggedIn = true;
             socket.player.pid = u.id;
             socket.player.displayName = u.username;
@@ -313,7 +313,7 @@ var Room = function(id, map){
   this.countdown = 0;
   this.objectives = JSON.parse(JSON.stringify(maps[map].objectives));
   this.projectiles = [];
-  this.state = 'lobby';
+  this.state = maps[map].config.lobby ? 'lobby' : 'active';
 }
 
 // player constructor
@@ -545,6 +545,13 @@ var loops = {
     emitRoom(r, 'update', ppos, r.objectives, new Date().getTime(), population, rankings);
   },
   'trench wars': function(r){
+    drawProjectiles(r);
+    var ppos = drawPlayers(r);
+    var rankings = getLeaderboard(r);
+    computeObjective(r);
+    emitRoom(r, 'update', ppos, r.objectives, new Date().getTime(), population, rankings);
+  },
+  'tutorial': function(r){
     drawProjectiles(r);
     var ppos = drawPlayers(r);
     var rankings = getLeaderboard(r);

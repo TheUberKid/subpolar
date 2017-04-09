@@ -42,7 +42,7 @@ function drawMap(){
         if(mapdata[r][c-1] == 1) binfr = binfr.replaceAt(1, '1');
         if(mapdata[r+1] && mapdata[r+1][c] == 1) binfr = binfr.replaceAt(2, '1');
         if(mapdata[r][c+1] == 1) binfr = binfr.replaceAt(3, '1');
-        drawImg('wall.png', (canvas.width/2) + diffx, (canvas.height/2) + diffy, 18, 0, parseInt(binfr, 2));
+        drawImg('wall.png', Math.round((canvas.width/2) + diffx), Math.round((canvas.height/2) + diffy), 18, 0, parseInt(binfr, 2));
       }
     }
   }

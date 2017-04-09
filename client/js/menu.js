@@ -115,9 +115,9 @@ function initMenus(){
   });
 
   // if the server returns login success (either through session, login, or registration)
-  socket.on('login-success', function(name, l){
+  socket.on('login-success', function(name, loginBool, newuserBool){
     setTimeout(function(){
-      loginSuccess(name, l);
+      loginSuccess(name, loginBool, newuserBool);
       loginSubmit.innerHTML = 'Verify';
       nuSubmit.innerHTML = 'Continue';
     }, 250);
@@ -233,12 +233,13 @@ function navigate(e){
 }
 
 // if a user successfully logs in, redirect them to the main menu and record information
-function loginSuccess(name, l){
-  l ? loggedIn = true : logoutButton.innerHTML = 'leave';
+function loginSuccess(name, loginBool, newuserBool){
+  loginBool ? loggedIn = true : logoutButton.innerHTML = 'leave';
   username = name;
   navigate('mainmenu');
   prlog('Successfully logged in as '+name);
   document.getElementById('username').innerHTML = name;
+  if(newuserBool) tabs[0].click();
 }
 
 // called when a player joins a zone
