@@ -122,8 +122,8 @@ function drawMinimap(ppos, loc){
     if(p.id !== self.id && !p.death){
       if(keys['minimap'] || (!keys['minimap'] && Math.abs(p.x-self.x) < 1000 && Math.abs(p.y-self.y) < 1000)){
         ctx.strokeStyle = p.team === self.team ? '#56b4c9' : '#f3172d';
-        var diffx = keys['minimap'] ? (o.x - mapdata[0].length) : (p.x - self.x)/8;
-        var diffy = keys['minimap'] ? (o.y - mapdata.length) : (p.y - self.y)/8;
+        var diffx = keys['minimap'] ? (p.x/8 - mapdata[0].length) : (p.x - self.x)/8;
+        var diffy = keys['minimap'] ? (p.y/8 - mapdata.length) : (p.y - self.y)/8;
         ctx.strokeRect(xpos + diffx, ypos + diffy, 1, 1);
       }
     }
