@@ -1,11 +1,11 @@
 var ships = {
-  'falcon': {
+  'warbird': {
     accel: 20,
     maxspeed: 800,
     turnspeed: 8,
     maxenergy: 250,
     abilitycd: 200,
-    image: 'falcon.png',
+    image: 'warbird.png',
     abilityimage: 'repel.png'
   },
   'lancaster': {

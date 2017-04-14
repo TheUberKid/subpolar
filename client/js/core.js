@@ -33,7 +33,7 @@ window.addEventListener('resize', resizeEventHandler);
 var radians = Math.PI/180, thrusteralt = 1;
 
 var images = [
-  'falcon.png',
+  'warbird.png',
   'lancaster.png',
   'ghost.png',
   'aurora.png',

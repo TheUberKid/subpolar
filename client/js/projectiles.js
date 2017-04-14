@@ -1,7 +1,7 @@
 // Client-side projectile constructor
 var projectiles = [];
 var projectileTemplates = {
-  'falconShot': {
+  'warbirdShot': {
     color: 'rgb(255, 255, 255)',
     size: 1,
     lifetime: 10,

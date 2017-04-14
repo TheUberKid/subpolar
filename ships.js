@@ -1,5 +1,5 @@
 var ships = {
-  'falcon': {
+  'warbird': {
     accel: 20,
     maxspeed: 800,
     turnspeed: 8,

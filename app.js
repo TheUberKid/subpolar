@@ -864,7 +864,7 @@ function checkObjective(p, r){
       for(var i=0, j=loc.length; i<j; i++){
         var o = loc[i];
         // check distance
-        if(Math.sqrt(Math.pow(o.x - p.x, 2) + Math.pow(o.y - p.y, 2)) < 120){
+        if(Math.sqrt(Math.pow(o.x - p.x, 2) + Math.pow(o.y - p.y, 2)) < 150){
           o.seen = true;
         }
       }
@@ -1026,14 +1026,14 @@ function fireProjectile(r, p, e){
     // bullets
     if(e === 17){
 
-      // falcon
-      if(p.ship === 'falcon'){
+      // warbird
+      if(p.ship === 'warbird'){
         var id = Math.round(Math.random()*10000);
         var x = p.x + 20*Math.cos(radians*(p.rotate-90));
         var y = p.y + 20*Math.sin(radians*(p.rotate-90));
         var x_velocity = s.bulletspeed*Math.cos(radians*(p.rotate-90)) + (p.x_velocity / 100);
         var y_velocity = s.bulletspeed*Math.sin(radians*(p.rotate-90)) + (p.y_velocity / 100);
-        var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, 'falconShot',
+        var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, 'warbirdShot',
           s.bulletlifetime * unistep, s.bulletdamage, 0, 0, 4, p.id, p.map);
         r.projectiles.push(newProjectile);
         p.reload = s.reload;
@@ -1110,7 +1110,7 @@ function useAbility(r, p, e){
     if(e === 1){
 
       // repel
-      if(p.ship === 'falcon'){
+      if(p.ship === 'warbird'){
         emitRoom(r, 'repel', p.x, p.y);
         // push away enemy projectiles
         for(var i=0; i<r.projectiles.length; i++){

@@ -42,12 +42,126 @@ var tutorial = {
       y: 264,
       text: [
         "In space, there is no friction - you don't lose",
-        "momentum even if you stop using your thrusters.",
+        "speed even if you stop using your thrusters.",
         "",
         "You can press %boost to boost, making you even faster!",
         "",
         "Try boosting through the tunnel below: ↓"
-      ]
+      ],
+      seen: false,
+      opacity: 0
+    },
+    {
+      x: 2024,
+      y: 2024,
+      text: [
+        "Nice work!",
+        "You may have noticed that boosting uses energy.",
+        "Energy is shown by the green bar under your name.",
+        "You lose energy when you perform certain actions",
+        "or when you get hit. If you run out of energy",
+        "your ship explodes.",
+        "←"
+      ],
+      seen: false,
+      opacity: 0
+    },
+    {
+      x: 1416,
+      y: 2024,
+      text: [
+        "Another action that uses energy is firing",
+        "your gun. You can press %attack to shoot.",
+        "Try shooting the training dummies!",
+        "←"
+      ],
+      seen: false,
+      opacity: 0,
+      trigger: "tutorial-enemy"
+    },
+    {
+      shipAlt: true,
+      x: 872,
+      y: 2024,
+      text: [],
+      "warbird": {
+        text: [
+          "As a warbird, your bullets are",
+          "expensive but powerful, and you",
+          "can kill other players instantly.",
+          "←"
+        ],
+        color: "255, 100, 100"
+      },
+      "ghost": {
+        text: [
+          "As a ghost, your bullets are cheap",
+          "and you can fire them quickly, but",
+          "a single shot deals little damage.",
+          "←"
+        ],
+        color: "175, 255, 175"
+      },
+      "lancaster": {
+        text: [
+          "As a lancaster, you fire two bullets",
+          "at once and can deal lots of damage",
+          "if you hit an enemy multiple times.",
+          "←"
+        ],
+        color: "255, 255, 175"
+      },
+      seen: false,
+      opacity: 0
+    },
+    {
+      shipAlt: true,
+      x: 264,
+      y: 2024,
+      text: [
+        "Each ship also has an unique ability that",
+        "can be used by pressing %ability1.",
+        "Most abilities have a cooldown."
+      ],
+      "warbird": {
+        text: [
+          "Warbirds can repel enemy fire with their",
+          "ability. When REPEL is used, all nearby",
+          "enemies and bullets are pushed away."
+        ],
+        color: "255, 100, 100"
+      },
+      "ghost": {
+        text: [
+          "Ghosts can toggle their CLOAK ability,",
+          "making them invisible. While cloaked they",
+          "do not regenerate energy. Attacking removes",
+          "the cloak, but the bullet is twice as strong."
+        ],
+        color: "175, 255, 175"
+      },
+      "lancaster": {
+        text: [
+          "Lancasters fire a BOMB that will bounce",
+          "on walls before exploding, dealing massive",
+          "area damage to nearby enemies."
+        ],
+        color: "255, 255, 175"
+      },
+      seen: false,
+      opacity: 0
+    },
+    {
+      x: 264,
+      y: 1144,
+      text: [
+        "Your minimap is shown on the bottom right. ↘",
+        "Friendly players appear as blue dots,",
+        "while enemies appear as red dots.",
+        "Press %minimap to see the full map.",
+      ],
+      seen: false,
+      opacity: 0
     }
   ],
   mapdata: [

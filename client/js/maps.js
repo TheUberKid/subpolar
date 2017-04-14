@@ -51,18 +51,32 @@ function drawMap(){
 
 // minimap
 function drawMinimap(ppos, loc){
-  // minimap clipping
+
+  var xpos = canvas.width - 145;
+  var ypos = canvas.height - 145;
+
+  // create minimap clipping boundaries
   ctx.save();
   ctx.beginPath();
-  ctx.rect(canvas.width - 270, canvas.height - 270, 250, 250);
+  if(keys['minimap']){
+    ctx.rect(60, 60, canvas.width - 120, canvas.height - 120);
+    xpos = canvas.width/2;
+    ypos = canvas.height/2;
+  } else {
+    ctx.rect(canvas.width - 270, canvas.height - 270, 250, 250);
+  }
   ctx.clip();
-  // objectives
+
+  // draw objectives on minimap
   if(self.map === 'trenchWars'){
     for(var i=0, j=loc.length; i<j; i++){
       var o = loc[i];
-      var diffx = (o.x - self.x)/8;
-      var diffy = (o.y - self.y)/8;
-      if(Math.abs(diffx) < 135 && Math.abs(diffy) < 135){
+      // find difference in x and y from player or from center of map depending on expanded map
+      var diffx = keys['minimap'] ? (o.x - mapdata[0].length) : (o.x - self.x)/8;
+      var diffy = keys['minimap'] ? (o.y - mapdata.length) : (o.y - self.y)/8;
+      // if within bounds, draw a circle at the objective
+      if(keys['minimap'] || (!keys['minimap'] && Math.abs(diffx) < 135 && Math.abs(diffy) < 135)){
+        // determine color
         var color = self.team === 0 ?
           'rgba('+(o.control+100)+', '+Math.abs(o.control-100)+', '+Math.abs(o.control-100)+', 0.7)' :
           'rgba('+Math.abs(o.control-100)+', '+(o.control+100)+', '+(o.control+100)+', 0.7)';
@@ -71,39 +85,66 @@ function drawMinimap(ppos, loc){
         } else if(o.controlled[Math.abs(self.team-1)]){
           color = 'rgba(255, 0, 0, 0.7)';
         }
-        drawCircle(canvas.width - 145 + diffx, canvas.height - 145 + diffy, 10, color);
+        drawCircle(xpos + diffx, ypos + diffy, 10, color);
       }
     }
   }
-  // map
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-  ctx.fillRect(canvas.width - 270, canvas.height - 270, 250, 250);
+
+  // darkened backdrop
+  if(keys['minimap']){
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+    ctx.fillRect(60, 60, canvas.width - 120, canvas.height - 120);
+  } else {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(canvas.width - 270, canvas.height - 270, 250, 250);
+  }
+
+  // draw walls on minimap
   ctx.lineWidth = 1;
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-  for(var r = Math.round(self.y/16)-63, j=Math.round(self.y/16)+63; r<j; r++){
-    for(var c = Math.round(self.x/16)-63, k=Math.round(self.x/16)+63; c<k; c++){
-      if(mapdata[r] && mapdata[r][c] && mapdata[r][c] != 0) ctx.strokeRect(canvas.width - 145 + c*2 - self.x/8, canvas.height - 145 + r*2 - self.y/8, 1, 1);
+  if(keys['minimap']){
+    for(var r = 0, j=mapdata.length; r<j; r++){
+      for(var c = 0, k=mapdata[r].length; c<k; c++){
+        if(mapdata[r] && mapdata[r][c] && mapdata[r][c] != 0) ctx.strokeRect(xpos + c*2 - (mapdata[0].length), ypos + r*2 - (mapdata.length), 1, 1);
+      }
+    }
+  } else {
+    for(var r = Math.round(self.y/16)-63, j=Math.round(self.y/16)+63; r<j; r++){
+      for(var c = Math.round(self.x/16)-63, k=Math.round(self.x/16)+63; c<k; c++){
+        if(mapdata[r] && mapdata[r][c] && mapdata[r][c] != 0) ctx.strokeRect(xpos + c*2 - self.x/8, ypos + r*2 - self.y/8, 1, 1);
+      }
     }
   }
-  // players
+
+  // draw players on minimap
   for(var i in ppos){
     var p = ppos[i];
-    if(p.id !== self.id && Math.abs(p.x-self.x) < 1000 && Math.abs(p.y-self.y) < 1000 && !p.death){
-      ctx.strokeStyle = p.team === self.team ? '#56b4c9' : '#f3172d';
-      var diffx = (p.x - self.x)/8;
-      var diffy = (p.y - self.y)/8;
-      ctx.strokeRect(canvas.width - 145 + diffx, canvas.height - 145 + diffy, 1, 1);
+    if(p.id !== self.id && !p.death){
+      if(keys['minimap'] || (!keys['minimap'] && Math.abs(p.x-self.x) < 1000 && Math.abs(p.y-self.y) < 1000)){
+        ctx.strokeStyle = p.team === self.team ? '#56b4c9' : '#f3172d';
+        var diffx = keys['minimap'] ? (o.x - map[0].length) : (p.x - self.x)/8;
+        var diffy = keys['minimap'] ? (o.y - map.length) : (p.y - self.y)/8;
+        ctx.strokeRect(xpos + diffx, ypos + diffy, 1, 1);
+      }
     }
   }
   ctx.strokeStyle = 'rgb(100, 255, 100)';
-  ctx.strokeRect(canvas.width - 145, canvas.height - 145, 1, 1);
+  if(keys['minimap']){
+    ctx.strokeRect(xpos + self.x/8 - (mapdata[0].length), ypos + self.y/8 - (mapdata.length), 1, 1);
+  } else {
+    ctx.strokeRect(xpos, ypos, 1, 1);
+  }
   // end clipping
   ctx.restore();
 
-  // canvas border
+  // minimap border
   ctx.lineWidth = 2;
   ctx.strokeStyle = 'rgba(100, 100, 100, 0.5)';
-  ctx.strokeRect(canvas.width - 270, canvas.height - 270, 250, 250);
+  if(keys['minimap']){
+    ctx.strokeRect(60, 60, canvas.width - 120, canvas.height - 120);
+  } else {
+    ctx.strokeRect(canvas.width - 270, canvas.height - 270, 250, 250);
+  }
 }
 
 // draw objectives
@@ -113,14 +154,27 @@ function drawObjectives(loc){
       var o = loc[i];
       var diffx = o.x - self.x;
       var diffy = o.y - self.y;
-      ctx.fillStyle = "rgba(255, 255, 255, "+ (o.opacity/60) +")";
       ctx.textAlign = "center";
+      ctx.fillStyle = "rgba(255, 255, 255, " + (o.opacity/60) + ")";
+      var lines = o.text.length;
+      if(o.shipAlt) lines += o[self.ship].text.length;
       for(var k=0, l=o.text.length; k<l; k++){
         var t = o.text[k];
         for(var m in keymap){
           t = t.replace(new RegExp('%'+m, 'g'), keyCodes[keymap[m]].toUpperCase());
         }
-        ctx.fillText(t, canvas.width/2 + diffx, canvas.height/2 + diffy - (10*l) + (20*k));
+        ctx.fillText(t, canvas.width/2 + diffx, canvas.height/2 + diffy - (10*lines) + (20*k));
+      }
+      if(o.shipAlt){
+        o = o[self.ship];
+        ctx.fillStyle = "rgba(" + (o.color) + ", " + (loc[i].opacity/60) + ")";
+        for(var k=0, l=o.text.length; k<l; k++){
+          var t = o.text[k];
+          for(var m in keymap){
+            t = t.replace(new RegExp('%'+m, 'g'), keyCodes[keymap[m]].toUpperCase());
+          }
+          ctx.fillText(t, canvas.width/2 + diffx, canvas.height/2 + diffy - (10*lines) + ((k + (lines-l)) * 20));
+        }
       }
     }
   }

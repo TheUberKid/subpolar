@@ -20,7 +20,7 @@ function initKeys(){
   }
   document.addEventListener('keydown', keychange);
   resetKeys.addEventListener('click', function(){
-    keymap = defaultkeys;
+    keymap = JSON.parse(JSON.stringify(defaultkeys));
     blur();
     for(var i=0, j=keyGuides.length; i<j; i++){
       keyGuides[i].innerHTML = keyCodes[keymap[keyGuides[i].dataset.action]];
@@ -43,8 +43,8 @@ var defaultkeys = {
   'attack' : 68,
   'boost' : 16,
   'ability1' : 32,
-  'ability2' : 83,
   'chat' : 13,
+  'minimap' : 9,
   'leave' : 27
 };
 var keymap = {
@@ -55,8 +55,8 @@ var keymap = {
   'attack' : parseInt(read_cookie('attack')) || defaultkeys['attack'],
   'boost' : parseInt(read_cookie('boost')) || defaultkeys['boost'],
   'ability1' : parseInt(read_cookie('ability1')) || defaultkeys['ability1'],
-  'ability2' : parseInt(read_cookie('ability2')) || defaultkeys['ability2'],
   'chat' : parseInt(read_cookie('chat')) || defaultkeys['chat'],
+  'minimap' : parseInt(read_cookie('minimap')) || defaultkeys['minimap'],
   'leave' : parseInt(read_cookie('leave')) || defaultkeys['leave'],
 };
 var keyCodes = {
@@ -189,7 +189,7 @@ var keys = []; // key logging
 
 // key events
 function keydown(e){
-  if(e.ctrlKey){
+  if(e.ctrlKey || e.which == 9){
     e.preventDefault();
     e.stopPropagation();
   }

@@ -25,7 +25,7 @@ var tabs = document.getElementsByClassName('menu-tab');
 var keyGuides = document.getElementsByClassName('keyguide');
 var resetKeys = document.getElementById('reset-controls');
 var shipChoices = document.getElementsByClassName('ship-choice');
-var shipChosen = 'falcon';
+var shipChosen = 'warbird';
 var zoneChosen = 'extreme games';
 
 // navigation status for new user menu
