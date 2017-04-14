@@ -572,9 +572,45 @@ setInterval(globalLoop, 1000/framerate);
 
 // objectives and round regulation
 function computeObjective(r){
-  // if game is currently running
-  if(r.state === 'active'){
-    if(r.zone === 'extreme games'){
+  if(r.zone === 'tutorial'){
+    if(r.state === 'active'){
+      var loc = r.objectives;
+      for(var i=0, j=loc.length; i<j; i++){
+        var o = loc[i];
+        if(o.seen && o.opacity < 50) o.opacity++;
+      }
+    }
+  }
+  if(r.zone === 'extreme games'){
+    if(r.state === 'lobby'){
+      if(r.population >= maps[r.map].config.minplayers){
+        r.state = 'countdown';
+        r.starttime = new Date().getTime() + (1000*5);
+        r.countdown = 5;
+      }
+    } else if(r.state === 'countdown'){
+      // countdown until the start of the round
+      var t = r.starttime - new Date().getTime();
+      if(t <= 0){
+        r.state = 'active';
+        emitRoom(r, 'newAnnouncement', {
+          text: 'Fight!',
+          lifetime: 3000,
+          color: 'rgb(150, 255, 150)'
+        });
+        for(var i in r.players) spawn(r, r.players[i]);
+      } else {
+        // countdown timer
+        if(t < r.countdown*1000){
+          emitRoom(r, 'newAnnouncement', {
+            text: r.countdown + ' second(s) until the round begins!',
+            lifetime: 1500,
+            color: 'rgb(255, 255, 255)'
+          });
+          r.countdown--;
+        }
+      }
+    } else if(r.state === 'active'){
       // win condition
       for(var i in r.players){
         var p = r.players[i];
@@ -595,8 +631,65 @@ function computeObjective(r){
           break;
         }
       }
+    } else if(r.state === 'ended'){
+      // when a team or player wins, remove all players after 10 seconds
+      if(new Date().getTime() - r.endtime > 10*1000){
+        for(var i in r.players){
+          var p = r.players[i];
+          console.log(p.displayName + ' left room '+r.id);
+          r.teams[p.team]--;
+          r.population--;
+          // delete player from their room
+          delete r.players[p.id];
+          // decrement projectile origins
+          for(var i in r.projectiles){
+            var t = r.projectiles[i];
+            if(t.origin === p.id){
+              r.projectiles.splice(i, 1);
+              emitRoom(r, 'projectileHit', t.id, t.x, t.y);
+            }
+          }
+          p.joined = false;
+          p.kills = 0;
+          p.bounty = 0;
+
+          Sockets[p.id].emit('leave');
+          break;
+        }
+      }
     }
-    if(r.zone === 'trench wars'){
+  }
+
+  if(r.zone === 'trench wars'){
+    if(r.state === 'lobby'){
+      if(r.population >= maps[r.map].config.minplayers){
+        r.state = 'countdown';
+        r.starttime = new Date().getTime() + (1000*5);
+        r.countdown = 5;
+      }
+    } else if(r.state === 'countdown'){
+      // countdown until the start of the round
+      var t = r.starttime - new Date().getTime();
+      if(t <= 0){
+        r.state = 'active';
+        emitRoom(r, 'newAnnouncement', {
+          text: 'Fight!',
+          lifetime: 3000,
+          color: 'rgb(150, 255, 150)'
+        });
+        for(var i in r.players) spawn(r, r.players[i]);
+      } else {
+        // countdown timer
+        if(t < r.countdown*1000){
+          emitRoom(r, 'newAnnouncement', {
+            text: r.countdown + ' second(s) until the round begins!',
+            lifetime: 1500,
+            color: 'rgb(255, 255, 255)'
+          });
+          r.countdown--;
+        }
+      }
+    } else if(r.state === 'active'){
       // control points
       var loc = r.objectives;
       for(var i=0, j=loc.length; i<j; i++){
@@ -732,70 +825,53 @@ function computeObjective(r){
           color: 'rgb(255, 255, 255)'
         });
       }
-    }
-
-  } else if(r.state === 'lobby'){
-    // if the round hasn't started yet, satisfy start conditions and start the round
-    if(r.population >= maps[r.map].config.minplayers){
-      r.state = 'countdown';
-      r.starttime = new Date().getTime() + (1000*5);
-      r.countdown = 5;
-    }
-
-  } else if(r.state === 'countdown'){
-    // countdown until the start of the round
-    var t = r.starttime - new Date().getTime();
-    if(t <= 0){
-      r.state = 'active';
-      emitRoom(r, 'newAnnouncement', {
-        text: 'Fight!',
-        lifetime: 3000,
-        color: 'rgb(150, 255, 150)'
-      });
-      for(var i in r.players) spawn(r, r.players[i]);
-    } else {
-      // countdown timer
-      if(t < r.countdown*1000){
-        emitRoom(r, 'newAnnouncement', {
-          text: r.countdown + ' second(s) until the round begins!',
-          lifetime: 1500,
-          color: 'rgb(255, 255, 255)'
-        });
-        r.countdown--;
-      }
-    }
-  } else if(r.state === 'ended'){
-    // when a team or player wins, remove all players after 10 seconds
-    if(new Date().getTime() - r.endtime > 10*1000){
-      for(var i in r.players){
-        var p = r.players[i];
-        console.log(p.displayName + ' left room '+r.id);
-        r.teams[p.team]--;
-        r.population--;
-        // delete player from their room
-        delete r.players[p.id];
-        // decrement projectile origins
-        for(var i in r.projectiles){
-          var t = r.projectiles[i];
-          if(t.origin === p.id){
-            r.projectiles.splice(i, 1);
-            emitRoom(r, 'projectileHit', t.id, t.x, t.y);
+    } else if(r.state === 'ended'){
+      // when a team or player wins, remove all players after 10 seconds
+      if(new Date().getTime() - r.endtime > 10*1000){
+        for(var i in r.players){
+          var p = r.players[i];
+          console.log(p.displayName + ' left room '+r.id);
+          r.teams[p.team]--;
+          r.population--;
+          // delete player from their room
+          delete r.players[p.id];
+          // decrement projectile origins
+          for(var i in r.projectiles){
+            var t = r.projectiles[i];
+            if(t.origin === p.id){
+              r.projectiles.splice(i, 1);
+              emitRoom(r, 'projectileHit', t.id, t.x, t.y);
+            }
           }
-        }
-        p.joined = false;
-        p.kills = 0;
-        p.bounty = 0;
+          p.joined = false;
+          p.kills = 0;
+          p.bounty = 0;
 
-        Sockets[p.id].emit('leave');
-        break;
+          Sockets[p.id].emit('leave');
+          break;
+        }
       }
     }
   }
+
 }
 
+// player objective testing
 function checkObjective(p, r){
-  if(r.state === 'active'){
-    if(r.zone === 'trench wars'){
+  if(r.zone === 'tutorial'){
+    if(r.state === 'active'){
+      var loc = r.objectives;
+      for(var i=0, j=loc.length; i<j; i++){
+        var o = loc[i];
+        // check distance
+        if(Math.sqrt(Math.pow(o.x - p.x, 2) + Math.pow(o.y - p.y, 2)) < 120){
+          o.seen = true;
+        }
+      }
+    }
+  }
+  if(r.zone === 'trench wars'){
+    if(r.state === 'active'){
       var loc = r.objectives;
       for(var i=0, j=loc.length; i<j; i++){
         var o = loc[i];

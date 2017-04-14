@@ -108,6 +108,22 @@ function drawMinimap(ppos, loc){
 
 // draw objectives
 function drawObjectives(loc){
+  if(self.map === 'tutorial'){
+    for(var i=0, j=loc.length; i<j; i++){
+      var o = loc[i];
+      var diffx = o.x - self.x;
+      var diffy = o.y - self.y;
+      ctx.fillStyle = "rgba(255, 255, 255, "+ (o.opacity/60) +")";
+      ctx.textAlign = "center";
+      for(var k=0, l=o.text.length; k<l; k++){
+        var t = o.text[k];
+        for(var m in keymap){
+          t = t.replace(new RegExp('%'+m, 'g'), keyCodes[keymap[m]].toUpperCase());
+        }
+        ctx.fillText(t, canvas.width/2 + diffx, canvas.height/2 + diffy - (10*l) + (20*k));
+      }
+    }
+  }
   if(self.map === 'trenchWars'){
     for(var i=0, j=loc.length; i<j; i++){
       var o = loc[i];

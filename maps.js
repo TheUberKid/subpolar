@@ -12,7 +12,44 @@ var tutorial = {
   spawnpoints: [
     [256, 256]
   ],
-  objectives: [],
+  objectives: [
+    {
+      x: 264,
+      y: 264,
+      text: [
+        "Welcome!",
+        "This tutorial will guide you through the basics.",
+        "",
+        "To move, use the %left and %right keys to rotate,",
+        "and the %up and %down keys to use your thrusters.",
+        "",
+        "Try to navigate through the tunnel! →"
+      ],
+      seen: false,
+      opacity: 0
+    },
+    {
+      x: 1312,
+      y: 400,
+      text: [
+        "Good job!"
+      ],
+      seen: false,
+      opacity: 0
+    },
+    {
+      x: 2024,
+      y: 264,
+      text: [
+        "In space, there is no friction - you don't lose",
+        "momentum even if you stop using your thrusters.",
+        "",
+        "You can press %boost to boost, making you even faster!",
+        "",
+        "Try boosting through the tunnel below: ↓"
+      ]
+    }
+  ],
   mapdata: [
     '11111111111111111111111111111111100000000000000000000000000000000000000000000000000000000000000000000000000000111111111111111111111111111111111',
     '10000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000001',
