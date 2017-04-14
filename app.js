@@ -447,6 +447,7 @@ io.sockets.on('connection', function(socket){
       p.map = r.map;
       r.players[socket.id] = socket.player;
       r.population++;
+      if(zone === 'tutorial') r.trainee = p;
       socket.emit('map', maps[p.map].mapdata, p.map);
 
       if(maps[p.map].config.teams){
@@ -615,6 +616,12 @@ function computeObjective(r){
             while(Sockets[id2]) id2 = Math.floor(Math.random()*100000);
             r.players[id1] = new Bot(r, id1, "training dummy", "warbird", 1000, 1892, 90);
             r.players[id2] = new Bot(r, id2, "training dummy", "warbird", 1000, 2156, 90);
+          }
+          if(o.trigger === 'tutorial-ally'){
+            // create a tutorial ally to attach to
+            var id = Math.floor(Math.random()*100000);
+            while(Sockets[id]) id = Math.floor(Math.random()*100000);
+            r.players[id] = new Bot(r, id, "training Terrier", "warbird", 1532, 1144, 0, r.trainee.team);
           }
         }
       }
@@ -1523,7 +1530,7 @@ function kill(r, origin, e, p){
 function getLeaderboard(r){
   var p = [];
   for(var i in r.players){
-    if(!p.bot) p.push([i, r.players[i]]);
+    if(!r.players[i].bot) p.push([i, r.players[i]]);
   }
   p.sort(function(a, b){return b[1].bounty - a[1].bounty;});
   var arr = [];

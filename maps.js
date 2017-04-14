@@ -86,9 +86,10 @@ var tutorial = {
       text: [],
       "warbird": {
         text: [
-          "As a warbird, your bullets are",
-          "expensive but powerful, and you",
-          "can kill other players instantly.",
+          "Warbird bullets are fast and powerful,",
+          "but cost a large amount of energy. They",
+          "instantly kill most ships and pierce",
+          "through enemies at close range.",
           "←"
         ],
         color: "255, 100, 100"
@@ -105,8 +106,8 @@ var tutorial = {
       "lancaster": {
         text: [
           "As a lancaster, you fire two bullets",
-          "at once and can deal lots of damage",
-          "if you hit an enemy multiple times.",
+          "at once and can kill enemies easily",
+          "if they are hit multiple times.",
           "←"
         ],
         color: "255, 255, 175"
@@ -144,7 +145,7 @@ var tutorial = {
         text: [
           "Lancasters fire a BOMB that will bounce",
           "on walls before exploding, dealing massive",
-          "area damage to nearby enemies."
+          "area damage to nearby players."
         ],
         color: "255, 255, 175"
       },
@@ -162,6 +163,19 @@ var tutorial = {
       ],
       seen: false,
       opacity: 0
+    },
+    {
+      x: 956,
+      y: 1144,
+      text: [
+        "You can attach to nearby Terriers, warping",
+        "to their position by pressing %attach.",
+        "this can be used to go through walls.",
+        "Attach to the terrier! →"
+      ],
+      seen: false,
+      opacity: 0,
+      trigger: "tutorial-ally"
     }
   ],
   mapdata: [

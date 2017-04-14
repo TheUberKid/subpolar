@@ -82,7 +82,6 @@ function initProjectiles(){
         t.x_velocity = p.x_velocity;
         t.y_velocity = p.y_velocity;
         if(t.bounce > 0) t.bounce--;
-        t.trail = false;
       }
     }
   });
@@ -112,7 +111,6 @@ var Projectile = function(id, x, y, rotate, x_velocity, y_velocity, type, lifeti
   this.bounce = bounce;
   this.origin = origin;
   this.rippleCount = rippleCount;
-  this.trail = false;
 }
 
 // update projectiles
@@ -123,16 +121,12 @@ function drawProjectiles(){
     var diffx = p.x - self.x;
     var diffy = p.y - self.y;
     for(var j = 0; j < unistep; j++){
-      if(p.trail){
-        if(Math.abs(diffx) < canvas.width+8 && Math.abs(diffy) < canvas.height+8 && p.lifetime > 0){
-          var trailstep = Math.round(Math.sqrt((p.x_velocity/100)*(p.x_velocity/100) + (p.y_velocity/100)*(p.y_velocity/100)) / (pt.size/2))+1;
-          for(var k = 0, l = Math.ceil(trailstep/unistep); k<l; k++){
-            var t = new Trail(p.x - k*(p.x_velocity/(l*100)), p.y - k*(p.y_velocity/(l*100)), pt.size, pt.color, pt.lifetime - (k / l));
-            trails.push(t);
-          }
+      if(Math.abs(diffx) < canvas.width+8 && Math.abs(diffy) < canvas.height+8 && p.lifetime > 0){
+        var trailstep = Math.round(Math.sqrt((p.x_velocity/100)*(p.x_velocity/100) + (p.y_velocity/100)*(p.y_velocity/100)) / (pt.size/2))+1;
+        for(var k = 0, l = Math.ceil(trailstep/unistep); k<l; k++){
+          var t = new Trail(p.x - k*(p.x_velocity/(l*100)), p.y - k*(p.y_velocity/(l*100)), pt.size, pt.color, pt.lifetime - (k / l));
+          trails.push(t);
         }
-      } else {
-        p.trail = true;
       }
       p.x = p.x + p.x_velocity / (unistep * 100);
       p.y = p.y + p.y_velocity / (unistep * 100);
