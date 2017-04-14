@@ -135,8 +135,8 @@ var tutorial = {
         text: [
           "Ghosts can toggle their CLOAK ability,",
           "making them invisible. While cloaked they",
-          "do not regenerate energy. Attacking removes",
-          "the cloak, but the bullet is twice as strong."
+          "do not regenerate energy. Attacking will",
+          "uncloak you, but the first shot is stronger."
         ],
         color: "175, 255, 175"
       },

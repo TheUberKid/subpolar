@@ -336,6 +336,34 @@ var Player = function(id){
   this.abilitycd = 0;
 }
 
+// bot constructor
+// a bot is a 'player' that is not assigned to a socket
+var Bot = function(room, id, name, ship, x, y, rotate, team){
+  this.bot = true;
+  this.room = room;
+  this.id = id;
+  this.displayName = name;
+  this.ship = ship;
+  this.energy = ships.stats[ship].maxenergy;
+  this.x = x;
+  this.y = y;
+  this.x_velocity = 0;
+  this.y_velocity = 0;
+  this.rotate = rotate;
+  this.map = room.map;
+  this.joined = true;
+  this.keys = [];
+  this.collided = false;
+  this.reload = 0;
+  this.death = false;
+  this.deathTime = 0;
+  this.bounty = 0;
+  this.kills = 0;
+  this.stealth = false;
+  this.abilitycd = 0;
+  this.team = team ? team : -1;
+}
+
 // projectile constructor
 // NOTE: this is a different projectile object than the client's projectile.
 // These are only used for keeping track of projectiles and updating them, and are not passed to the client.
@@ -578,6 +606,17 @@ function computeObjective(r){
       for(var i=0, j=loc.length; i<j; i++){
         var o = loc[i];
         if(o.seen && o.opacity < 50) o.opacity++;
+        if(o.opacity === 1){
+          if(o.trigger === 'tutorial-enemy'){
+            // create 2 tutorial enemies
+            var id1 = Math.floor(Math.random()*100000);
+            while(Sockets[id1]) id1 = Math.floor(Math.random()*100000);
+            var id2 = Math.floor(Math.random()*100000);
+            while(Sockets[id2]) id2 = Math.floor(Math.random()*100000);
+            r.players[id1] = new Bot(r, id1, "training dummy", "warbird", 1000, 1892, 90);
+            r.players[id2] = new Bot(r, id2, "training dummy", "warbird", 1000, 2156, 90);
+          }
+        }
       }
     }
   }
@@ -989,9 +1028,13 @@ function drawPlayers(r){
         if(p.energy < s.maxenergy && !(p.keys['boost'] && (p.keys['up'] || p.keys['down'])) && !p.stealth) p.energy += s.recharge;
 
       } else if(p.death){
-        if(currentTime.getTime() - p.death > p.deathTime){
-          spawn(r, p);
-          emitRoom(r, 'playerRespawn', p.x, p.y);
+        if(!p.bot){
+          if(currentTime.getTime() - p.death > p.deathTime){
+            spawn(r, p);
+            emitRoom(r, 'playerRespawn', p.x, p.y);
+          }
+        } else {
+          delete r.players[p.id];
         }
       }
     }
@@ -1012,7 +1055,8 @@ function drawPlayers(r){
       bounty: p.bounty,
       kills: p.kills,
       stealth: p.stealth,
-      abilitycd: p.abilitycd
+      abilitycd: p.abilitycd,
+      bot: p.bot ? true : false
     };
   }
   // return player positions to emit
@@ -1392,66 +1436,94 @@ function spawn(r, p){
 
 // when a player dies
 function kill(r, origin, e, p){
-  var osocket = Sockets[origin.id];
-  var esocket = Sockets[e.id];
-  var d = new Date();
-  e.death = d.getTime();
-  if(maps[e.map].config.zone === 'extreme games'){
-    e.deathTime = 5000;
-  }
-  if(maps[e.map].config.zone === 'trench wars'){
-    e.deathTime = (d.getTime() - r.starttime)/60 + 3000;
-  }
+  if(!e.bot){
+    var osocket = Sockets[origin.id];
+    var esocket = Sockets[e.id];
+    var d = new Date();
+    e.death = d.getTime();
+    if(maps[e.map].config.zone === 'extreme games'){
+      e.deathTime = 5000;
+    }
+    if(maps[e.map].config.zone === 'trench wars'){
+      e.deathTime = (d.getTime() - r.starttime)/60 + 3000;
+    }
 
-  // if not team kill award bounty
-  if(origin.team !== e.team){
+    // if not team kill award bounty
+    if(origin.team !== e.team){
 
-    origin.bounty += e.bounty;
-    origin.kills++;
-    console.log(origin.displayName + ' killed ' + e.displayName);
+      origin.bounty += e.bounty;
+      origin.kills++;
+      console.log(origin.displayName + ' killed ' + e.displayName);
 
-    osocket.emit('newNotice', {
-      text: 'Killed ' + e.displayName + ' (+' + e.bounty + ')',
-      lifetime: 3000,
-      color: 'rgb(100, 255, 100)'
-    });
-    Sockets[e.id].emit('newNotice', {
-      text: 'Killed by '+origin.displayName,
-      lifetime: 3000,
-      color: 'rgb(255, 100, 100)'
-    });
+      osocket.emit('newNotice', {
+        text: 'Killed ' + e.displayName + ' (+' + e.bounty + ')',
+        lifetime: 3000,
+        color: 'rgb(100, 255, 100)'
+      });
+      Sockets[e.id].emit('newNotice', {
+        text: 'Killed by '+origin.displayName,
+        lifetime: 3000,
+        color: 'rgb(255, 100, 100)'
+      });
+
+    } else {
+
+      // remove a little bounty if team kill
+      origin.bounty -= 10;
+      if(origin.bounty < 0) origin.bounty = 0;
+      console.log(origin.displayName + ' TK\'d ' + e.displayName);
+
+      // announce team kill
+      osocket.emit('newNotice', {
+        text: 'TK\'d '+e.displayName  + ' (-10)',
+        lifetime: 3000,
+        color: 'rgb(255, 100, 100)'
+      });
+      esocket.emit('newNotice', {
+        text: 'TK\'d by '+origin.displayName,
+        lifetime: 3000,
+        color: 'rgb(255, 100, 100)'
+      });
+
+    }
+
+    // update statistics
+    e.bounty = 0;
+    emitRoom(r, 'playerDeath', p.x, p.y, origin.id, e.id, e.deathTime);
 
   } else {
 
-    // remove a little bounty if team kill
-    origin.bounty -= 10;
-    if(origin.bounty < 0) origin.bounty = 0;
-    console.log(origin.displayName + ' TK\'d ' + e.displayName);
-
-    // announce team kill
-    osocket.emit('newNotice', {
-      text: 'TK\'d '+e.displayName  + ' (-10)',
-      lifetime: 3000,
-      color: 'rgb(255, 100, 100)'
-    });
-    esocket.emit('newNotice', {
-      text: 'TK\'d by '+origin.displayName,
-      lifetime: 3000,
-      color: 'rgb(255, 100, 100)'
-    });
-
+    // bot death
+    var socket = Sockets[origin.id];
+    if(origin.team !== e.team){
+      origin.bounty += e.bounty;
+      console.log(origin.displayName + ' killed ' + e.displayName);
+      socket.emit('newNotice', {
+        text: 'Killed ' + e.displayName + ' (+' + e.bounty + ')',
+        lifetime: 3000,
+        color: 'rgb(100, 255, 100)'
+      });
+    } else {
+      // remove a little bounty if team kill
+      origin.bounty -= 10;
+      if(origin.bounty < 0) origin.bounty = 0;
+      console.log(origin.displayName + ' TK\'d ' + e.displayName);
+      // announce team kill
+      socket.emit('newNotice', {
+        text: 'TK\'d '+e.displayName  + ' (-10)',
+        lifetime: 3000,
+        color: 'rgb(255, 100, 100)'
+      });
+    }
+    e.death = true;
+    emitRoom(r, 'playerDeath', p.x, p.y, origin.id, e.id, e.deathTime);
   }
-
-  // update statistics
-  e.bounty = 0;
-  emitRoom(r, 'playerDeath', p.x, p.y, origin.id, e.id, e.deathTime);
-
 }
 
 function getLeaderboard(r){
   var p = [];
   for(var i in r.players){
-    p.push([i, r.players[i]]);
+    if(!p.bot) p.push([i, r.players[i]]);
   }
   p.sort(function(a, b){return b[1].bounty - a[1].bounty;});
   var arr = [];

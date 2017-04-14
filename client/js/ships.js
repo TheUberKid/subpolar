@@ -130,7 +130,8 @@ function drawPlayers(ppos){
           if(!p.stealth){
             drawImg(s.image,(canvas.width/2)+diffx,(canvas.height/2)+diffy, 32, p.rotate);
             ctx.fillStyle = self.team === p.team ? '#56b4c9' : '#f3172d';
-            ctx.fillText(p.displayName + ' [' + p.bounty + ']', (canvas.width/2)+diffx+16, (canvas.height/2)+diffy+24);
+            var nametag = p.bot ? p.displayName : p.displayName + ' [' + p.bounty + ']';
+            ctx.fillText(nametag, (canvas.width/2)+diffx+16, (canvas.height/2)+diffy+24);
           }
         }
       }
