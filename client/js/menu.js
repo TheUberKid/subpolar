@@ -150,6 +150,7 @@ function initMenus(){
       document.getElementById('username').innerHTML = 'Guest';
     }, 500);
     delete_cookie('session');
+    nuNavStatus = 0;
   });
 
   // event listeners to join a zone or logout
