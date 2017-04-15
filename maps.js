@@ -20,10 +20,10 @@ var tutorial = {
         "Welcome!",
         "This tutorial will guide you through the basics.",
         "",
-        "To move, use the %left and %right keys to rotate,",
+        "Use the %left and %right keys to rotate your ship,",
         "and the %up and %down keys to use your thrusters.",
         "",
-        "Try to navigate through the tunnel! →"
+        "Try to fly through the passage! →"
       ],
       seen: false,
       opacity: 0
@@ -41,8 +41,8 @@ var tutorial = {
       x: 2024,
       y: 264,
       text: [
-        "In space, there is no friction - you don't lose",
-        "speed even if you stop using your thrusters.",
+        "In space you don't lose speed even",
+        "if you stop using your thrusters.",
         "",
         "You can press %boost to boost, making you even faster!",
         "",
@@ -56,11 +56,10 @@ var tutorial = {
       y: 2024,
       text: [
         "Nice work!",
-        "You may have noticed that boosting uses energy.",
-        "Energy is shown by the green bar under your name.",
-        "You lose energy when you perform certain actions",
-        "or when you get hit. If you run out of energy",
-        "your ship explodes.",
+        "Boosting uses up energy, which is indicated",
+        "by the green bar under your display name.",
+        "You lose energy when you attack or get hit.",
+        "If you run out of energy, your ship dies.",
         "←"
       ],
       seen: false,
@@ -70,9 +69,9 @@ var tutorial = {
       x: 1416,
       y: 2024,
       text: [
-        "Another action that uses energy is firing",
-        "your gun. You can press %attack to shoot.",
-        "Try shooting the training dummies!",
+        "Press %attack to fire.",
+        "Attacking costs energy, so make your shots count!",
+        "Shoot the enemies!",
         "←"
       ],
       seen: false,
@@ -86,28 +85,28 @@ var tutorial = {
       text: [],
       "warbird": {
         text: [
-          "Warbird bullets are fast and powerful,",
-          "but cost a large amount of energy. They",
-          "instantly kill most ships and pierce",
-          "through enemies at close range.",
-          "←"
+          "Warbirds can instantly kill any enemy",
+          "with one shot but cannot attack often.",
+          "You are the most vulnerable right after",
+          "you attack!"
         ],
         color: "255, 100, 100"
       },
       "ghost": {
         text: [
-          "As a ghost, your bullets are cheap",
-          "and you can fire them quickly, but",
-          "a single shot deals little damage.",
-          "←"
+          "Ghosts attack quickly, but each",
+          "shot deals little damage. Ghosts",
+          "also have less energy than other",
+          "ships, but regenerate faster."
         ],
         color: "175, 255, 175"
       },
       "lancaster": {
         text: [
-          "As a lancaster, you fire two bullets",
-          "at once and can kill enemies easily",
-          "if they are hit multiple times.",
+          "Lancasters fire two bullets at once.",
+          "However, shooting too many times",
+          "can leave you very weak and easily",
+          "killed.",
           "←"
         ],
         color: "255, 255, 175"
@@ -135,7 +134,7 @@ var tutorial = {
       "ghost": {
         text: [
           "Ghosts can toggle their CLOAK ability,",
-          "making them invisible. While cloaked they",
+          "making them invisible. While cloaked Ghosts",
           "do not regenerate energy. Attacking will",
           "uncloak you, but the first shot is stronger."
         ],
@@ -144,7 +143,7 @@ var tutorial = {
       "lancaster": {
         text: [
           "Lancasters fire a BOMB that will bounce",
-          "on walls before exploding, dealing massive",
+          "on walls before exploding, dealing",
           "area damage to nearby players."
         ],
         color: "255, 255, 175"

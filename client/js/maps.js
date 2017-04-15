@@ -67,29 +67,6 @@ function drawMinimap(ppos, loc){
   }
   ctx.clip();
 
-  // draw objectives on minimap
-  if(self.map === 'trenchWars'){
-    for(var i=0, j=loc.length; i<j; i++){
-      var o = loc[i];
-      // find difference in x and y from player or from center of map depending on expanded map
-      var diffx = keys['minimap'] ? (o.x - mapdata[0].length) : (o.x - self.x)/8;
-      var diffy = keys['minimap'] ? (o.y - mapdata.length) : (o.y - self.y)/8;
-      // if within bounds, draw a circle at the objective
-      if(keys['minimap'] || (!keys['minimap'] && Math.abs(diffx) < 135 && Math.abs(diffy) < 135)){
-        // determine color
-        var color = self.team === 0 ?
-          'rgba('+(o.control+100)+', '+Math.abs(o.control-100)+', '+Math.abs(o.control-100)+', 0.7)' :
-          'rgba('+Math.abs(o.control-100)+', '+(o.control+100)+', '+(o.control+100)+', 0.7)';
-        if(o.controlled[self.team]){
-          color = 'rgba(0, 255, 255, 0.7)';
-        } else if(o.controlled[Math.abs(self.team-1)]){
-          color = 'rgba(255, 0, 0, 0.7)';
-        }
-        drawCircle(xpos + diffx, ypos + diffy, 10, color);
-      }
-    }
-  }
-
   // darkened backdrop
   if(keys['minimap']){
     ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
@@ -97,6 +74,29 @@ function drawMinimap(ppos, loc){
   } else {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
     ctx.fillRect(canvas.width - 270, canvas.height - 270, 250, 250);
+  }
+
+  // draw objectives on minimap
+  if(self.map === 'trenchWars'){
+    for(var i=0, j=loc.length; i<j; i++){
+      var o = loc[i];
+      // find difference in x and y from player or from center of map depending on expanded map
+      var diffx = keys['minimap'] ? (o.x/8 - mapdata[0].length) : (o.x - self.x)/8;
+      var diffy = keys['minimap'] ? (o.y/8 - mapdata.length) : (o.y - self.y)/8;
+      // if within bounds, draw a circle at the objective
+      if(keys['minimap'] || (!keys['minimap'] && Math.abs(diffx) < 135 && Math.abs(diffy) < 135)){
+        // determine color
+        var color = self.team === 0 ?
+          'rgba('+(o.control+100)+', '+Math.abs(o.control-100)+', '+Math.abs(o.control-100)+', 0.3)' :
+          'rgba('+Math.abs(o.control-100)+', '+(o.control+100)+', '+(o.control+100)+', 0.3)';
+        if(o.controlled[self.team]){
+          color = 'rgba(0, 255, 255, 0.3)';
+        } else if(o.controlled[Math.abs(self.team-1)]){
+          color = 'rgba(255, 0, 0, 0.3)';
+        }
+        drawCircle(xpos + diffx, ypos + diffy, 10, color);
+      }
+    }
   }
 
   // draw walls on minimap
