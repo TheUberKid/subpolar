@@ -56,7 +56,7 @@ function drawMap(){
               canvas.width/2 - (t*2) * Math.cos(radians*(self.rotate-90)),
               canvas.height/2 - (t*2) * Math.sin(radians*(self.rotate-90)), 0);
   light.addColorStop(0, 'transparent');
-  light.addColorStop(1, 'rgba(255, 255, 200, 0.3)');
+  light.addColorStop(1, 'rgba(255, 255, 200, 0.2)');
   tctx.fillStyle = light;
   tctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -68,12 +68,12 @@ function drawMap(){
     light = tctx.createRadialGradient(canvas.width/2 + diffx, canvas.height/2 + diffy, 120,
             canvas.width/2 + diffx, canvas.height/2 + diffy, 0);
     light.addColorStop(0, 'transparent');
-    light.addColorStop(1, 'rgba(255, 255, 200, 0.1)');
+    light.addColorStop(1, 'rgba(255, 255, 200, 0.05)');
     tctx.fillStyle = light;
     tctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
-  tctx.globalAlpha = 0.3;
+  tctx.globalAlpha = 0.2;
   // lighting from bullets
   for(var i=0, j=projectiles.length; i<j; i++){
     var p = projectiles[i];
