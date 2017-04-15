@@ -151,7 +151,7 @@ function drawProjectiles(){
       }
     }
     // create ripples
-    if(p.trail && p.rippleCount > 0){
+    if(p.rippleCount > 0){
       if(p.rippleCount % 3 === 0) ripples.push(new Ripple(p.x, p.y, p.rotate, pt.ripplesize, pt.color, pt.ripplelife));
       p.rippleCount--;
     }
