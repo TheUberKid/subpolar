@@ -10,6 +10,8 @@ var unistep = 4;
 // container settings
 var canvas = document.getElementById('display');
 var ctx = canvas.getContext('2d');
+// canvas for preparing effects
+var tctx = canvas.cloneNode().getContext('2d');
 
 // get maximum possible size for canvas while maintining aspect ratio
 function resizeEventHandler(){
@@ -89,6 +91,16 @@ function drawImg(url, x, y, size, rotate, fn){
     ctx.drawImage(img, x-(img.width)/2, y-(img.height)/2, size, size);
   }
 }
+// alternate canvas images
+function drawTctxImg(url, x, y, size, rotate, fn){
+  var img = loadedImages['/client/img/' + url];
+  if(rotate && rotate !== 0) img = rotateImg(img, rotate);
+  if(fn || fn === 0){
+    tctx.drawImage(img, img.height*fn, 0, img.height, img.height, x-(img.height)/2, y-(img.height)/2, size, size);
+  } else {
+    tctx.drawImage(img, x-(img.width)/2, y-(img.height)/2, size, size);
+  }
+}
 function drawCircle(x, y, radius, fillcolor, strokecolor, strokewidth){
   ctx.beginPath();
   ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
@@ -134,6 +146,7 @@ function init(){
     ppos = pp;
     if(self.joined){
       ctx.clearRect(0, 0, canvas.width, canvas.height); // clear canvas
+      tctx.clearRect(0, 0, canvas.width, canvas.height);
       for(var i in ppos){
         var p = ppos[i];
         if(p.id === self.id){

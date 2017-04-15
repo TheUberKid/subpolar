@@ -132,6 +132,7 @@ function drawProjectiles(){
       p.y = p.y + p.y_velocity / (unistep * 100);
       p.lifetime--;
       if(p.lifetime <= 0){
+        lights.push(new Light(p.x, p.y, pt.lifetime, pt.color));
         projectiles.splice(i, 1);
         break;
       } else {

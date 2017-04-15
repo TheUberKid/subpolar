@@ -61,6 +61,15 @@ var Thruster = function(x, y, rotate){
   this.frame = 0;
 }
 
+// sourceless lighting effects
+var lights = [];
+var Light = function(x, y, intensity, color){
+  this.x = x;
+  this.y = y;
+  this.intensity = intensity;
+  this.color = color;
+}
+
 function drawParticles(){
   // NOTE: Trail lifetimes are counted as less than a normal lifetime measurement.
   // This is because they dont need to be step-checked per frame like other objects.
@@ -87,14 +96,20 @@ function drawParticles(){
     var diffx = p.x - self.x;
     var diffy = p.y - self.y;
     drawImg('smoke.png', (canvas.width/2)+diffx, (canvas.height/2)+diffy, 16, 0, p.frame);
-    if(p.frame < 5){
-      p.x -= 5 * Math.cos(radians*(p.rotate-90));
-      p.y -= 5 * Math.sin(radians*(p.rotate-90));
-    } else {
-      p.x -= 0.5 * Math.cos(radians*(p.rotate-90));
-      p.y -= 0.5 * Math.sin(radians*(p.rotate-90));
+
+    var mapx = Math.round(p.x/16);
+    var mapy = Math.round(p.y/16);
+    if(mapdata[mapy] && mapdata[mapy][mapx] != 1){
+      if(p.frame < 5){
+        p.x -= 5 * Math.cos(radians*(p.rotate-90));
+        p.y -= 5 * Math.sin(radians*(p.rotate-90));
+      } else {
+        p.x -= 0.5 * Math.cos(radians*(p.rotate-90));
+        p.y -= 0.5 * Math.sin(radians*(p.rotate-90));
+      }
     }
     p.frame++;
+
     if(p.frame > 11) thrusters.splice(i, 1);
   }
 
@@ -112,6 +127,7 @@ function drawParticles(){
         'rgba(235, 220, 150, '+Math.min(0.6, p.lifetime/5)+')', Math.max((p.lifetime-3)*2, 1));
       ctx.restore();
     }
+    if(p.lifetime === 10) lights.push(new Light(p.x, p.y, 15, 'rgb(240, 220, 170)'));
     p.lifetime--;
     if(p.lifetime < 0) repels.splice(i, 1);
   }
@@ -162,5 +178,4 @@ function drawBackground(){
   bgfill.addColorStop(1, 'rgba(0, 0, 0, 0.4)');
   ctx.fillStyle = bgfill;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-
 }
