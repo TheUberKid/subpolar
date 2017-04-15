@@ -6,9 +6,7 @@ function initParticles(){
 
   // when a bomb explodes
   socket.on('explosion', function(ex, ey){
-    for(var i=0; i<25; i++){
-      thrusters.push(new Thruster(ex+(Math.round(Math.random()*10)-5), ey+(Math.round(Math.random()*10)-5), Math.round(Math.random()*360)));
-    }
+    lights.push(new Light(ex, ey, 20, 'rgb(255, 255, 200)'));
   });
 }
 

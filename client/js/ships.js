@@ -59,12 +59,7 @@ function initShips(){
     if(p1.id == self.id){
       timeOfDeath = new Date().getTime();
     }
-    for(var i=0; i<15; i++){
-      thrusters.push(new Thruster(px+(Math.round(Math.random()*10)-5), py+(Math.round(Math.random()*10)-5), Math.round(Math.random()*360)));
-    }
-    for(var i=0; i<10; i++){
-      thrusters.push(new Thruster(px+(Math.round(Math.random()*10)-5), py+(Math.round(Math.random()*10)-5), Math.round(Math.random()*360)));
-    }
+    lights.push(new Light(px, py, 20, 'rgb(255, 255, 200)'));
     chat.messages.push(['kill', p1.displayName, p0.displayName])
   });
 }
