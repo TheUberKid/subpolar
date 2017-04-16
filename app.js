@@ -17,8 +17,9 @@ var serv = require('http').Server(app);
 var compression = require('compression');
 app.use(compression());
 
-// async logging
+// async
 var winston = require('winston');
+var async = require('async');
 
 // database variables
 var mongoose = require('mongoose');
@@ -365,11 +366,10 @@ var loops = {
 };
 
 var globalLoop = function(){
-  for(var i = rooms.length - 1; i > -1; i--){
-    var r = rooms[i];
+  async.map(rooms, function(r){
     loops[maps[r.map].config.zone](r);
     if(r.population < 1) rooms.splice(i, 1);
-  }
+  });
 }
 setInterval(globalLoop, 1000/framerate);
 

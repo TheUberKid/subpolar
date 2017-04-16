@@ -6,6 +6,7 @@
     "node": "6.9.2"
   },
   "dependencies": {
+    "async": "^2.3.0",
     "compression": "^1.6.2",
     "connect-timeout": "^1.8.0",
     "ejs": "^2.4.1",
