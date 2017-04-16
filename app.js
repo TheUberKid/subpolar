@@ -12,6 +12,8 @@ var unistep = 4;
 var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
+var compression = require('compression');
+app.use(compression());
 
 // database variables
 var mongoose = require('mongoose');

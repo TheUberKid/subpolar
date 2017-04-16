@@ -125,7 +125,7 @@ function drawParticles(){
         'rgba(235, 220, 150, '+Math.min(0.6, p.lifetime/5)+')', Math.max((p.lifetime-3)*2, 1));
       ctx.restore();
     }
-    if(p.lifetime === 10) lights.push(new Light(p.x, p.y, 15, 'rgb(240, 220, 170)'));
+    if(p.lifetime === 10) lights.push(new Light(p.x, p.y, 20, 'rgb(240, 220, 170)'));
     p.lifetime--;
     if(p.lifetime < 0) repels.splice(i, 1);
   }
@@ -147,6 +147,79 @@ function drawParticles(){
     r.lifetime--;
     if(r.lifetime < 0) ripples.splice(i, 1);
   }
+}
+
+// lighting
+function drawLighting(){
+  tctx.save();
+  tctx.globalCompositeOperation = 'source-atop';
+
+  // spotlight
+  var light = tctx.createRadialGradient(canvas.width/2, canvas.height/2, canvas.width/2, canvas.width/2, canvas.height/2, canvas.width/4);
+  light.addColorStop(0, 'rgba(0, 0, 0, 0.3)');
+  light.addColorStop(1, 'transparent');
+  tctx.fillStyle = light;
+  tctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // lighting from back of ship
+  tctx.globalCompositeOperation = 'source-atop';
+  var t = thrusters.length;
+  light = tctx.createRadialGradient(canvas.width/2 - (t*10) * Math.cos(radians*(self.rotate-90)),
+              canvas.height/2 - (t*10) * Math.sin(radians*(self.rotate-90)), (t*10),
+              canvas.width/2 - (t*2) * Math.cos(radians*(self.rotate-90)),
+              canvas.height/2 - (t*2) * Math.sin(radians*(self.rotate-90)), 0);
+  light.addColorStop(0, 'transparent');
+  light.addColorStop(1, 'rgba(255, 225, 175, 0.2)');
+  tctx.fillStyle = light;
+  tctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // lighting from thrusters
+  for(var i=0; i<t; i++){
+    var p = thrusters[i];
+    var diffx = p.x - self.x;
+    var diffy = p.y - self.y;
+    light = tctx.createRadialGradient(canvas.width/2 + diffx, canvas.height/2 + diffy, 120,
+            canvas.width/2 + diffx, canvas.height/2 + diffy, 0);
+    light.addColorStop(0, 'transparent');
+    light.addColorStop(1, 'rgba(255, 225, 175, 0.05)');
+    tctx.fillStyle = light;
+    tctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  tctx.globalAlpha = 0.2;
+  // lighting from bullets
+  for(var i=0, j=projectiles.length; i<j; i++){
+    var p = projectiles[i];
+    var pt = projectileTemplates[p.type];
+    var diffx = p.x - self.x;
+    var diffy = p.y - self.y;
+    light = tctx.createRadialGradient(canvas.width/2 + diffx, canvas.height/2 + diffy, pt.lifetime * 15,
+            canvas.width/2 + diffx, canvas.height/2 + diffy, 0);
+    light.addColorStop(0, 'transparent');
+    light.addColorStop(1, pt.color);
+    tctx.fillStyle = light;
+    tctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  for(var i=lights.length-1; i>-1; i--){
+    var p = lights[i];
+    tctx.globalAlpha = p.intensity/30;
+    var diffx = p.x - self.x;
+    var diffy = p.y - self.y;
+    light = tctx.createRadialGradient(canvas.width/2 + diffx, canvas.height/2 + diffy, p.intensity*15,
+            canvas.width/2 + diffx, canvas.height/2 + diffy, 0);
+    light.addColorStop(0, 'transparent');
+    light.addColorStop(1, p.color);
+    tctx.fillStyle = light;
+    tctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    p.intensity--;
+    if(p.intensity <= 0) lights.splice(i, 1);
+  }
+
+  tctx.globalAlpha = 1;
+  tctx.restore();
+  ctx.drawImage(tctx.canvas, 0, 0);
 }
 
 // the background

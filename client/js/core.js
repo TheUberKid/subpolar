@@ -176,6 +176,7 @@ function init(){
       drawProjectiles();
       drawParticles();
       if(mapdata) drawMap();
+      drawLighting();
       drawPlayers(ppos);
       drawHUD(ppos, time, players, rankings, objectives);
       drawMinimap(ppos, objectives)

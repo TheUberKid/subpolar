@@ -31,7 +31,7 @@ function collisionCheckMap(p, size, callback){
 }
 
 function drawMap(){
-  tctx.save();
+  // NOTE: map is drawn to tctx canvas and is drawn in the drawLighting function when tctx is copied to the main context.
   var binfr = '0000';
   for(var r = Math.round((self.y-canvas.height/2)/16)-2, j=Math.round((self.y+canvas.height/2)/16)+2; r<j; r++){
     for(var c = Math.round((self.x-canvas.width/2)/16)-2, k=Math.round((self.x+canvas.width/2)/16)+2; c<k; c++){
@@ -47,68 +47,7 @@ function drawMap(){
       }
     }
   }
-
-  // lighting from back of ship
-  tctx.globalCompositeOperation = 'source-atop';
-  var t = thrusters.length;
-  var light = tctx.createRadialGradient(canvas.width/2 - (t*10) * Math.cos(radians*(self.rotate-90)),
-              canvas.height/2 - (t*10) * Math.sin(radians*(self.rotate-90)), (t*10),
-              canvas.width/2 - (t*2) * Math.cos(radians*(self.rotate-90)),
-              canvas.height/2 - (t*2) * Math.sin(radians*(self.rotate-90)), 0);
-  light.addColorStop(0, 'transparent');
-  light.addColorStop(1, 'rgba(255, 255, 200, 0.2)');
-  tctx.fillStyle = light;
-  tctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // lighting from thrusters
-  for(var i=0; i<t; i++){
-    var p = thrusters[i];
-    var diffx = p.x - self.x;
-    var diffy = p.y - self.y;
-    light = tctx.createRadialGradient(canvas.width/2 + diffx, canvas.height/2 + diffy, 120,
-            canvas.width/2 + diffx, canvas.height/2 + diffy, 0);
-    light.addColorStop(0, 'transparent');
-    light.addColorStop(1, 'rgba(255, 255, 200, 0.05)');
-    tctx.fillStyle = light;
-    tctx.fillRect(0, 0, canvas.width, canvas.height);
-  }
-
-  tctx.globalAlpha = 0.2;
-  // lighting from bullets
-  for(var i=0, j=projectiles.length; i<j; i++){
-    var p = projectiles[i];
-    var pt = projectileTemplates[p.type];
-    var diffx = p.x - self.x;
-    var diffy = p.y - self.y;
-    light = tctx.createRadialGradient(canvas.width/2 + diffx, canvas.height/2 + diffy, pt.lifetime * 15,
-            canvas.width/2 + diffx, canvas.height/2 + diffy, 0);
-    light.addColorStop(0, 'transparent');
-    light.addColorStop(1, pt.color);
-    tctx.fillStyle = light;
-    tctx.fillRect(0, 0, canvas.width, canvas.height);
-  }
-
-  for(var i=lights.length-1; i>-1; i--){
-    var p = lights[i];
-    tctx.globalAlpha = p.intensity/20;
-    var diffx = p.x - self.x;
-    var diffy = p.y - self.y;
-    light = tctx.createRadialGradient(canvas.width/2 + diffx, canvas.height/2 + diffy, p.intensity*15,
-            canvas.width/2 + diffx, canvas.height/2 + diffy, 0);
-    light.addColorStop(0, 'transparent');
-    light.addColorStop(1, p.color);
-    tctx.fillStyle = light;
-    tctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    p.intensity--;
-    if(p.intensity <= 0) lights.splice(i, 1);
-  }
-
-  tctx.globalAlpha = 1;
-  tctx.restore();
-  ctx.drawImage(tctx.canvas, 0, 0);
 }
-
 
 // minimap
 function drawMinimap(ppos, loc){
