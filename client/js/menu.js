@@ -153,9 +153,42 @@ function initMenus(){
     nuNavStatus = 0;
   });
 
+  socket.on('join-success', function(){
+    document.removeEventListener('keydown', keychange);
+    document.body.style.backgroundColor = '#222';
+    document.getElementById('background').style.display = 'none';
+
+    // hide everything else
+    var n = document.getElementsByClassName('display-menu')
+    for(var i=0, j=n.length; i<j; i++){
+      n[i].className = 'display-menu';
+    }
+    document.getElementById('background').style.display = 'none';
+
+    // add in-game key events
+    canvas.addEventListener('keydown', keydown);
+    document.addEventListener('keydown', docKeydown);
+    canvas.addEventListener('keyup', keyup);
+    canvas.style.display = 'block';
+    canvas.focus();
+
+    // generate the star background
+    stars = [];
+    var amount = canvas.width * canvas.height / 10000;
+    for(var i=0; i<amount; i++){
+      var newStar = new Star(
+        Math.round(Math.random()*(canvas.width+20))-10,
+        Math.round(Math.random()*(canvas.height+20))-10,
+        Math.round(Math.random()*5),
+        Math.round(Math.random()*3)+4
+      );
+      stars.push(newStar);
+    }
+  });
+
   // event listeners to join a zone or logout
   joinButton.addEventListener('click', function(){
-    join();
+    socket.emit('join', shipChosen, zoneChosen);
   });
   logoutButton.addEventListener('click', function(){
     socket.emit('logout');
@@ -241,41 +274,4 @@ function loginSuccess(name, loginBool, newuserBool){
   prlog('Successfully logged in as '+name);
   document.getElementById('username').innerHTML = name;
   if(newuserBool) tabs[0].click();
-}
-
-// called when a player joins a zone
-function join(){
-  document.removeEventListener('keydown', keychange);
-  self.joined = true;
-  socket.emit('join', shipChosen, zoneChosen);
-  self.ship = shipChosen;
-  document.body.style.backgroundColor = '#222';
-  document.getElementById('background').style.display = 'none';
-
-  // hide everything else
-  var n = document.getElementsByClassName('display-menu')
-  for(var i=0, j=n.length; i<j; i++){
-    n[i].className = 'display-menu';
-  }
-  document.getElementById('background').style.display = 'none';
-
-  // add in-game key events
-  canvas.addEventListener('keydown', keydown);
-  document.addEventListener('keydown', docKeydown);
-  canvas.addEventListener('keyup', keyup);
-  canvas.style.display = 'block';
-  canvas.focus();
-
-  // generate the star background
-  stars = [];
-  var amount = canvas.width * canvas.height / 10000;
-  for(var i=0; i<amount; i++){
-    var newStar = new Star(
-      Math.round(Math.random()*(canvas.width+20))-10,
-      Math.round(Math.random()*(canvas.height+20))-10,
-      Math.round(Math.random()*5),
-      Math.round(Math.random()*3)+4
-    );
-    stars.push(newStar);
-  }
 }

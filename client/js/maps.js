@@ -50,7 +50,7 @@ function drawMap(){
 }
 
 // minimap
-function drawMinimap(ppos, loc){
+function drawMinimap(loc){
 
   var xpos = canvas.width - 145;
   var ypos = canvas.height - 145;
@@ -117,8 +117,8 @@ function drawMinimap(ppos, loc){
   }
 
   // draw players on minimap
-  for(var i in ppos){
-    var p = ppos[i];
+  for(var i in players){
+    var p = players[i];
     if(p.id !== self.id && !p.death){
       if(keys['minimap'] || (!keys['minimap'] && Math.abs(p.x-self.x) < 1000 && Math.abs(p.y-self.y) < 1000)){
         ctx.strokeStyle = p.team === self.team ? '#56b4c9' : '#f3172d';

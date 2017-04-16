@@ -120,10 +120,10 @@ var version;
 var self = {
   joined: false,
   changeX: 0,
-  changeY: 0
+  changeY: 0,
+  rotate: null
 };
 
-var ppos, timeOfDeath;
 // this is called once all resources are loaded
 function init(){
   socket = io();
@@ -142,34 +142,11 @@ function init(){
     if(v) document.getElementById('version').innerHTML = v;
   });
 
-  socket.on('update', function(pp, objectives, time, players, rankings){
-    ppos = pp;
+  socket.on('update', function(ppos, spos, objectives, time, population, rankings){
     if(self.joined){
       ctx.clearRect(0, 0, canvas.width, canvas.height); // clear canvas
       tctx.clearRect(0, 0, canvas.width, canvas.height);
-      for(var i in ppos){
-        var p = ppos[i];
-        if(p.id === self.id){
-          self.changeX = self.x - p.x;
-          self.changeY = self.y - p.y;
-          self.x = p.x;
-          self.y = p.y;
-          self.team = p.team;
-          if(self.rotate == null) self.rotate = p.rotate;
-          if(Math.abs(p.rotate - self.rotate) > 1 && Math.abs((p.rotate-360) - self.rotate) > 1 && Math.abs(p.rotate - (self.rotate-360)) > 1){
-            var arr = [Math.abs(p.rotate-self.rotate), Math.abs((p.rotate-360)-self.rotate), Math.abs(p.rotate-(self.rotate-360))];
-            var parr = [p.rotate-self.rotate, (p.rotate-360)-self.rotate, p.rotate-(self.rotate-360)];
-            var min = Math.min.apply(null, arr), // find the closest match in arr and return its index
-                pos = arr.indexOf(min);
-            self.rotate += 0.2 * parr[pos];
-          }
-          self.death = p.death;
-          self.energy = p.energy;
-          self.abilitycd = p.abilitycd;
-          self.ship = p.ship;
-          self.stealth = p.stealth;
-        }
-      }
+      update(ppos, spos);
       drawBackground();
       drawObjectives(objectives);
       drawSelf();
@@ -177,9 +154,9 @@ function init(){
       drawParticles();
       if(mapdata) drawMap();
       drawLighting();
-      drawPlayers(ppos);
-      drawHUD(ppos, time, players, rankings, objectives);
-      drawMinimap(ppos, objectives)
+      drawPlayers();
+      drawHUD(time, population, rankings, objectives);
+      drawMinimap(objectives)
     }
   });
 }

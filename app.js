@@ -195,7 +195,7 @@ io.sockets.on('connection', function(socket){
   // when player joins
   socket.on('join', function(ship, zone){
     // validate inputs
-    if((socket.loggedIn || socket.player.pid === 'guest') && ships.stats[ship] && loops[zone]){
+    if((socket.loggedIn || socket.player.pid === 'guest') && ships.stats[ship] && maps.index[zone]){
       var p = socket.player;
 
       // reset the player's keys
@@ -210,6 +210,7 @@ io.sockets.on('connection', function(socket){
         if(m.config.zone === zone && rooms[i].population < m.config.maxplayers && rooms[i].state !== 'ended'){
           r = rooms[i];
           p.room = r;
+          r.population++;
         }
       }
       // create new room if empty spot does not exist
@@ -218,11 +219,12 @@ io.sockets.on('connection', function(socket){
         rooms.push(new Room(rooms.length, mapname));
         r = rooms[rooms.length-1];
         p.room = r;
+        r.population = 1;
       }
       p.map = r.map;
       r.players[socket.id] = socket.player;
-      r.population++;
       if(zone === 'tutorial') r.trainee = p;
+      socket.emit('join-success');
       socket.emit('map', maps[p.map].mapdata, p.map);
 
       if(maps[p.map].config.teams){
@@ -247,10 +249,26 @@ io.sockets.on('connection', function(socket){
 
       // log their join
       p.joined = true;
+      p.ship = ship;
+
+      // give them all previous players
+      var ppos = {};
+      for(var i in r.players){
+        var p1 = r.players[i];
+        ppos[i] = {
+          id: p1.id,
+          displayName: p1.displayName,
+          ship: p1.ship,
+          team: p1.team,
+          bot: false
+        }
+      }
+      emitRoom(r, 'playerList', ppos);
+
+      emitRoom(r, 'playerJoin', p.id, p.displayName, p.ship, p.team, false);
       winston.log('room', p.displayName + ' joined room ' + p.room.id + ' on team ' + p.team);
 
       // spawn them somewhere
-      p.ship = ship;
       spawn(r, p);
     }
   });
@@ -323,52 +341,44 @@ io.sockets.on('connection', function(socket){
 // emit system
 function emitGlobal(type, d1, d2, d3, d4, d5, d6){
   for(var i in Sockets){
-    var socket = Sockets[i];
-    socket.emit(type, d1, d2, d3, d4, d5, d6);
+    Sockets[i].emit(type, d1, d2, d3, d4, d5, d6);
   }
 }
 function emitRoom(room, type, d1, d2, d3, d4, d5, d6){
   for(var i in room.players){
-    var p = room.players[i];
-    if(Sockets[p.id]) Sockets[p.id].emit(type, d1, d2, d3, d4, d5, d6);
+    if(Sockets[i]) Sockets[i].emit(type, d1, d2, d3, d4, d5, d6);
   }
 }
 function emitTeam(room, team, type, d1, d2, d3, d4, d5, d6){
   for(var i in room.players){
-    var p = room.players[i];
-    if(p.team === team && Sockets[p.id]) Sockets[p.id].emit(type, d1, d2, d3, d4, d5, d6);
+    if(p.team === team && Sockets[i]) Sockets[i].emit(type, d1, d2, d3, d4, d5, d6);
   }
 }
 
 // draw loops for each map
 var loops = {
-  'extreme games': function(r){
+  'standard': function(r){
     drawProjectiles(r);
     var ppos = drawPlayers(r);
     var rankings = getLeaderboard(r);
     computeObjective(r);
-    emitRoom(r, 'update', ppos, r.objectives, new Date().getTime(), population, rankings);
-  },
-  'trench wars': function(r){
-    drawProjectiles(r);
-    var ppos = drawPlayers(r);
-    var rankings = getLeaderboard(r);
-    computeObjective(r);
-    emitRoom(r, 'update', ppos, r.objectives, new Date().getTime(), population, rankings);
-  },
-  'tutorial': function(r){
-    drawProjectiles(r);
-    var ppos = drawPlayers(r);
-    var rankings = getLeaderboard(r);
-    computeObjective(r);
-    emitRoom(r, 'update', ppos, r.objectives, new Date().getTime(), population, rankings);
+    for(var i in r.players){
+      if(!r.players[i].bot){
+        var p = r.players[i];
+        var spos = {
+          energy: p.energy,
+          abilitycd: p.abilitycd,
+        }
+        Sockets[i].emit('update', ppos, spos, r.objectives, new Date().getTime(), population, rankings);
+      }
+    }
   }
 };
 
 var globalLoop = function(){
   async.map(rooms, function(r){
-    loops[maps[r.map].config.zone](r);
-    if(r.population < 1) rooms.splice(i, 1);
+    loops[maps[r.map].config.loop](r);
+    if(r.population < 1) rooms.splice(r, 1);
   });
 }
 setInterval(globalLoop, 1000/framerate);
@@ -390,12 +400,15 @@ function computeObjective(r){
             while(Sockets[id2]) id2 = Math.floor(Math.random()*100000);
             r.players[id1] = new Bot(r, id1, "training dummy", "warbird", 1000, 1892, 90);
             r.players[id2] = new Bot(r, id2, "training dummy", "warbird", 1000, 2156, 90);
+            emitRoom(r, 'playerJoin', id1, "training dummy", "warbird", -1, true);
+            emitRoom(r, 'playerJoin', id2, "training dummy", "warbird", -1, true);
           }
           if(o.trigger === 'tutorial-ally'){
             // create a tutorial ally to attach to
             var id = Math.floor(Math.random()*100000);
             while(Sockets[id]) id = Math.floor(Math.random()*100000);
-            r.players[id] = new Bot(r, id, "training Terrier", "warbird", 1532, 1144, 0, r.trainee.team);
+            r.players[id] = new Bot(r, id, "Terrier", "warbird", 1532, 1144, 0, r.trainee.team);
+            emitRoom(r, 'playerJoin', id, "Terrier", "warbird", r.trainee.team, true);
           }
         }
       }
@@ -735,6 +748,7 @@ function drawPlayers(r){
         p.bounty = 0;
 
         Sockets[p.id].emit('leave');
+        emitRoom(r, 'playerLeave', p.id);
         break;
       }
 
@@ -812,7 +826,7 @@ function drawPlayers(r){
         if(!p.bot){
           if(currentTime.getTime() - p.death > p.deathTime){
             spawn(r, p);
-            emitRoom(r, 'playerRespawn', p.x, p.y);
+            emitRoom(r, 'playerRespawn', p.id, p.x, p.y);
           }
         } else {
           delete r.players[p.id];
@@ -820,24 +834,11 @@ function drawPlayers(r){
       }
     }
 
-    // add to player position array
     ppos[p.id] = {
       x: p.x,
       y: p.y,
-      joined: p.joined,
-      team: p.team,
-      id: p.id,
       rotate: p.rotate,
-      ship: p.ship,
-      energy: p.energy,
-      death: p.death,
-      deathTime: p.deathTime,
-      displayName: p.displayName,
-      bounty: p.bounty,
-      kills: p.kills,
-      stealth: p.stealth,
-      abilitycd: p.abilitycd,
-      bot: p.bot ? true : false
+      bounty: p.bounty
     };
   }
   // return player positions to emit
@@ -986,6 +987,7 @@ function useAbility(r, p, e){
       if(p.ship === 'ghost' && p.reload === 0){
         p.stealth = !p.stealth;
         p.reload = 10;
+        emitRoom(r, 'playerStealth', id);
       }
 
       // mine

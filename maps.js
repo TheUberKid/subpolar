@@ -3,6 +3,7 @@
 var tutorial = {
   config: {
     zone: 'tutorial',
+    loop: 'standard',
     respawn: 'random',
     teams: false,
     lobby: false,
@@ -327,6 +328,7 @@ var tutorial = {
 var behemothBattle = {
   config: {
     zone: 'extreme games',
+    loop: 'standard',
     respawn: 'random',
     teams: false,
     lobby: true,
@@ -600,6 +602,7 @@ var behemothBattle = {
 var trenchWars = {
   config: {
     zone: 'trench wars',
+    loop: 'standard',
     respawn: 'trench',
     teams: true,
     lobby: true,

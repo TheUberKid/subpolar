@@ -46,7 +46,7 @@ function initChat(){
   });
 }
 
-function drawHUD(ppos, time, players, rankings, loc){
+function drawHUD(time, population, rankings, loc){
   var s = ships[self.ship];
 
   // energy bar
@@ -71,7 +71,7 @@ function drawHUD(ppos, time, players, rankings, loc){
   ctx.fillText(keyCodes[keymap['leave']].toUpperCase()+' to leave', 20, 40);
   ctx.textAlign = 'right';
   ctx.fillText('polarity '+version, canvas.width-20, 20);
-  ctx.fillText(players+' player(s) online', canvas.width-20, 40);
+  ctx.fillText(population+' player(s) online', canvas.width-20, 40);
 
   if(!keys['minimap']){
     // announcements
@@ -155,34 +155,34 @@ function drawHUD(ppos, time, players, rankings, loc){
     var onLeaderboard = false;
     for(var i = 0; i < 5; i++){
       var r = rankings[i];
-      if(r != null && ppos[r] != null){
+      if(r != null && players[r] != null){
         ctx.textAlign = 'right';
         if(r == self.id){
           onLeaderboard = true;
           ctx.fillStyle = '#00ffff';
         } else {
-          ctx.fillStyle = ppos[r].team === self.team ? '#56b4c9' : '#f3172d';
+          ctx.fillStyle = players[r].team === self.team ? '#56b4c9' : '#f3172d';
         }
         ctx.fillText(i+1, canvas.width-245, 105 + (20*i));
         ctx.textAlign = 'left';
-        ctx.fillText(ppos[r].displayName, canvas.width-230, 105 + (20*i));
+        ctx.fillText(players[r].displayName, canvas.width-230, 105 + (20*i));
         ctx.textAlign = 'right';
-        ctx.fillText(ppos[r].bounty, canvas.width-75, 105 + (20*i));
-        ctx.fillText(ppos[r].kills, canvas.width-20, 105 + (20*i));
+        ctx.fillText(players[r].bounty, canvas.width-75, 105 + (20*i));
+        ctx.fillText(players[r].kills, canvas.width-20, 105 + (20*i));
       }
     }
     if(!onLeaderboard){
       for(var i in rankings){
         var r = rankings[i];
-        if(r != null && r === self.id){
+        if(r != null && r == self.id){
           ctx.textAlign = 'right';
           ctx.fillStyle = '#00ffff';
           ctx.fillText(i+1, canvas.width-245, 105 + (20*5));
           ctx.textAlign = 'left';
-          ctx.fillText(ppos[r].displayName, canvas.width-230, 105 + (20*5));
+          ctx.fillText(players[r].displayName, canvas.width-230, 105 + (20*5));
           ctx.textAlign = 'right';
-          ctx.fillText(ppos[r].bounty, canvas.width-75, 105 + (20*5));
-          ctx.fillText(ppos[r].kills, canvas.width-20, 105 + (20*5));
+          ctx.fillText(players[r].bounty, canvas.width-75, 105 + (20*5));
+          ctx.fillText(players[r].kills, canvas.width-20, 105 + (20*5));
           break;
         }
       }
