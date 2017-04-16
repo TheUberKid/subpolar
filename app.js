@@ -900,7 +900,10 @@ function fireProjectile(r, p, e){
         r.projectiles.push(newProjectile);
         p.reload = s.reload;
         p.energy -= s.bulletenergyuse;
-        if(p.stealth) p.stealth = false;
+        if(p.stealth){
+          p.stealth = false;
+          emitRoom(r, 'playerStealth', p.id);
+        }
         emitRoom(r, 'projectile', newProjectile, p.rotate);
       }
 
@@ -987,7 +990,7 @@ function useAbility(r, p, e){
       if(p.ship === 'ghost' && p.reload === 0){
         p.stealth = !p.stealth;
         p.reload = 10;
-        emitRoom(r, 'playerStealth', id);
+        emitRoom(r, 'playerStealth', p.id);
       }
 
       // mine

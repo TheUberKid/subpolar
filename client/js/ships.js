@@ -109,7 +109,11 @@ function initShips(){
   });
   socket.on('playerRespawn', function(id, x, y){
     players[id].death = false;
-    if(id == self.id) self.death = false;
+    players[id].stealth = false;
+    if(id == self.id){
+      self.death = false;
+      self.stealth = false;
+    }
     lights.push(new Light(x, y, 20, 'rgb(255, 255, 255)'));
   });
 }
