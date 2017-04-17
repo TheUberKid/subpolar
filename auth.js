@@ -57,7 +57,7 @@ function auth_register(name, password, socket){
         // save the player's information
         u.save(function(err){
           if(err) throw err;
-          winston.log('auth', 'Registered new player: ' + u.username + ' (' + u.id + ')');
+          winston.log('debug', 'Registered new player: ' + u.username + ' (' + u.id + ')');
 
           // return success and log in the new player
           socket.emit('login-success', u.username, true, true);
@@ -134,7 +134,7 @@ function auth_login(name, password, socket){
         // compare hashes
         if(hashedPassword === u.hash){
           // if the hashes match, it is a valid login
-          winston.log('auth', u.username + ' ('+ u.id + ') logged in');
+          winston.log('debug', u.username + ' ('+ u.id + ') logged in');
           socket.emit('login-success', u.username, true, false);
           socket.loggedIn = true;
           socket.player.pid = u.id;
@@ -158,7 +158,7 @@ function auth_login(name, password, socket){
 
 // when a user wants to log out
 function auth_logout(socket){
-  winston.log('auth', socket.player.displayName + ' ('+ socket.player.pid +') logged out');
+  winston.log('debug', socket.player.displayName + ' ('+ socket.player.pid +') logged out');
   if(socket.loggedIn){
     socket.loggedIn = false;
     // destroy their sessions
@@ -210,7 +210,7 @@ function auth_session(token, socket){
 
           if(user.length > 0){
             var u = user[0];
-            winston.log('auth', u.username + ' ('+ u.id + ') logged in');
+            winston.log('debug', u.username + ' ('+ u.id + ') logged in');
             socket.emit('login-success', u.username, true, false);
             socket.loggedIn = true;
             socket.player.pid = u.id;

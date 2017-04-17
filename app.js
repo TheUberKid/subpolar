@@ -1,4 +1,7 @@
 'use strict';
+
+// TODO: Fix room bug: If a player leaves a room and the room is deleted, all other rooms are also deleted
+
 Number.prototype.pad = function(n){
   return ('0'.repeat(n)+this).slice(-n);
 }
@@ -19,6 +22,11 @@ app.use(compression());
 
 // async
 var winston = require('winston');
+var args = process.argv.slice(2);
+if(args[0] === 'debug'){
+  console.log('Starting debug mode...');
+  winston.level = 'debug';
+}
 var async = require('async');
 
 // database variables
@@ -62,7 +70,7 @@ function haltOnTimedout(req, res, next){
 }
 
 serv.listen(process.env.PORT || 5000);
-console.log('info', 'Server started');
+console.log('Server started');
 
 // map and ship data
 var maps = require('./maps.js');
@@ -220,6 +228,7 @@ io.sockets.on('connection', function(socket){
         r = rooms[rooms.length-1];
         p.room = r;
         r.population = 1;
+        winston.log('debug', 'created new room ' + (rooms.length-1) + ' (' + r.zone + ')');
       }
       p.map = r.map;
       r.players[socket.id] = socket.player;
@@ -266,7 +275,7 @@ io.sockets.on('connection', function(socket){
       emitRoom(r, 'playerList', ppos);
 
       emitRoom(r, 'playerJoin', p.id, p.displayName, p.ship, p.team, false);
-      winston.log('room', p.displayName + ' joined room ' + p.room.id + ' on team ' + p.team);
+      winston.log('debug', p.displayName + ' joined room ' + p.room.id + ' on team ' + p.team + ' (' + r.zone + ')');
 
       // spawn them somewhere
       spawn(r, p);
@@ -295,7 +304,7 @@ io.sockets.on('connection', function(socket){
 
       // log chat message
       var truncm = m.substring(0,150);
-      winston.log('chat', 'ROOM' + socket.player.room.id + ' > ' + p.displayName + ' > ' + truncm + (type === 'team' ? ' [TEAM]' : ' [ROOM]'));
+      winston.log('debug', 'room ' + socket.player.room.id + ' > ' + p.displayName + ' > ' + truncm + (type === 'team' ? ' [to TEAM]' : ' [to ROOM]'));
 
       // truncate message into groups of 50 chars to send at a time
       for(var i=0, j=Math.ceil(m.length/50); i<j; i++){
@@ -317,7 +326,7 @@ io.sockets.on('connection', function(socket){
     var r = p.room;
 
     if(p.joined){
-      winston.log('room', socket.player.displayName + ' disconnected from room '+r.id);
+      winston.log('debug', socket.player.displayName + ' disconnected from room '+r.id);
       r.teams[p.team]--;
       r.population--;
       // delete player from their room
@@ -378,7 +387,16 @@ var loops = {
 var globalLoop = function(){
   async.map(rooms, function(r){
     loops[maps[r.map].config.loop](r);
-    if(r.population < 1) rooms.splice(r, 1);
+  });
+  async.filter(rooms, function(r, callback){
+    if(r.population < 1){
+      winston.log('debug', 'room ' + r.id + ' (' + r.zone + ') deleted');
+      return callback(null, false);
+    }
+    return callback(null, true);
+  }, function(err, res){
+    if(err) throw err;
+    rooms = res;
   });
 }
 setInterval(globalLoop, 1000/framerate);
@@ -460,7 +478,7 @@ function computeObjective(r){
             lifetime: 10000,
             color: 'rgb(200, 255, 200)'
           });
-          winston.log('game', p.displayName + ' has won in room ' + r.id);
+          winston.log('debug', p.displayName + ' has won in room ' + r.id + ' (extreme games)');
           break;
         }
       }
@@ -469,7 +487,7 @@ function computeObjective(r){
       if(new Date().getTime() - r.endtime > 10*1000){
         for(var i in r.players){
           var p = r.players[i];
-          winston.log('room', p.displayName + ' left room '+r.id);
+          winston.log('debug', p.displayName + ' left room '+r.id);
           r.teams[p.team]--;
           r.population--;
           // delete player from their room
@@ -643,6 +661,7 @@ function computeObjective(r){
           lifetime: 10000,
           color: 'rgb(255, 255, 255)'
         });
+        winston.log('debug', 'team 1 has won in room ' + r.id + ' (trench wars)');
       }
       if(loc[2].timesince === 450){
         r.state = 'ended';
@@ -657,13 +676,14 @@ function computeObjective(r){
           lifetime: 10000,
           color: 'rgb(255, 255, 255)'
         });
+        winston.log('debug', 'team 0 has won in room ' + r.id + ' (trench wars)');
       }
     } else if(r.state === 'ended'){
       // when a team or player wins, remove all players after 10 seconds
       if(new Date().getTime() - r.endtime > 10*1000){
         for(var i in r.players){
           var p = r.players[i];
-          winston.log('room', p.displayName + ' left room '+r.id);
+          winston.log('debug', p.displayName + ' left room '+r.id);
           r.teams[p.team]--;
           r.population--;
           // delete player from their room
@@ -727,30 +747,6 @@ function drawPlayers(r){
     var s = ships.stats[p.ship];
 
     if(p.joined){
-
-      // if player chooses to leave
-      if(p.keys['leave']){
-        winston.log('room', p.displayName + ' left room '+r.id);
-        r.teams[p.team]--;
-        r.population--;
-        // delete player from their room
-        delete r.players[p.id];
-        // decrement projectile origins
-        for(var i in r.projectiles){
-          var t = r.projectiles[i];
-          if(t.origin === p.id){
-            r.projectiles.splice(i, 1);
-            emitRoom(r, 'projectileHit', t.id, t.x, t.y);
-          }
-        }
-        p.joined = false;
-        p.kills = 0;
-        p.bounty = 0;
-
-        Sockets[p.id].emit('leave');
-        emitRoom(r, 'playerLeave', p.id);
-        break;
-      }
 
       if(!p.death && p.energy > 0){
         // limit maxspeed using pythagorean theorem
@@ -831,6 +827,29 @@ function drawPlayers(r){
         } else {
           delete r.players[p.id];
         }
+      }
+
+      // if player chooses to leave
+      if(p.keys['leave']){
+        winston.log('debug', p.displayName + ' left room '+r.id);
+        r.teams[p.team]--;
+        r.population--;
+        // delete player from their room
+        delete r.players[p.id];
+        // decrement projectile origins
+        for(var i in r.projectiles){
+          var t = r.projectiles[i];
+          if(t.origin === p.id){
+            r.projectiles.splice(i, 1);
+            emitRoom(r, 'projectileHit', t.id, t.x, t.y);
+          }
+        }
+        p.joined = false;
+        p.kills = 0;
+        p.bounty = 0;
+
+        Sockets[p.id].emit('leave');
+        emitRoom(r, 'playerLeave', p.id);
       }
     }
 
@@ -1239,7 +1258,7 @@ function kill(r, origin, e, p){
 
       origin.bounty += e.bounty;
       origin.kills++;
-      winston.log('game', origin.displayName + ' killed ' + e.displayName);
+      winston.log('debug', origin.displayName + ' killed ' + e.displayName);
 
       osocket.emit('newNotice', {
         text: 'Killed ' + e.displayName + ' (+' + e.bounty + ')',
@@ -1257,7 +1276,7 @@ function kill(r, origin, e, p){
       // remove a little bounty if team kill
       origin.bounty -= 10;
       if(origin.bounty < 0) origin.bounty = 0;
-      winston.log('game', origin.displayName + ' TK\'d ' + e.displayName);
+      winston.log('debug', origin.displayName + ' TK\'d ' + e.displayName);
 
       // announce team kill
       osocket.emit('newNotice', {
@@ -1283,7 +1302,7 @@ function kill(r, origin, e, p){
     var socket = Sockets[origin.id];
     if(origin.team !== e.team){
       origin.bounty += e.bounty;
-      winston.log('game', origin.displayName + ' killed ' + e.displayName);
+      winston.log('debug', origin.displayName + ' killed ' + e.displayName);
       socket.emit('newNotice', {
         text: 'Killed ' + e.displayName + ' (+' + e.bounty + ')',
         lifetime: 3000,
@@ -1293,7 +1312,7 @@ function kill(r, origin, e, p){
       // remove a little bounty if team kill
       origin.bounty -= 10;
       if(origin.bounty < 0) origin.bounty = 0;
-      winston.log('game', origin.displayName + ' TK\'d ' + e.displayName);
+      winston.log('debug', origin.displayName + ' TK\'d ' + e.displayName);
       // announce team kill
       socket.emit('newNotice', {
         text: 'TK\'d '+e.displayName  + ' (-10)',
