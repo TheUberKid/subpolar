@@ -1,7 +1,5 @@
 'use strict';
 
-// TODO: Fix room bug: If a player leaves a room and the room is deleted, all other rooms are also deleted
-
 Number.prototype.pad = function(n){
   return ('0'.repeat(n)+this).slice(-n);
 }
@@ -360,7 +358,7 @@ function emitRoom(room, type, d1, d2, d3, d4, d5, d6){
 }
 function emitTeam(room, team, type, d1, d2, d3, d4, d5, d6){
   for(var i in room.players){
-    if(p.team === team && Sockets[i]) Sockets[i].emit(type, d1, d2, d3, d4, d5, d6);
+    if(room.players[i].team === team && Sockets[i]) Sockets[i].emit(type, d1, d2, d3, d4, d5, d6);
   }
 }
 
