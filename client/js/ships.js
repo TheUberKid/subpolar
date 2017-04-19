@@ -206,14 +206,16 @@ function drawPlayers(){
     }
   }
 
-  var s = ships[self.ship];
-  // if stealthed show transparency
-  if(self.stealth) ctx.globalAlpha = 0.5;
-  // draw sprite
-  drawImg(s.image, canvas.width/2, canvas.height/2, 32, self.rotate);
-  ctx.fillStyle = '#ddd';
-  ctx.fillText(self.displayName + ' [' + self.bounty + ']', canvas.width/2+16, canvas.height/2+24);
-  ctx.globalAlpha = 1;
+  if(!self.death){
+    var s = ships[self.ship];
+    // if stealthed show transparency
+    if(self.stealth) ctx.globalAlpha = 0.5;
+    // draw sprite
+    drawImg(s.image, canvas.width/2, canvas.height/2, 32, self.rotate);
+    ctx.fillStyle = '#ddd';
+    ctx.fillText(self.displayName + ' [' + self.bounty + ']', canvas.width/2+16, canvas.height/2+24);
+    ctx.globalAlpha = 1;
+  }
 
   // display death message
   if(self.death){
