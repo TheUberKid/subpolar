@@ -173,15 +173,15 @@ function drawLighting(){
   tctx.fillStyle = light;
   tctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // lighting from thrusters
-  for(var i=0; i<t; i++){
+  // lighting from thrusters (every other thruster to reduce lag)
+  for(var i=0; i<t/2; i+=2){
     var p = thrusters[i];
     var diffx = p.x - self.x;
     var diffy = p.y - self.y;
     light = tctx.createRadialGradient(canvas.width/2 + diffx, canvas.height/2 + diffy, 120,
             canvas.width/2 + diffx, canvas.height/2 + diffy, 0);
     light.addColorStop(0, 'transparent');
-    light.addColorStop(1, 'rgba(255, 225, 175, 0.05)');
+    light.addColorStop(1, 'rgba(255, 225, 175, 0.1)');
     tctx.fillStyle = light;
     tctx.fillRect(0, 0, canvas.width, canvas.height);
   }

@@ -60,6 +60,14 @@ var ships = {
     minelifetime: 1000,
     mineradius: 200,
     abilitycd: 20,
+  },
+  'training-dummy': {
+    unplayable: true,
+    accel: 20,
+    maxspeed: 800,
+    turnspeed: 8,
+    maxenergy: 250,
+    recharge: 2
   }
 }
 

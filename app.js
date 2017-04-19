@@ -201,7 +201,7 @@ io.sockets.on('connection', function(socket){
   // when player joins
   socket.on('join', function(ship, zone){
     // validate inputs
-    if((socket.loggedIn || socket.player.pid === 'guest') && ships.stats[ship] && maps.index[zone]){
+    if((socket.loggedIn || socket.player.pid === 'guest') && ships.stats[ship] && !ships.stats[ship].unplayable && maps.index[zone]){
       var p = socket.player;
 
       // reset the player's keys
@@ -414,10 +414,10 @@ function computeObjective(r){
             while(Sockets[id1]) id1 = Math.floor(Math.random()*100000);
             var id2 = Math.floor(Math.random()*100000);
             while(Sockets[id2]) id2 = Math.floor(Math.random()*100000);
-            r.players[id1] = new Bot(r, id1, "training dummy", "warbird", 1000, 1892, 90);
-            r.players[id2] = new Bot(r, id2, "training dummy", "warbird", 1000, 2156, 90);
-            emitRoom(r, 'playerJoin', id1, "training dummy", "warbird", -1, true);
-            emitRoom(r, 'playerJoin', id2, "training dummy", "warbird", -1, true);
+            r.players[id1] = new Bot(r, id1, "training dummy", "training-dummy", 1000, 1892, 90);
+            r.players[id2] = new Bot(r, id2, "training dummy", "training-dummy", 1000, 2156, 90);
+            emitRoom(r, 'playerJoin', id1, "training dummy", "training-dummy", -1, true);
+            emitRoom(r, 'playerJoin', id2, "training dummy", "training-dummy", -1, true);
           }
           if(o.trigger === 'tutorial-ally'){
             // create a tutorial ally to attach to

@@ -33,6 +33,10 @@ var ships = {
     maxenergy: 250,
     abilitycd: 20,
     image: 'aurora.png'
+  },
+  'training-dummy': {
+    unplayable: true,
+    image: 'training-dummy.png'
   }
 }
 

@@ -39,11 +39,12 @@ var images = [
   'lancaster.png',
   'ghost.png',
   'aurora.png',
+  'training-dummy.png',
   'smoke.png',
   'wall.png',
   'repel.png',
   'cloak.png',
-  'bomb.png'
+  'bomb.png',
 ];
 var loadedImages = {};
 var promiseArray = images.map(function(imgurl){
