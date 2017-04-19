@@ -966,8 +966,8 @@ function useAbility(r, p, e){
             var diffy = t.y - p.y;
             var distance = Math.sqrt(diffx*diffx + diffy*diffy);
             if(distance < 120){
-              t.x_velocity = diffx > 0 ? (120-diffx)*5 : (-120+diffx)*5;
-              t.y_velocity = diffy > 0 ? (120-diffy)*5 : (-120+diffy)*5;
+              t.x_velocity = Math.abs(diffx / (diffx + diffy)) * (diffx > 0 ? 1 : -1) * ((120 - distance)/2 + 60) * 7;
+              t.y_velocity = Math.abs(diffy / (diffx + diffy)) * (diffy > 0 ? 1 : -1) * ((120 - distance)/2 + 60) * 7;
               t.origin = p.id;
               emitRoom(r, 'repelBounce', t);
             }
@@ -981,8 +981,8 @@ function useAbility(r, p, e){
             var diffy = t.y - p.y;
             var distance = Math.sqrt(diffx*diffx + diffy*diffy);
             if(distance < 140){
-              t.x_velocity = diffx > 0 ? Math.round(140-diffx)*3 : Math.round(-140+diffx)*3;
-              t.y_velocity = diffy > 0 ? Math.round(140-diffy)*3 : Math.round(-140+diffy)*3;
+              t.x_velocity = Math.abs(diffx / (diffx + diffy)) * (diffx > 0 ? 1 : -1) * ((140 - distance)/2 + 70) * 5;
+              t.y_velocity = Math.abs(diffy / (diffx + diffy)) * (diffy > 0 ? 1 : -1) * ((140 - distance)/2 + 70) * 5;
             }
           }
         }
