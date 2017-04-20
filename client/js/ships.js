@@ -126,15 +126,13 @@ function drawSelf(){
   var s = ships[self.ship];
   if(!self.death){
     // client side rotation
-    if(!keys['boost']){
-      if(keys['left']){
-        if(self.rotate < 0) self.rotate = 360;
-        self.rotate -= s.turnspeed;
-      }
-      if(keys['right']){
-        if(self.rotate > 360) self.rotate = 0;
-        self.rotate += s.turnspeed;
-      }
+    if(keys['left']){
+      if(self.rotate < 0) self.rotate = 360;
+      self.rotate -= keys['boost'] ? s.turnspeed/4 : s.turnspeed;
+    }
+    if(keys['right']){
+      if(self.rotate > 360) self.rotate = 0;
+      self.rotate += keys['boost'] ? s.turnspeed/4 : s.turnspeed;
     }
     // thrusters
     if(thrusteralt === 0){

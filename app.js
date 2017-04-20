@@ -785,21 +785,23 @@ function drawPlayers(r){
 
         // movement
         if(!p.collided){
-          if(p.keys['right']){
-            if(p.keys['boost']){
-              p.x_velocity += s.accel*Math.cos(radians*(p.rotate-180));
-              p.y_velocity += s.accel*Math.sin(radians*(p.rotate-180));
-            } else {
-              p.rotate-=s.turnspeed;
-            }
-            if(p.rotate < 0) p.rotate = 360;
-          }
           if(p.keys['left']){
             if(p.keys['boost']){
               p.x_velocity += s.accel*Math.cos(radians*(p.rotate));
               p.y_velocity += s.accel*Math.sin(radians*(p.rotate));
+              p.rotate -= s.turnspeed/4;
             } else {
-              p.rotate+=s.turnspeed;
+              p.rotate -= s.turnspeed;
+            }
+            if(p.rotate < 0) p.rotate = 360;
+          }
+          if(p.keys['right']){
+            if(p.keys['boost']){
+              p.x_velocity += s.accel*Math.cos(radians*(p.rotate-180));
+              p.y_velocity += s.accel*Math.sin(radians*(p.rotate-180));
+              p.rotate += s.turnspeed/4;
+            } else {
+              p.rotate += s.turnspeed;
             }
             if(p.rotate > 360) p.rotate = 0;
           }
