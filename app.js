@@ -807,11 +807,11 @@ function drawPlayers(r){
             p.y_velocity -= accel*Math.sin(radians*(p.rotate-90));
           }
           if(p.keys['strafeleft']){
-            p.x_velocity -= accel*Math.cos(radians*(p.rotate-180));
-            p.y_velocity -= accel*Math.sin(radians*(p.rotate-180));
+            p.x_velocity += accel*Math.cos(radians*(p.rotate-180));
+            p.y_velocity += accel*Math.sin(radians*(p.rotate-180));
           } else if(p.keys['straferight']){
-            p.x_velocity -= accel*Math.cos(radians*(p.rotate));
-            p.y_velocity -= accel*Math.sin(radians*(p.rotate));
+            p.x_velocity += accel*Math.cos(radians*(p.rotate));
+            p.y_velocity += accel*Math.sin(radians*(p.rotate));
           }
         }
 

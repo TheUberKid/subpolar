@@ -215,6 +215,8 @@ function initMenus(){
       keys[key] = false;
     }
     self.rotate = null;
+    self.death = false;
+    self.deathTimer = 0;
     players = {};
     mapdata = [];
     projectiles = [];
