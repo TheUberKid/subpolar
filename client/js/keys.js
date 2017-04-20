@@ -45,7 +45,9 @@ var defaultkeys = {
   'ability1' : 32,
   'chat' : 13,
   'minimap' : 9,
-  'leave' : 27
+  'leave' : 27,
+  'strafeleft': 81,
+  'straferight': 69
 };
 var keymap = {
   'left' : parseInt(read_cookie('left')) || defaultkeys['left'],
@@ -58,6 +60,8 @@ var keymap = {
   'chat' : parseInt(read_cookie('chat')) || defaultkeys['chat'],
   'minimap' : parseInt(read_cookie('minimap')) || defaultkeys['minimap'],
   'leave' : parseInt(read_cookie('leave')) || defaultkeys['leave'],
+  'strafeleft' : parseInt(read_cookie('strafeleft')) || defaultkeys['strafeleft'],
+  'straferight' : parseInt(read_cookie('straferight')) || defaultkeys['straferight']
 };
 var keyCodes = {
   3 : 'break',

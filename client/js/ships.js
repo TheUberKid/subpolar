@@ -128,25 +128,15 @@ function drawSelf(){
     // client side rotation
     if(keys['left']){
       if(self.rotate < 0) self.rotate = 360;
-      self.rotate -= keys['boost'] ? s.turnspeed/4 : s.turnspeed;
+      self.rotate -= s.turnspeed;
     }
     if(keys['right']){
       if(self.rotate > 360) self.rotate = 0;
-      self.rotate += keys['boost'] ? s.turnspeed/4 : s.turnspeed;
+      self.rotate += s.turnspeed;
     }
     // thrusters
     if(thrusteralt === 0){
-      if(keys['boost'] && keys['right']){
-        var d = Math.round(Math.random()*5)+14;
-        var t1 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90+7)), self.y - d * Math.sin(radians*(self.rotate-90+7)), self.rotate-90+7);
-        var t2 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90-7)), self.y - d * Math.sin(radians*(self.rotate-90-7)), self.rotate-90-7);
-        thrusters.splice(0, 0, t1, t2);
-      } else if(keys['boost'] && keys['left']){
-        var d = Math.round(Math.random()*5)+14;
-        var t1 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90+7)), self.y - d * Math.sin(radians*(self.rotate-90+7)), self.rotate+90+7);
-        var t2 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90-7)), self.y - d * Math.sin(radians*(self.rotate-90-7)), self.rotate+90-7);
-        thrusters.splice(0, 0, t1, t2);
-      } else if(keys['up']){
+      if(keys['up'] || keys['strafeleft'] || keys['straferight']){
         var d = Math.round(Math.random()*5)+14;
         var t1 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90+7)), self.y - d * Math.sin(radians*(self.rotate-90+7)), self.rotate+7);
         var t2 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90-7)), self.y - d * Math.sin(radians*(self.rotate-90-7)), self.rotate-7);

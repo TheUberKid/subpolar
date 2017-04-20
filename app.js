@@ -753,7 +753,7 @@ function drawPlayers(r){
         var velocity = Math.sqrt(p.x_velocity*p.x_velocity + p.y_velocity*p.y_velocity);
         // if shift key multiply maxspeed by 1.5
         var maxspeed = s.maxspeed;
-        if(p.keys['boost'] && (p.keys['up'] || p.keys['down'] || p.keys['left'] || p.keys['right']) && p.energy > 15){
+        if(p.keys['boost'] && (p.keys['up'] || p.keys['down']) && p.energy > 15){
           maxspeed *= 1.75;
         }
 
@@ -786,28 +786,16 @@ function drawPlayers(r){
         // movement
         if(!p.collided){
           if(p.keys['left']){
-            if(p.keys['boost']){
-              p.x_velocity += s.accel*Math.cos(radians*(p.rotate));
-              p.y_velocity += s.accel*Math.sin(radians*(p.rotate));
-              p.rotate -= s.turnspeed/4;
-            } else {
-              p.rotate -= s.turnspeed;
-            }
+            p.rotate -= s.turnspeed;
             if(p.rotate < 0) p.rotate = 360;
           }
           if(p.keys['right']){
-            if(p.keys['boost']){
-              p.x_velocity += s.accel*Math.cos(radians*(p.rotate-180));
-              p.y_velocity += s.accel*Math.sin(radians*(p.rotate-180));
-              p.rotate += s.turnspeed/4;
-            } else {
-              p.rotate += s.turnspeed;
-            }
+            p.rotate += s.turnspeed;
             if(p.rotate > 360) p.rotate = 0;
           }
           // shift for thrusters
           var accel = s.accel;
-          if(p.keys['boost'] && (p.keys['up'] || p.keys['down'] || p.keys['left'] || p.keys['right']) && p.energy > 15){
+          if(p.keys['boost'] && (p.keys['up'] || p.keys['down']) && p.energy > 15){
             accel = accel * 1.75;
             p.energy -= 2;
           }
@@ -817,6 +805,13 @@ function drawPlayers(r){
           } else if(p.keys['down']){
             p.x_velocity -= accel*Math.cos(radians*(p.rotate-90));
             p.y_velocity -= accel*Math.sin(radians*(p.rotate-90));
+          }
+          if(p.keys['strafeleft']){
+            p.x_velocity -= accel*Math.cos(radians*(p.rotate-180));
+            p.y_velocity -= accel*Math.sin(radians*(p.rotate-180));
+          } else if(p.keys['straferight']){
+            p.x_velocity -= accel*Math.cos(radians*(p.rotate));
+            p.y_velocity -= accel*Math.sin(radians*(p.rotate));
           }
         }
 
