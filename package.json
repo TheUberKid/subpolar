@@ -11,6 +11,7 @@
     "connect-timeout": "^1.8.0",
     "ejs": "^2.4.1",
     "express": "^4.14.1",
+    "express-minify": "^0.2.0",
     "mongodb": "^2.2.22",
     "mongoose": "^4.8.1",
     "socket.io": "^1.7.2",

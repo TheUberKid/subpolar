@@ -48,7 +48,7 @@ var images = [
 ];
 var loadedImages = {};
 var promiseArray = images.map(function(imgurl){
-   var prom = new Promise(function(resolve,reject){
+   var prom = new Promise(function(resolve, reject){
        var img = new Image();
        imgurl = '/client/img/' + imgurl;
        prlog('Retreiving Graphics: '+imgurl);

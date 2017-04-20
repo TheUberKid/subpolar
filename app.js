@@ -14,9 +14,11 @@ var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
 
-// gzip compression
+// gzip compression and minify
 var compression = require('compression');
+var minify = require('express-minify');
 app.use(compression());
+app.use(minify());
 
 // async
 var winston = require('winston');
