@@ -981,8 +981,8 @@ function useAbility(r, p, e){
             var diffy = t.y - p.y;
             var distance = Math.sqrt(diffx*diffx + diffy*diffy);
             if(distance < 140){
-              t.x_velocity = diffx/distance * (160 - distance) * 5;
-              t.y_velocity = diffy/distance * (160 - distance) * 5;
+              t.x_velocity = diffx/distance * (180 - distance) * 5;
+              t.y_velocity = diffy/distance * (180 - distance) * 5;
             }
           }
         }

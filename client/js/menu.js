@@ -264,6 +264,9 @@ function navigate(e){
     guestNav.className = 'button';
     regForm.style.display = 'inline-block';
     guestForm.style.display = 'none';
+    // select input if any
+    var firstInput = targetelm.getElementsByTagName('input')[0];
+    if(firstInput) firstInput.focus();
   }, 200);
 }
 
