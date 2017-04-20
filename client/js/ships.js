@@ -126,35 +126,42 @@ function drawSelf(){
   var s = ships[self.ship];
   if(!self.death){
     // client side rotation
-    if(keys['left']){
-      if(self.rotate < 0) self.rotate = 360;
-      self.rotate -= s.turnspeed;
-    }
-    if(keys['right']){
-      if(self.rotate > 360) self.rotate = 0;
-      self.rotate += s.turnspeed;
+    if(!keys['boost']){
+      if(keys['left']){
+        if(self.rotate < 0) self.rotate = 360;
+        self.rotate -= s.turnspeed;
+      }
+      if(keys['right']){
+        if(self.rotate > 360) self.rotate = 0;
+        self.rotate += s.turnspeed;
+      }
     }
     // thrusters
-    if(keys['up'] && !self.death){
-      if(thrusteralt === 0){
+    if(thrusteralt === 0){
+      if(keys['boost'] && keys['left']){
+        var d = Math.round(Math.random()*5)+14;
+        var t1 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90+7)), self.y - d * Math.sin(radians*(self.rotate-90+7)), self.rotate-90+7);
+        var t2 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90-7)), self.y - d * Math.sin(radians*(self.rotate-90-7)), self.rotate-90-7);
+        thrusters.splice(0, 0, t1, t2);
+      } else if(keys['boost'] && keys['right']){
+        var d = Math.round(Math.random()*5)+14;
+        var t1 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90+7)), self.y - d * Math.sin(radians*(self.rotate-90+7)), self.rotate+90+7);
+        var t2 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90-7)), self.y - d * Math.sin(radians*(self.rotate-90-7)), self.rotate+90-7);
+        thrusters.splice(0, 0, t1, t2);
+      } else if(keys['up']){
         var d = Math.round(Math.random()*5)+14;
         var t1 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90+7)), self.y - d * Math.sin(radians*(self.rotate-90+7)), self.rotate+7);
         var t2 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90-7)), self.y - d * Math.sin(radians*(self.rotate-90-7)), self.rotate-7);
         thrusters.splice(0, 0, t1, t2);
-        thrusteralt = 1;
-      } else {
-        thrusteralt--;
-      }
-    } else if(keys['down'] && !self.death){
-      if(thrusteralt === 0){
+      } else if(keys['down']){
         var d = Math.round(Math.random()*5)+12;
         var t1 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90+7)), self.y - d * Math.sin(radians*(self.rotate-90+7)), (self.rotate+180-7) % 360);
         var t2 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90-7)), self.y - d * Math.sin(radians*(self.rotate-90-7)), (self.rotate+180+7) % 360);
         thrusters.splice(0, 0, t1, t2);
-        thrusteralt = 1;
-      } else {
-        thrusteralt--;
       }
+      thrusteralt = 1;
+    } else {
+      thrusteralt--;
     }
   }
 }
