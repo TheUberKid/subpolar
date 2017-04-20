@@ -785,7 +785,7 @@ function drawPlayers(r){
 
         // movement
         if(!p.collided){
-          if(p.keys['left']){
+          if(p.keys['right']){
             if(p.keys['boost']){
               p.x_velocity += s.accel*Math.cos(radians*(p.rotate-180));
               p.y_velocity += s.accel*Math.sin(radians*(p.rotate-180));
@@ -794,7 +794,7 @@ function drawPlayers(r){
             }
             if(p.rotate < 0) p.rotate = 360;
           }
-          if(p.keys['right']){
+          if(p.keys['left']){
             if(p.keys['boost']){
               p.x_velocity += s.accel*Math.cos(radians*(p.rotate));
               p.y_velocity += s.accel*Math.sin(radians*(p.rotate));

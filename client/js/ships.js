@@ -138,12 +138,12 @@ function drawSelf(){
     }
     // thrusters
     if(thrusteralt === 0){
-      if(keys['boost'] && keys['left']){
+      if(keys['boost'] && keys['right']){
         var d = Math.round(Math.random()*5)+14;
         var t1 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90+7)), self.y - d * Math.sin(radians*(self.rotate-90+7)), self.rotate-90+7);
         var t2 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90-7)), self.y - d * Math.sin(radians*(self.rotate-90-7)), self.rotate-90-7);
         thrusters.splice(0, 0, t1, t2);
-      } else if(keys['boost'] && keys['right']){
+      } else if(keys['boost'] && keys['left']){
         var d = Math.round(Math.random()*5)+14;
         var t1 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90+7)), self.y - d * Math.sin(radians*(self.rotate-90+7)), self.rotate+90+7);
         var t2 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90-7)), self.y - d * Math.sin(radians*(self.rotate-90-7)), self.rotate+90-7);
