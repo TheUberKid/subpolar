@@ -158,23 +158,25 @@ function update(ppos, spos){
   for(var i in ppos){
     var p = players[i];
     var p1 = ppos[i];
-    p.x = p1.x;
-    p.y = p1.y;
-    p.rotate = p1.rotate;
-    p.bounty = p1.bounty;
-    if(i == self.id){
-      self.changeX = self.x - p1.x;
-      self.changeY = self.y - p1.y;
-      self.x = p1.x;
-      self.y = p1.y;
-      self.bounty = p1.bounty;
-      if(self.rotate == null) self.rotate = p1.rotate;
-      if(Math.abs(p1.rotate - self.rotate) > 1 && Math.abs((p1.rotate-360) - self.rotate) > 1 && Math.abs(p1.rotate - (self.rotate-360)) > 1){
-        var arr = [Math.abs(p1.rotate-self.rotate), Math.abs((p1.rotate-360)-self.rotate), Math.abs(p1.rotate-(self.rotate-360))];
-        var parr = [p1.rotate-self.rotate, (p1.rotate-360)-self.rotate, p1.rotate-(self.rotate-360)];
-        var min = Math.min.apply(null, arr), // find the closest match in arr and return its index
-            pos = arr.indexOf(min);
-        self.rotate += 0.2 * parr[pos];
+    if(p && p1){
+      p.x = p1.x;
+      p.y = p1.y;
+      p.rotate = p1.rotate;
+      p.bounty = p1.bounty;
+      if(i == self.id){
+        self.changeX = self.x - p1.x;
+        self.changeY = self.y - p1.y;
+        self.x = p1.x;
+        self.y = p1.y;
+        self.bounty = p1.bounty;
+        if(self.rotate == null) self.rotate = p1.rotate;
+        if(Math.abs(p1.rotate - self.rotate) > 1 && Math.abs((p1.rotate-360) - self.rotate) > 1 && Math.abs(p1.rotate - (self.rotate-360)) > 1){
+          var arr = [Math.abs(p1.rotate-self.rotate), Math.abs((p1.rotate-360)-self.rotate), Math.abs(p1.rotate-(self.rotate-360))];
+          var parr = [p1.rotate-self.rotate, (p1.rotate-360)-self.rotate, p1.rotate-(self.rotate-360)];
+          var min = Math.min.apply(null, arr), // find the closest match in arr and return its index
+              pos = arr.indexOf(min);
+          self.rotate += 0.2 * parr[pos];
+        }
       }
     }
   }
