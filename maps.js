@@ -117,7 +117,7 @@ var tutorial = {
           "Auroras fire three short-ranged",
           "bullets in a spread pattern. They",
           "are difficult to avoid but quickly",
-          "consume the ship's energy."
+          "consume the ship's energy.",
           "←"
         ],
         color: "110, 110, 150"
