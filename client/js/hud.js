@@ -200,7 +200,27 @@ function drawHUD(time, population, rankings, loc){
       drawImg(s.abilityimage, canvas.width-308, canvas.height-28, 70);
       ctx.globalAlpha = 1;
 
-      if(self.abilitycd === 0 && self.ship !== 'ghost'){
+      if(s.charges && self.abilitycd < 0){
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+
+        // progress bar
+        var ypos, height;
+        if(self.abilitycd === (s.charges-1) * s.abilitycd){
+          ypos = canvas.height-93;
+          height = 72;
+        } else {
+          ypos = canvas.height-21 - ((((self.abilitycd % s.abilitycd) + s.abilitycd) % s.abilitycd) / s.abilitycd) * 72;
+          height = ((((self.abilitycd % s.abilitycd) + s.abilitycd) % s.abilitycd) / s.abilitycd) * 72;
+        }
+
+        ctx.fillRect(canvas.width-373, ypos, 72, height);
+
+        ctx.fillStyle = 'rgb(255, 255, 255)';
+        if(self.abilitycd <= 0) ctx.fillText("x" + (Math.floor(-self.abilitycd / s.abilitycd)+1), canvas.width-308, canvas.height-73);
+
+      }
+
+      if(self.abilitycd <= 0 && self.ship !== 'ghost'){
         ctx.shadowBlur = 4;
         ctx.shadowColor = 'rgba(255, 255, 255, 0.7)';
       } else if(self.ship === 'ghost'){
@@ -221,16 +241,20 @@ function drawHUD(time, population, rankings, loc){
       ctx.fillText(keyCodes[keymap['ability1']].toUpperCase(), canvas.width-308, canvas.height-28);
 
       // border
-      ctx.strokeStyle = 'rgba(255, 255, 255, '+ (self.abilitycd === 0 ? '1' : '0.5') + ')';
+      ctx.strokeStyle = 'rgba(255, 255, 255, '+ (self.abilitycd <= 0 ? '1' : '0.5') + ')';
       ctx.strokeRect(canvas.width-374, canvas.height-94, 74, 74);
 
-      // progress bar
-      if(self.ship !== 'ghost'){
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        var ypos = self.stealth ? canvas.height-93 : canvas.height-21-(self.abilitycd/s.abilitycd)*72;
-        var height = self.stealth ? 72 : (self.abilitycd/s.abilitycd)*72;
-        ctx.fillRect(canvas.width-373, ypos, 72, height);
+      ctx.shadowColor = 'transparent';
+      if(!s.charges || self.abilitycd >= 0){
+        // progress bar
+        if(self.ship !== 'ghost'){
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+          var ypos = self.stealth ? canvas.height-93 : canvas.height-21 - (self.abilitycd/s.abilitycd) * 72;
+          var height = self.stealth ? 72 : (self.abilitycd/s.abilitycd) * 72;
+          ctx.fillRect(canvas.width-373, ypos, 72, height);
+        }
       }
+
       ctx.restore();
     }
   }

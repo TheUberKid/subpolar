@@ -31,7 +31,8 @@ var ships = {
     maxspeed: 700,
     turnspeed: 7,
     maxenergy: 300,
-    abilitycd: 20,
+    abilitycd: 180,
+    charges: 3,
     image: 'aurora.png',
     abilityimage: 'mine.png'
   },

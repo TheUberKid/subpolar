@@ -286,6 +286,7 @@ io.sockets.on('connection', function(socket){
   // log keypresses
   socket.on('keydown', function(e){
     var p = socket.player;
+    if(!p.keys['ability1'] && e == 'ability1') useAbility(p.room, p, 1);
     p.keys[e] = true;
   });
   socket.on('keyup', function(e){
@@ -820,10 +821,9 @@ function drawPlayers(r){
 
         // player actions
         if(p.keys['attack'] && p.energy > s.bulletenergyuse && p.reload === 0) fireProjectile(r, p, 17);
-        if(p.keys['ability1']) useAbility(r, p, 1);
 
         if(p.reload > 0) p.reload--;
-        if(p.abilitycd > 0) p.abilitycd--;
+        if(p.abilitycd > 0 || (s.charges && p.abilitycd > -(s.charges-1) * s.abilitycd)) p.abilitycd--;
         if(p.energy < s.maxenergy && !(p.keys['boost'] && (p.keys['up'] || p.keys['down'])) && !p.stealth) p.energy += s.recharge;
 
       } else if(p.death){
@@ -1000,7 +1000,7 @@ function useAbility(r, p, e){
       }
 
       // bomb
-      if(p.ship === 'lancaster' && p.energy > s.bombenergyuse){
+      if(p.ship === 'lancaster'){
         var id = Math.round(Math.random()*10000);
         var x = p.x + 18*Math.cos(radians*(p.rotate-90));
         var y = p.y + 18*Math.sin(radians*(p.rotate-90));
@@ -1008,7 +1008,6 @@ function useAbility(r, p, e){
         var y_velocity = s.bombspeed*Math.sin(radians*(p.rotate-90)) + (p.y_velocity / 100);
         var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity, 'lancasterBomb', s.bomblifetime * unistep, s.bombdamage, s.bombbounce, s.bombradius, 0, p.id, p.map);
         r.projectiles.push(newProjectile);
-        p.energy -= s.bombenergyuse;
         p.abilitycd += s.abilitycd;
         emitRoom(r, 'projectile', newProjectile, p.rotate);
       }
@@ -1021,13 +1020,12 @@ function useAbility(r, p, e){
       }
 
       // mine
-      if(p.ship === 'aurora' && p.energy > s.mineenergyuse){
+      if(p.ship === 'aurora'){
         var id = Math.round(Math.random()*10000);
         var x = p.x + 4*Math.cos(radians*(p.rotate-90));
         var y = p.y + 4*Math.sin(radians*(p.rotate-90));
         var newProjectile = new Projectile(id, x, y, 0, 0, 'auroraMine', s.minelifetime * unistep, s.minedamage, 0, s.mineradius, 0, p.id, p.map);
         r.projectiles.push(newProjectile);
-        p.energy -= s.mineenergyuse;
         p.abilitycd += s.abilitycd;
         emitRoom(r, 'projectile', newProjectile, p.rotate);
       }
