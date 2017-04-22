@@ -825,6 +825,7 @@ function drawPlayers(r){
         if(p.reload > 0) p.reload--;
         if(p.abilitycd > 0 || (s.charges && p.abilitycd > -(s.charges-1) * s.abilitycd)) p.abilitycd--;
         if(p.energy < s.maxenergy && !(p.keys['boost'] && (p.keys['up'] || p.keys['down'])) && !p.stealth) p.energy += s.recharge;
+        if(p.energy > s.maxenergy) p.energy = s.maxenergy;
 
       } else if(p.death){
         if(!p.bot){
