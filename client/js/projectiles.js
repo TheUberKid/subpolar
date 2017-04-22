@@ -38,7 +38,7 @@ var projectileTemplates = {
     lifetime: 5
   },
   'auroraMine': {
-    color: 'rgb(255, 200, 100)',
+    color: 'rgb(100, 200, 255)',
     size: 8,
     lifetime: 5
   }
