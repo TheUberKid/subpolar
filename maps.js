@@ -112,6 +112,16 @@ var tutorial = {
         ],
         color: "255, 255, 175"
       },
+      "aurora": {
+        text: [
+          "Auroras fire three short-ranged",
+          "bullets in a spread pattern. They",
+          "are difficult to avoid but quickly",
+          "consume the ship's energy."
+          "←"
+        ],
+        color: "110, 110, 150"
+      },
       seen: false,
       opacity: 0
     },
@@ -148,6 +158,14 @@ var tutorial = {
           "area damage to nearby players."
         ],
         color: "255, 255, 175"
+      },
+      "aurora": {
+        text: [
+          "Auroras lay down a MINE that costs energy",
+          "and stays in place, exploding when an enemy",
+          "walks over it."
+        ],
+        color: "110, 110, 150"
       },
       seen: false,
       opacity: 0

@@ -18,7 +18,6 @@ var serv = require('http').Server(app);
 var compression = require('compression');
 var minify = require('express-minify');
 app.use(compression());
-app.use(minify());
 
 // async
 var winston = require('winston');
@@ -26,6 +25,8 @@ var args = process.argv.slice(2);
 if(args[0] === 'debug'){
   console.log('Starting debug mode...');
   winston.level = 'debug';
+} else {
+  app.use(minify());
 }
 var async = require('async');
 
@@ -935,15 +936,15 @@ function fireProjectile(r, p, e){
 
       // aurora
       if(p.ship === 'aurora'){
-        for(var i=0; i<2; i++){
+        for(var i=0; i<3; i++){
           var id = Math.round(Math.random()*10000);
           var rotdiff;
           // fire two shots with origin point from a rotated player
-          rotdiff = i === 0 ? -20 : 20;
+          rotdiff = (i-1) * 15;
           var x = p.x + 20*Math.cos(radians*(p.rotate-90+rotdiff));
           var y = p.y + 20*Math.sin(radians*(p.rotate-90+rotdiff));
-          var x_velocity = s.bulletspeed*Math.cos(radians*(p.rotate-90)) + (p.x_velocity / 100);
-          var y_velocity = s.bulletspeed*Math.sin(radians*(p.rotate-90)) + (p.y_velocity / 100);
+          var x_velocity = s.bulletspeed*Math.cos(radians*(p.rotate-90 + rotdiff/2)) + (p.x_velocity / 100);
+          var y_velocity = s.bulletspeed*Math.sin(radians*(p.rotate-90 + rotdiff/2)) + (p.y_velocity / 100);
           var newProjectile = new Projectile(id, x, y, x_velocity, y_velocity,
             'auroraShot', s.bulletlifetime * unistep, s.bulletdamage, 0, 0, 0, p.id, p.map);
           r.projectiles.push(newProjectile);
@@ -974,9 +975,9 @@ function useAbility(r, p, e){
             var diffx = t.x - p.x;
             var diffy = t.y - p.y;
             var distance = Math.sqrt(diffx*diffx + diffy*diffy);
-            if(distance < 120){
-              t.x_velocity = diffx/distance * (160 - distance) * 8;
-              t.y_velocity = diffy/distance * (160 - distance) * 8;
+            if(distance < 130){
+              t.x_velocity = diffx/distance * (170 - distance) * 8;
+              t.y_velocity = diffy/distance * (170 - distance) * 8;
               t.origin = p.id;
               emitRoom(r, 'repelBounce', t);
             }
@@ -989,9 +990,9 @@ function useAbility(r, p, e){
             var diffx = t.x - p.x;
             var diffy = t.y - p.y;
             var distance = Math.sqrt(diffx*diffx + diffy*diffy);
-            if(distance < 140){
-              t.x_velocity = diffx/distance * (180 - distance) * 5;
-              t.y_velocity = diffy/distance * (180 - distance) * 5;
+            if(distance < 130){
+              t.x_velocity = diffx/distance * (170 - distance) * 5;
+              t.y_velocity = diffy/distance * (170 - distance) * 5;
             }
           }
         }

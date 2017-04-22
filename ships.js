@@ -10,16 +10,16 @@ var ships = {
     bulletspeed: 1800,
     recharge: 2,
     reload: 30,
-    abilitycd: 200
+    abilitycd: 220
   },
   'lancaster': {
-    accel: 15,
-    maxspeed: 700,
+    accel: 16,
+    maxspeed: 720,
     turnspeed: 6,
     maxenergy: 250,
-    bulletenergyuse: 70,
+    bulletenergyuse: 75,
     bulletlifetime: 60,
-    bulletdamage: 100,
+    bulletdamage: 90,
     bulletspeed: 1550,
     recharge: 2,
     reload: 10,
@@ -47,15 +47,15 @@ var ships = {
   'aurora': {
     accel: 17,
     maxspeed: 700,
-    turnspeed: 6,
+    turnspeed: 7,
     maxenergy: 300,
-    bulletenergyuse: 80,
-    bulletlifetime: 60,
-    bulletdamage: 50,
-    bulletspeed: 1250,
+    bulletenergyuse: 85,
+    bulletlifetime: 32,
+    bulletdamage: 60,
+    bulletspeed: 1450,
     recharge: 2,
-    reload: 10,
-    mineenergyuse: 125,
+    reload: 14,
+    mineenergyuse: 100,
     minedamage: 200,
     minelifetime: 1000,
     mineradius: 200,
@@ -67,7 +67,7 @@ var ships = {
     maxspeed: 800,
     turnspeed: 8,
     maxenergy: 250,
-    recharge: 2
+    recharge: 1
   }
 }
 

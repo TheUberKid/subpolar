@@ -45,6 +45,7 @@ var images = [
   'repel.png',
   'cloak.png',
   'bomb.png',
+  'mine.png'
 ];
 var loadedImages = {};
 var promiseArray = images.map(function(imgurl){

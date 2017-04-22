@@ -4,13 +4,13 @@ var ships = {
     maxspeed: 800,
     turnspeed: 8,
     maxenergy: 250,
-    abilitycd: 200,
+    abilitycd: 220,
     image: 'warbird.png',
     abilityimage: 'repel.png'
   },
   'lancaster': {
-    accel: 15,
-    maxspeed: 700,
+    accel: 16,
+    maxspeed: 720,
     turnspeed: 6,
     maxenergy: 250,
     abilitycd: 320,
@@ -27,12 +27,13 @@ var ships = {
     abilityimage: 'cloak.png'
   },
   'aurora': {
-    accel: 15,
-    maxspeed: 750,
-    turnspeed: 6,
-    maxenergy: 250,
+    accel: 17,
+    maxspeed: 700,
+    turnspeed: 7,
+    maxenergy: 300,
     abilitycd: 20,
-    image: 'aurora.png'
+    image: 'aurora.png',
+    abilityimage: 'mine.png'
   },
   'training-dummy': {
     unplayable: true,
