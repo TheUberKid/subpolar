@@ -50,14 +50,14 @@ var ships = {
     maxenergy: 300,
     bulletenergyuse: 85,
     bulletlifetime: 32,
-    bulletdamage: 60,
+    bulletdamage: 65,
     bulletspeed: 1450,
     recharge: 2,
     reload: 14,
     minedamage: 200,
     minelifetime: 1000,
     mineradius: 200,
-    abilitycd: 180,
+    abilitycd: 150,
     charges: 3
   },
   'training-dummy': {

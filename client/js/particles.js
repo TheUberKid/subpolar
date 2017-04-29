@@ -68,6 +68,16 @@ var Light = function(x, y, intensity, color){
   this.color = color;
 }
 
+// pulses from aurora mines
+var pulses = [];
+var Pulse = function(x, y, size, color){
+  this.x = x;
+  this.y = y;
+  this.size = size;
+  this.color = color;
+  this.lifetime = 30;
+}
+
 function drawParticles(){
   // NOTE: Trail lifetimes are counted as less than a normal lifetime measurement.
   // This is because they dont need to be step-checked per frame like other objects.
@@ -93,7 +103,7 @@ function drawParticles(){
     var p = thrusters[i];
     var diffx = p.x - self.x;
     var diffy = p.y - self.y;
-    drawImg('smoke.png', (canvas.width/2)+diffx, (canvas.height/2)+diffy, 16, 0, p.frame);
+    drawImg('smoke.png', canvas.width/2+diffx, canvas.height/2+diffy, 16, 0, p.frame);
 
     var mapx = Math.round(p.x/16);
     var mapy = Math.round(p.y/16);
@@ -120,7 +130,7 @@ function drawParticles(){
       ctx.save();
       ctx.shadowBlur = 1;
       ctx.shadowColor = 'rgba(255, 255, 255, 0.2)';
-      drawCircle((canvas.width/2)+diffx, (canvas.height/2)+diffy,
+      drawCircle(canvas.width/2+diffx, canvas.height/2+diffy,
         Math.min(8*(13-p.lifetime), 45)+20, 'rgba(240, 220, 170, '+Math.max((p.lifetime-8)/5, 0)+')',
         'rgba(235, 220, 150, '+Math.min(0.6, p.lifetime/5)+')', Math.max((p.lifetime-3)*2, 1));
       ctx.restore();
@@ -147,6 +157,20 @@ function drawParticles(){
     r.lifetime--;
     if(r.lifetime < 0) ripples.splice(i, 1);
   }
+
+  // pulse effect of aurora mines
+  for(var i = pulses.length-1; i > -1; i--){
+    var p = pulses[i];
+    var diffx = p.x - self.x;
+    var diffy = p.y - self.y;
+    if(Math.abs(diffx) < canvas.width+10 && Math.abs(diffy) < canvas.height+10){
+      ctx.globalAlpha = p.lifetime/60;
+      drawCircle(canvas.width/2+diffx, canvas.height/2+diffy, p.size + (5 - p.lifetime/6), p.color);
+    }
+    p.lifetime--;
+    if(p.lifetime < 0) pulses.splice(i, 1);
+  }
+  ctx.globalAlpha = 1;
 }
 
 // lighting

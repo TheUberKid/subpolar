@@ -30,7 +30,7 @@ var projectileTemplates = {
   'ghostAmbushShot': {
     color: 'rgb(255, 255, 255)',
     size: 1,
-    lifetime: 7,
+    lifetime: 7
   },
   'auroraShot': {
     color: 'rgb(155, 200, 255)',
@@ -38,9 +38,10 @@ var projectileTemplates = {
     lifetime: 5
   },
   'auroraMine': {
-    color: 'rgb(150, 220, 255)',
-    size: 8,
-    lifetime: 5
+    color: 'rgb(175, 175, 255)',
+    size: 6,
+    lifetime: 5,
+    pulse: true
   }
 };
 
@@ -155,6 +156,9 @@ function drawProjectiles(){
     if(p.rippleCount > 0){
       if(p.rippleCount % 3 === 0) ripples.push(new Ripple(p.x, p.y, p.rotate, pt.ripplesize, pt.color, pt.ripplelife));
       p.rippleCount--;
+    }
+    if(pt.pulse && p.lifetime % (20*unistep) === 0){
+      pulses.push(new Pulse(p.x, p.y, pt.size, pt.color));
     }
   }
 }
