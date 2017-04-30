@@ -100,7 +100,6 @@ function initShips(){
 
   // when a player dies
   socket.on('playerDeath', function(px, py, killer, killed, deathTime){
-    // temporary death animation
     var p0 = players[killer];
     var p1 = players[killed];
     if(p1.id == self.id){
@@ -108,11 +107,18 @@ function initShips(){
       self.timeOfDeath = new Date().getTime();
       self.deathTime = deathTime;
     }
-    lights.push(new Light(px, py, 20, 'rgb(255, 255, 200)'));
+
+    if(Math.abs(self.x-p1.x) < canvas.width/2+64 && Math.abs(self.y-p1.y) < canvas.height/2+64){
+      lights.push(new Light(p1.x, p1.y, 20, 'rgb(255, 255, 200)'));
+      pulses.push(new Pulse(p1.x, p1.y, 25, 'rgb(255, 225, 150)', 15));
+      pulses.push(new Pulse(p1.x, p1.y, 25, 'rgb(255, 225, 150)', 15));
+    }
+
     chat.messages.push(['kill', p1.displayName, p0.displayName]);
     p0.kills++;
     p1.death = true;
   });
+
   socket.on('playerSpawn', function(id, x, y){
     players[id].death = false;
     players[id].stealth = false;

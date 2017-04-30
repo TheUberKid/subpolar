@@ -122,4 +122,53 @@ module.exports = function(){
   // inherit player prototype
   this.Bot.prototype = Object.create(this.Player.prototype);
   this.Bot.prototype.constructor = this.Bot;
+
+  // collision checking
+  this.collisionCheckMap = function(p, size, callback){
+    var mapx = Math.round(p.x/16);
+    var mapy = Math.round(p.y/16);
+    // find only closest 5x5 area of map blocks to compare position to reduce lag
+    for(var j = -1; j < 2; j++){
+      for(var k = -1; k < 2; k++){
+        var m = maps[p.map].mapdata;
+        var mx = mapx + j;
+        var my = mapy + k;
+        var tx = mx * 16;
+        var ty = my * 16;
+        // find the direction from which the object approached the wall
+        if(m[my] && m[my][mx] == 1){
+          if(p.x >= tx-size-8 && p.x <= tx+size+8 && p.y >= ty-size-8 && p.y <= ty+size+8){
+            // determine the side by subtracting positions and finding closest match
+            var arr = [Math.floor(ty-p.y), Math.floor(tx-p.x), Math.floor(p.y-ty), Math.floor(p.x-tx)];
+            // if there is another block on that side it is impossible for entity to have collided, set to -16
+            if(m[my-1] && m[my-1][mx] == 1) arr[0] = -16;
+            if(m[my][mx-1] == 1) arr[1] = -16;
+            if(m[my+1] && m[my+1][mx] == 1) arr[2] = -16;
+            if(m[my][mx+1] == 1) arr[3] = -15; // default to 'right' if multiple match -16
+            var max = Math.max.apply(null, arr), // find the closest match in arr and return its index
+                pos = arr.indexOf(max);
+            p.collided = true;
+            callback(pos, tx, ty, mx, my);
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  this.collisionCheckPlayers = function(r, p, size, callback){
+    var collided = false;
+    for(var i in r.players){
+      var e = r.players[i];
+      if(!p.death){
+        var dist = Math.sqrt((p.x-e.x)*(p.x-e.x) + (p.y-e.y)*(p.y-e.y)); // pythagorean theorem to find distance
+        if(dist < 16 + size){
+          callback(e, dist);
+          collided = true;
+        }
+      }
+    }
+    return collided ? true : false;
+  }
 }

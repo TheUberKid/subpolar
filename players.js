@@ -82,11 +82,11 @@ Player.prototype.join = function(socket, ship, zone){
 Player.prototype.leave = function(){
   var r = this.room;
   if(this.joined){
-    winston.log('debug', socket.player.displayName + ' disconnected from room '+r.id);
+    winston.log('debug', this.displayName + ' disconnected from room '+r.id);
     r.teams[this.team]--;
     r.population--;
     // delete player from their room
-    delete r.players[id];
+    delete r.players[this.id];
     // decrement projectile origins
     for(var i=r.projectiles.length-1; i>-1; i--){
       var t = r.projectiles[i];
@@ -94,6 +94,103 @@ Player.prototype.leave = function(){
         r.projectiles.splice(i, 1);
         emitRoom(r, 'projectileHit', t.id, t.x, t.y);
       }
+    }
+    this.joined = false;
+    this.kills = 0;
+    this.bounty = 0;
+
+    Sockets[this.id].emit('leave');
+    emitRoom(r, 'playerLeave', this.id);
+  }
+}
+
+
+// update players
+Player.prototype.update = function(){
+  var s = ships.stats[this.ship];
+  if(!this.death && this.energy > 0){
+    // limit maxspeed using pythagorean theorem
+    var velocity = Math.sqrt(this.x_velocity*this.x_velocity + this.y_velocity*this.y_velocity);
+    // if shift key multiply maxspeed by 1.5
+    var maxspeed = s.maxspeed;
+    if(this.keys['boost'] && (this.keys['up'] || this.keys['down']) && this.energy > 15){
+      maxspeed *= 1.75;
+    }
+
+    // limit velocity to maxspeed
+    if(velocity > maxspeed){
+      this.x_velocity = this.x_velocity * (maxspeed/velocity);
+      this.y_velocity = this.y_velocity * (maxspeed/velocity);
+    }
+    // update position
+    this.x += this.x_velocity/100;
+    this.y += this.y_velocity/100;
+
+    var self = this;
+    // check if player hit the map
+    collisionCheckMap(this, 14, function(pos, tx, ty, mx, my){
+      if(pos === 0 || pos === 2){ // top or bottom collision: reverse y
+        self.y = 22*(pos-1) + ty;
+        self.y_velocity = self.y_velocity * -0.5;
+        self.x_velocity = self.x_velocity * 0.5;
+      }
+      if(pos === 1 || pos === 3){ // 'left' or 'right' collision: reverse x
+        self.x = 22*(pos-2) + tx;
+        self.x_velocity = self.x_velocity * -0.5;
+        self.y_velocity = self.y_velocity * 0.5;
+      }
+    });
+
+    // check objectives
+    this.checkObjective();
+
+    // movement
+    if(!this.collided){
+      if(this.keys['left']){
+        this.rotate -= s.turnspeed;
+        if(this.rotate < 0) this.rotate = 360;
+      }
+      if(this.keys['right']){
+        this.rotate += s.turnspeed;
+        if(this.rotate > 360) this.rotate = 0;
+      }
+      // shift for thrusters
+      var accel = s.accel;
+      if(this.keys['boost'] && (this.keys['up'] || this.keys['down']) && this.energy > 15){
+        accel = accel * 1.75;
+        this.energy -= 2;
+      }
+      if(this.keys['up']){ // circular directional movement
+        this.x_velocity += accel*Math.cos(radians*(this.rotate-90));
+        this.y_velocity += accel*Math.sin(radians*(this.rotate-90));
+      } else if(this.keys['down']){
+        this.x_velocity -= accel*Math.cos(radians*(this.rotate-90))*0.8;
+        this.y_velocity -= accel*Math.sin(radians*(this.rotate-90))*0.8;
+      }
+      if(this.keys['strafeleft']){
+        this.x_velocity += s.accel*Math.cos(radians*(this.rotate-180))*0.8;
+        this.y_velocity += s.accel*Math.sin(radians*(this.rotate-180))*0.8;
+      } else if(this.keys['straferight']){
+        this.x_velocity += s.accel*Math.cos(radians*(this.rotate))*0.8;
+        this.y_velocity += s.accel*Math.sin(radians*(this.rotate))*0.8;
+      }
+    }
+
+    this.collided = false;
+
+    // player actions
+    if(this.keys['attack'] && this.energy > s.bulletenergyuse && this.reload === 0) this.fireProjectile();
+
+    if(this.reload > 0) this.reload--;
+    if(this.abilitycd > 0 || (s.charges && this.abilitycd > -(s.charges-1) * s.abilitycd)) this.abilitycd--;
+    if(this.energy < s.maxenergy && !(this.keys['boost'] && (this.keys['up'] || this.keys['down'])) && !this.stealth) this.energy += s.recharge;
+    if(this.energy > s.maxenergy) this.energy = s.maxenergy;
+
+  } else if(this.death){
+    if(!this.bot){
+      if(new Date().getTime() - this.death > this.deathTime) this.spawn();
+    } else {
+      delete this.room.players[this.id];
     }
   }
 }
@@ -374,6 +471,36 @@ Player.prototype.kill = function(origin){
     }
     this.death = true;
     emitRoom(r, 'playerDeath', this.x, this.y, origin.id, this.id, this.deathTime);
+  }
+}
+
+
+// match player with map objectives
+Player.prototype.checkObjective = function(){
+  var r = this.room;
+  if(r.zone === 'tutorial'){
+    if(r.state === 'active'){
+      var loc = r.objectives;
+      for(var i=0, j=loc.length; i<j; i++){
+        var o = loc[i];
+        // check distance
+        if(Math.sqrt(Math.pow(o.x - this.x, 2) + Math.pow(o.y - this.y, 2)) < 150){
+          o.seen = true;
+        }
+      }
+    }
+  }
+  if(r.zone === 'trench wars'){
+    if(r.state === 'active'){
+      var loc = r.objectives;
+      for(var i=0, j=loc.length; i<j; i++){
+        var o = loc[i];
+        // check distance
+        if(Math.sqrt(Math.pow(o.x - this.x, 2) + Math.pow(o.y - this.y, 2)) < 120){
+          o.contested[this.team] = true;
+        }
+      }
+    }
   }
 }
 
