@@ -124,7 +124,7 @@ function initShips(){
     }
     if(Math.abs(self.x-x) < canvas.width/2+64 && Math.abs(self.y-y) < canvas.height/2+64){
       lights.push(new Light(x, y, 20, 'rgb(255, 255, 255)'));
-      pulses.push(new Pulse(x, y, 20, 'rgb(255, 255, 255)', 10));
+      pulses.push(new Pulse(x, y, 16, 'rgb(255, 255, 255)', 10));
     }
 
   });
