@@ -157,7 +157,8 @@ function drawProjectiles(){
       if(p.rippleCount % 3 === 0) ripples.push(new Ripple(p.x, p.y, p.rotate, pt.ripplesize, pt.color, pt.ripplelife));
       p.rippleCount--;
     }
-    if(pt.pulse && p.lifetime % (20*unistep) === 0){
+    // create mine pulses
+    if(pt.pulse && p.lifetime % (20*unistep) === 0 && p.x_velocity === 0 && p.y_velocity === 0){
       pulses.push(new Pulse(p.x, p.y, pt.size, pt.color));
     }
   }
