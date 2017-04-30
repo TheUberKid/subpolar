@@ -1,4 +1,4 @@
-// maps
+// map data
 
 var tutorial = {
   config: {
@@ -89,7 +89,8 @@ var tutorial = {
           "Warbirds can instantly kill any enemy",
           "with one shot but cannot attack often.",
           "You are the most vulnerable right after",
-          "you attack!"
+          "you attack!",
+          "←"
         ],
         color: "255, 100, 100"
       },
@@ -98,7 +99,8 @@ var tutorial = {
           "Ghosts attack quickly, but each",
           "shot deals little damage. Ghosts",
           "also have less energy than other",
-          "ships, but regenerate faster."
+          "ships, but regenerate faster.",
+          "←"
         ],
         color: "175, 255, 175"
       },
