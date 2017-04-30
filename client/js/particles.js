@@ -232,7 +232,7 @@ function drawLighting(){
     var p = lights[i];
     var diffx = p.x - self.x;
     var diffy = p.y - self.y;
-    if(Math.abs(diffx) < canvas.width+8 && Math.abs(diffy) < canvas.height+8 && p.lifetime > 0){
+    if(Math.abs(diffx) < canvas.width+8 && Math.abs(diffy) < canvas.height+8 && p.intensity > 0){
       tctx.globalAlpha = p.intensity/30;
       light = tctx.createRadialGradient(canvas.width/2 + diffx, canvas.height/2 + diffy, p.intensity*15,
               canvas.width/2 + diffx, canvas.height/2 + diffy, 0);

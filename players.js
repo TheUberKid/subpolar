@@ -504,4 +504,17 @@ Player.prototype.checkObjective = function(){
   }
 }
 
+// configure a Player object as a bot
+Player.prototype.configureBot = function(room, name, ship, rotate, team){
+  this.bot = true;
+  this.room = room;
+  this.displayName = name;
+  this.ship = ship;
+  this.energy = ships.stats[ship].maxenergy;
+  this.rotate = rotate;
+  this.map = room.map;
+  this.joined = true;
+  this.team = team ? team : -1;
+}
+
 module.exports = Player;

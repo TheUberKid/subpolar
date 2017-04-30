@@ -1,5 +1,5 @@
 require('./includes.js')();
-require('./players.js')();
+var Player = require('./players.js');
 
 // perform map-specific objectives
 Room.prototype.computeObjective = function(){
@@ -18,8 +18,10 @@ Room.prototype.computeObjective = function(){
             while(Sockets[id1]) id1 = Math.floor(Math.random()*100000);
             var id2 = Math.floor(Math.random()*100000);
             while(Sockets[id2]) id2 = Math.floor(Math.random()*100000);
-            this.players[id1] = new Bot(this, id1, "training dummy", "training-dummy", 90);
-            this.players[id2] = new Bot(this, id2, "training dummy", "training-dummy", 90);
+            this.players[id1] = new Player(id1);
+            this.players[id2] = new Player(id2);
+            this.players[id1].configureBot(this, "training dummy", "training-dummy", 90);
+            this.players[id2].configureBot(this, "training dummy", "training-dummy", 90);
             emitRoom(this, 'playerJoin', id1, "training dummy", "training-dummy", -1, true);
             emitRoom(this, 'playerJoin', id2, "training dummy", "training-dummy", -1, true);
             this.players[id1].spawn(1000, 1892);
@@ -29,7 +31,8 @@ Room.prototype.computeObjective = function(){
             // create a tutorial ally to attach to
             var id = Math.floor(Math.random()*100000);
             while(Sockets[id]) id = Math.floor(Math.random()*100000);
-            this.players[id] = new Bot(this, id, "Terrier", "warbird", 0, this.trainee.team);
+            this.players[id] = new Player(id);
+            this.players[id].configureBot(this, "Terrier", "warbird", 0, this.trainee.team);
             emitRoom(this, 'playerJoin', id, "Terrier", "warbird", this.trainee.team, true);
             this.players[id].spawn(1532, 1144);
           }

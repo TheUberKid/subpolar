@@ -93,36 +93,6 @@ module.exports = function(){
     this.abilitycd = 0;
   }
 
-  // bot constructor
-  // a bot is a 'player' that is not assigned to a socket
-  this.Bot = function(room, id, name, ship, rotate, team){
-    this.bot = true;
-    this.room = room;
-    this.id = id;
-    this.displayName = name;
-    this.ship = ship;
-    this.energy = ships.stats[ship].maxenergy;
-    this.x_velocity = 0;
-    this.y_velocity = 0;
-    this.rotate = rotate;
-    this.map = room.map;
-    this.joined = true;
-    this.keys = [];
-    this.collided = false;
-    this.reload = 0;
-    this.death = false;
-    this.deathTime = 0;
-    this.bounty = 0;
-    this.kills = 0;
-    this.stealth = false;
-    this.abilitycd = 0;
-    this.team = team ? team : -1;
-  }
-
-  // inherit player prototype
-  this.Bot.prototype = Object.create(this.Player.prototype);
-  this.Bot.prototype.constructor = this.Bot;
-
   // collision checking
   this.collisionCheckMap = function(p, size, callback){
     var mapx = Math.round(p.x/16);
