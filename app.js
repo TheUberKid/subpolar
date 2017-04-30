@@ -806,15 +806,15 @@ function drawPlayers(r){
             p.x_velocity += accel*Math.cos(radians*(p.rotate-90));
             p.y_velocity += accel*Math.sin(radians*(p.rotate-90));
           } else if(p.keys['down']){
-            p.x_velocity -= accel*Math.cos(radians*(p.rotate-90));
-            p.y_velocity -= accel*Math.sin(radians*(p.rotate-90));
+            p.x_velocity -= accel*Math.cos(radians*(p.rotate-90))*0.8;
+            p.y_velocity -= accel*Math.sin(radians*(p.rotate-90))*0.8;
           }
           if(p.keys['strafeleft']){
-            p.x_velocity += accel*Math.cos(radians*(p.rotate-180));
-            p.y_velocity += accel*Math.sin(radians*(p.rotate-180));
+            p.x_velocity += s.accel*Math.cos(radians*(p.rotate-180))*0.8;
+            p.y_velocity += s.accel*Math.sin(radians*(p.rotate-180))*0.8;
           } else if(p.keys['straferight']){
-            p.x_velocity += accel*Math.cos(radians*(p.rotate));
-            p.y_velocity += accel*Math.sin(radians*(p.rotate));
+            p.x_velocity += s.accel*Math.cos(radians*(p.rotate))*0.8;
+            p.y_velocity += s.accel*Math.sin(radians*(p.rotate))*0.8;
           }
         }
 
