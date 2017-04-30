@@ -224,6 +224,7 @@ function initMenus(){
     repels = [];
     ripples = [];
     thrusters = [];
+    pulses = [];
     stars = [];
     chat.messages = [];
     chat.notices = [];

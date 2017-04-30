@@ -122,15 +122,13 @@ var Player = function(id){
 
 // bot constructor
 // a bot is a 'player' that is not assigned to a socket
-var Bot = function(room, id, name, ship, x, y, rotate, team){
+var Bot = function(room, id, name, ship, rotate, team){
   this.bot = true;
   this.room = room;
   this.id = id;
   this.displayName = name;
   this.ship = ship;
   this.energy = ships.stats[ship].maxenergy;
-  this.x = x;
-  this.y = y;
   this.x_velocity = 0;
   this.y_velocity = 0;
   this.rotate = rotate;
@@ -419,17 +417,20 @@ function computeObjective(r){
             while(Sockets[id1]) id1 = Math.floor(Math.random()*100000);
             var id2 = Math.floor(Math.random()*100000);
             while(Sockets[id2]) id2 = Math.floor(Math.random()*100000);
-            r.players[id1] = new Bot(r, id1, "training dummy", "training-dummy", 1000, 1892, 90);
-            r.players[id2] = new Bot(r, id2, "training dummy", "training-dummy", 1000, 2156, 90);
+            r.players[id1] = new Bot(r, id1, "training dummy", "training-dummy", 90);
+            r.players[id2] = new Bot(r, id2, "training dummy", "training-dummy", 90);
             emitRoom(r, 'playerJoin', id1, "training dummy", "training-dummy", -1, true);
             emitRoom(r, 'playerJoin', id2, "training dummy", "training-dummy", -1, true);
+            spawn(r, r.players[id1], 1000, 1892);
+            spawn(r, r.players[id2], 1000, 2156);
           }
           if(o.trigger === 'tutorial-ally'){
             // create a tutorial ally to attach to
             var id = Math.floor(Math.random()*100000);
             while(Sockets[id]) id = Math.floor(Math.random()*100000);
-            r.players[id] = new Bot(r, id, "Terrier", "warbird", 1532, 1144, 0, r.trainee.team);
+            r.players[id] = new Bot(r, id, "Terrier", "warbird", 0, r.trainee.team);
             emitRoom(r, 'playerJoin', id, "Terrier", "warbird", r.trainee.team, true);
+            spawn(r, r.players[id], 1532, 1144);
           }
         }
       }
@@ -830,10 +831,7 @@ function drawPlayers(r){
 
       } else if(p.death){
         if(!p.bot){
-          if(currentTime.getTime() - p.death > p.deathTime){
-            spawn(r, p);
-            emitRoom(r, 'playerRespawn', p.id, p.x, p.y);
-          }
+          if(currentTime.getTime() - p.death > p.deathTime) spawn(r, p);
         } else {
           delete r.players[p.id];
         }
@@ -1214,7 +1212,7 @@ function collisionCheckPlayers(r, p, size, callback){
   return collided ? true : false;
 }
 
-function spawn(r, p){
+function spawn(r, p, x, y){
   var s = ships.stats[p.ship];
   var sp; // spawn point
   if(maps[r.map].config.respawn === 'trench'){
@@ -1234,8 +1232,8 @@ function spawn(r, p){
     sp = maps[r.map].spawnpoints[Math.floor(Math.random()*maps[r.map].spawnpoints.length)];
   }
   if(sp != null){
-    p.x = Math.floor(Math.random()*100)+sp[0];
-    p.y = Math.floor(Math.random()*100)+sp[1];
+    p.x = x ? x : Math.floor(Math.random()*100)+sp[0];
+    p.y = y ? y : Math.floor(Math.random()*100)+sp[1];
     p.x_velocity = 0;
     p.y_velocity = 0;
     p.bounty = 10;
@@ -1245,6 +1243,7 @@ function spawn(r, p){
     p.abilitycd = 0;
     if(p.stealth) p.stealth = false;
   }
+  emitRoom(r, 'playerSpawn', p.id, p.x, p.y);
 }
 
 // when a player dies

@@ -159,7 +159,7 @@ function drawProjectiles(){
     }
     // create mine pulses
     if(pt.pulse && p.lifetime % (20*unistep) === 0 && p.x_velocity === 0 && p.y_velocity === 0){
-      pulses.push(new Pulse(p.x, p.y, pt.size, pt.color));
+      pulses.push(new Pulse(p.x, p.y, pt.size, pt.color, 30));
     }
   }
 }

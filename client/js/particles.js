@@ -68,14 +68,15 @@ var Light = function(x, y, intensity, color){
   this.color = color;
 }
 
-// pulses from aurora mines
+// pulses from aurora mines and respawns
 var pulses = [];
-var Pulse = function(x, y, size, color){
+var Pulse = function(x, y, size, color, lifetime){
   this.x = x;
   this.y = y;
   this.size = size;
   this.color = color;
-  this.lifetime = 30;
+  this.lifetime = lifetime;
+  this.maxlife = lifetime;
 }
 
 function drawParticles(){
@@ -158,14 +159,14 @@ function drawParticles(){
     if(r.lifetime < 0) ripples.splice(i, 1);
   }
 
-  // pulse effect of aurora mines
+  // pulse effect of aurora mines and respawns
   for(var i = pulses.length-1; i > -1; i--){
     var p = pulses[i];
     var diffx = p.x - self.x;
     var diffy = p.y - self.y;
     if(Math.abs(diffx) < canvas.width+10 && Math.abs(diffy) < canvas.height+10){
-      ctx.globalAlpha = p.lifetime/60;
-      drawCircle(canvas.width/2+diffx, canvas.height/2+diffy, p.size + (5 - p.lifetime/6), p.color);
+      ctx.globalAlpha = p.lifetime/p.maxlife/2;
+      drawCircle(canvas.width/2+diffx, canvas.height/2+diffy, p.size + p.size * ((p.maxlife - p.lifetime) / p.maxlife), p.color);
     }
     p.lifetime--;
     if(p.lifetime < 0) pulses.splice(i, 1);
@@ -217,25 +218,29 @@ function drawLighting(){
     var pt = projectileTemplates[p.type];
     var diffx = p.x - self.x;
     var diffy = p.y - self.y;
-    light = tctx.createRadialGradient(canvas.width/2 + diffx, canvas.height/2 + diffy, pt.lifetime * 15,
-            canvas.width/2 + diffx, canvas.height/2 + diffy, 0);
-    light.addColorStop(0, 'transparent');
-    light.addColorStop(1, pt.color);
-    tctx.fillStyle = light;
-    tctx.fillRect(0, 0, canvas.width, canvas.height);
+    if(Math.abs(diffx) < canvas.width+64 && Math.abs(diffy) < canvas.height+64 && p.lifetime > 0){
+      light = tctx.createRadialGradient(canvas.width/2 + diffx, canvas.height/2 + diffy, pt.lifetime * 15,
+              canvas.width/2 + diffx, canvas.height/2 + diffy, 0);
+      light.addColorStop(0, 'transparent');
+      light.addColorStop(1, pt.color);
+      tctx.fillStyle = light;
+      tctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
   }
 
   for(var i=lights.length-1; i>-1; i--){
     var p = lights[i];
-    tctx.globalAlpha = p.intensity/30;
     var diffx = p.x - self.x;
     var diffy = p.y - self.y;
-    light = tctx.createRadialGradient(canvas.width/2 + diffx, canvas.height/2 + diffy, p.intensity*15,
-            canvas.width/2 + diffx, canvas.height/2 + diffy, 0);
-    light.addColorStop(0, 'transparent');
-    light.addColorStop(1, p.color);
-    tctx.fillStyle = light;
-    tctx.fillRect(0, 0, canvas.width, canvas.height);
+    if(Math.abs(diffx) < canvas.width+8 && Math.abs(diffy) < canvas.height+8 && p.lifetime > 0){
+      tctx.globalAlpha = p.intensity/30;
+      light = tctx.createRadialGradient(canvas.width/2 + diffx, canvas.height/2 + diffy, p.intensity*15,
+              canvas.width/2 + diffx, canvas.height/2 + diffy, 0);
+      light.addColorStop(0, 'transparent');
+      light.addColorStop(1, p.color);
+      tctx.fillStyle = light;
+      tctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
 
     p.intensity--;
     if(p.intensity <= 0) lights.splice(i, 1);

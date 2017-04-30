@@ -113,14 +113,20 @@ function initShips(){
     p0.kills++;
     p1.death = true;
   });
-  socket.on('playerRespawn', function(id, x, y){
+  socket.on('playerSpawn', function(id, x, y){
     players[id].death = false;
     players[id].stealth = false;
     if(id == self.id){
       self.death = false;
       self.stealth = false;
+      self.x = x;
+      self.y = y;
     }
-    lights.push(new Light(x, y, 20, 'rgb(255, 255, 255)'));
+    if(Math.abs(self.x-x) < canvas.width/2+64 && Math.abs(self.y-y) < canvas.height/2+64){
+      lights.push(new Light(x, y, 20, 'rgb(255, 255, 255)'));
+      pulses.push(new Pulse(x, y, 20, 'rgb(255, 255, 255)', 10));
+    }
+
   });
 }
 
@@ -138,7 +144,7 @@ function drawSelf(){
     }
     // thrusters
     if(thrusteralt === 0){
-      if(keys['up'] || keys['strafeleft'] || keys['straferight']){
+      if(keys['up']){
         var d = Math.round(Math.random()*5)+14;
         var t1 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90+7)), self.y - d * Math.sin(radians*(self.rotate-90+7)), self.rotate+7);
         var t2 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90-7)), self.y - d * Math.sin(radians*(self.rotate-90-7)), self.rotate-7);
@@ -147,6 +153,16 @@ function drawSelf(){
         var d = Math.round(Math.random()*5)+12;
         var t1 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90+7)), self.y - d * Math.sin(radians*(self.rotate-90+7)), (self.rotate+180-7) % 360);
         var t2 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90-7)), self.y - d * Math.sin(radians*(self.rotate-90-7)), (self.rotate+180+7) % 360);
+        thrusters.splice(0, 0, t1, t2);
+      } else if(keys['strafeleft']){
+        var d = Math.round(Math.random()*5)+10;
+        var t1 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90+7)), self.y - d * Math.sin(radians*(self.rotate-90+7)), self.rotate-90+7);
+        var t2 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90-7)), self.y - d * Math.sin(radians*(self.rotate-90-7)), self.rotate-90-7);
+        thrusters.splice(0, 0, t1, t2);
+      } else if(keys['straferight']){
+        var d = Math.round(Math.random()*5)+10;
+        var t1 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90+7)), self.y - d * Math.sin(radians*(self.rotate-90+7)), self.rotate+90+7);
+        var t2 = new Thruster(self.x - d * Math.cos(radians*(self.rotate-90-7)), self.y - d * Math.sin(radians*(self.rotate-90-7)), self.rotate+90-7);
         thrusters.splice(0, 0, t1, t2);
       }
       thrusteralt = 1;
