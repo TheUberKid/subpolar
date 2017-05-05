@@ -21,7 +21,16 @@ function collisionCheckMap(p, size, callback){
       var ty = my * 16;
       if(m[my] && m[my][mx] == 1){
         if(p.x >= tx-size-8 && p.x <= tx+size+8 && p.y >= ty-size-8 && p.y <= ty+size+8){
-          callback(tx, ty);
+          // determine the side by subtracting positions and finding closest match
+          var arr = [Math.floor(ty-p.y), Math.floor(tx-p.x), Math.floor(p.y-ty), Math.floor(p.x-tx)];
+          // if there is another block on that side it is impossible for entity to have collided, set to -16
+          if(m[my-1] && m[my-1][mx] == 1) arr[0] = -16;
+          if(m[my][mx-1] == 1) arr[1] = -16;
+          if(m[my+1] && m[my+1][mx] == 1) arr[2] = -16;
+          if(m[my][mx+1] == 1) arr[3] = -15; // default to 'right' if multiple match -16
+          var max = Math.max.apply(null, arr), // find the closest match in arr and return its index
+              pos = arr.indexOf(max);
+          callback(pos, tx, ty);
           return true;
         }
       }

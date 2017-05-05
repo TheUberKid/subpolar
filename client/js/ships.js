@@ -3,7 +3,7 @@ var ships = {
     accel: 20,
     maxspeed: 800,
     turnspeed: 8,
-    maxenergy: 250,
+    maxenergy: 400,
     abilitycd: 220,
     image: 'warbird.png',
     abilityimage: 'repel.png'
@@ -12,7 +12,7 @@ var ships = {
     accel: 16,
     maxspeed: 720,
     turnspeed: 6,
-    maxenergy: 250,
+    maxenergy: 420,
     abilitycd: 320,
     image: 'lancaster.png',
     abilityimage: 'bomb.png'
@@ -21,7 +21,7 @@ var ships = {
     accel: 20,
     maxspeed: 650,
     turnspeed: 6,
-    maxenergy: 200,
+    maxenergy: 360,
     abilitycd: 0,
     image: 'ghost.png',
     abilityimage: 'cloak.png'
@@ -30,7 +30,7 @@ var ships = {
     accel: 17,
     maxspeed: 700,
     turnspeed: 7,
-    maxenergy: 300,
+    maxenergy: 400,
     abilitycd: 150,
     charges: 3,
     image: 'aurora.png',
@@ -110,8 +110,6 @@ function initShips(){
 
     if(Math.abs(self.x-p1.x) < canvas.width/2+64 && Math.abs(self.y-p1.y) < canvas.height/2+64){
       lights.push(new Light(p1.x, p1.y, 20, 'rgb(255, 255, 200)'));
-      pulses.push(new Pulse(p1.x, p1.y, 25, 'rgb(255, 225, 150)', 15));
-      pulses.push(new Pulse(p1.x, p1.y, 25, 'rgb(255, 225, 150)', 15));
     }
 
     chat.messages.push(['kill', p1.displayName, p0.displayName]);
@@ -130,7 +128,6 @@ function initShips(){
     }
     if(Math.abs(self.x-x) < canvas.width/2+64 && Math.abs(self.y-y) < canvas.height/2+64){
       lights.push(new Light(x, y, 20, 'rgb(255, 255, 255)'));
-      pulses.push(new Pulse(x, y, 16, 'rgb(255, 255, 255)', 10));
     }
 
   });

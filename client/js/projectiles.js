@@ -50,11 +50,12 @@ function initProjectiles(){
   socket.on('projectile', function(p, rotate){
     var rippleCount = 0;
     var pt = projectileTemplates[p.type];
+    p = new Projectile(p.id, p.x, p.y, rotate, p.x_velocity, p.y_velocity, p.type, p.lifetime, p.bounce, p.origin);
     if(pt.ripplecount && pt.ripplecount > 0){
       ripples.push(new Ripple(p.x, p.y, rotate, pt.ripplesize, pt.color, pt.ripplelife));
-      rippleCount = pt.ripplecount*3 - 1;
+      p.rippleCount = pt.ripplecount*3 - 1;
     }
-    projectiles.push(new Projectile(p.id, p.x, p.y, rotate, p.x_velocity, p.y_velocity, p.type, p.lifetime, p.bounce, p.origin, rippleCount));
+    projectiles.push(p);
   });
 
   socket.on('projectileHit', function(id, px, py){
@@ -74,18 +75,6 @@ function initProjectiles(){
       }
     }
   });
-  socket.on('projectileBounce', function(p){
-    for(var i=0, j=projectiles.length; i<j; i++){
-      var t = projectiles[i];
-      if(t.id === p.id){
-        t.x = p.x;
-        t.y = p.y;
-        t.x_velocity = p.x_velocity;
-        t.y_velocity = p.y_velocity;
-        if(t.bounce > 0) t.bounce--;
-      }
-    }
-  });
   // when a projectile bounces because of repel, do not decrease bounce
   socket.on('repelBounce', function(p){
     for(var i=0, j=projectiles.length; i<j; i++){
@@ -100,7 +89,7 @@ function initProjectiles(){
   });
 }
 
-var Projectile = function(id, x, y, rotate, x_velocity, y_velocity, type, lifetime, bounce, origin, rippleCount){
+var Projectile = function(id, x, y, rotate, x_velocity, y_velocity, type, lifetime, bounce, origin){
   this.id = id;
   this.x = x;
   this.y = y;
@@ -111,7 +100,6 @@ var Projectile = function(id, x, y, rotate, x_velocity, y_velocity, type, lifeti
   this.lifetime = lifetime;
   this.bounce = bounce;
   this.origin = origin;
-  this.rippleCount = rippleCount;
 }
 
 // update projectiles
@@ -138,7 +126,7 @@ function drawProjectiles(){
         break;
       } else {
         // check collision with map
-        collisionCheckMap(p, 1, function(px, py){
+        collisionCheckMap(p, 1, function(pos, px, py){
           if(p.bounce === 0){
             var arr = [];
             arr.push(Math.sqrt((p.x-px)*(p.x-px) + (p.y-py)*(p.y-py)));
@@ -148,6 +136,17 @@ function drawProjectiles(){
             var min = Math.min.apply(null, arr), // find the lowest value in arr and return its index
                 pos = arr.indexOf(min);
             p.lifetime = pos;
+          } else {
+            // if projectile bounces, perform bounce
+            if(pos === 0 || pos === 2){ // top or bottom collision: reverse y
+              p.y = 10*(pos-1) + py;
+              p.y_velocity = p.y_velocity * -1;
+            }
+            if(pos === 1 || pos === 3){ // left or right collision: reverse x
+              p.x = 10*(pos-2) + px;
+              p.x_velocity = p.x_velocity * -1;
+            }
+            p.bounce -= 1;
           }
         });
       }

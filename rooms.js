@@ -442,7 +442,6 @@ Room.prototype.drawProjectiles = function(){
                 p.x = 10*(pos-2) + tx;
                 p.x_velocity = p.x_velocity * -1;
               }
-              emitRoom(self, 'projectileBounce', p);
               p.bounce -= 1;
 
             }

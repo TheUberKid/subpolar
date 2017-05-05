@@ -55,7 +55,7 @@ function drawHUD(time, population, rankings, loc){
     ctx.shadowBlur = Math.max(Math.round((self.energy-(s.maxenergy-100))/20)-1, 0);
     ctx.shadowColor = 'rgb('+Math.round(250-self.energy)+', '+Math.round(self.energy)+', 0)';;
     ctx.fillStyle = 'rgb('+Math.round(250-self.energy)+', '+Math.round(self.energy)+', 0)';
-    ctx.fillRect(canvas.width/2+16, canvas.height/2+30, self.energy/3, 3);
+    ctx.fillRect(canvas.width/2+16, canvas.height/2+30, self.energy/5, 3);
     ctx.restore();
   }
 
